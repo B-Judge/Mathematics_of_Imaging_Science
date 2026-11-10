@@ -11,15 +11,6 @@ self-contained HTML page in `walkthroughs/`.
 | Imaging Science Field Guide | [`walkthroughs/imaging-science-field-guide.html`](walkthroughs/imaging-science-field-guide.html) |
 | Fourier Coil Atlas | [`walkthroughs/fourier-coil-atlas.html`](walkthroughs/fourier-coil-atlas.html) |
 
-## Publishing with GitHub Pages
-
-1. On GitHub, open **Settings → Pages**.
-2. Under **Build and deployment**, set **Source** to *Deploy from a branch*.
-3. Pick the branch (e.g. `main`) and the `/ (root)` folder, then **Save**.
-
-The site appears at `https://<username>.github.io/<repository-name>/` within a minute or two.
-No build step is needed (`.nojekyll` tells GitHub to serve the files as-is).
-
 ## Adding a new walkthrough
 
 1. Save the page in `walkthroughs/`, using a lowercase-with-dashes name, e.g. `walkthroughs/sampling-theory.html`.
