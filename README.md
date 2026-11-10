@@ -10,25 +10,3 @@ self-contained HTML page in `walkthroughs/`.
 | --- | --- |
 | Imaging Science Field Guide | [`walkthroughs/imaging-science-field-guide.html`](walkthroughs/imaging-science-field-guide.html) |
 | Fourier Coil Atlas | [`walkthroughs/fourier-coil-atlas.html`](walkthroughs/fourier-coil-atlas.html) |
-
-## Adding a new walkthrough
-
-1. Save the page in `walkthroughs/`, using a lowercase-with-dashes name, e.g. `walkthroughs/sampling-theory.html`.
-2. In `index.html`, copy one of the existing `<li>…</li>` cards inside `<ul id="walkthroughs">`,
-   paste it above the "More on the way" card, and update the link, label, title, description and tags.
-   The walkthrough count on the landing page updates on its own.
-3. Optional: add a link back to the landing page at the top of the new page, matching the others:
-
-   ```html
-   <a class="eyebrow site-home" href="../index.html">&larr; All walkthroughs</a>
-   ```
-
-## Viewing locally
-
-Open `index.html` in a browser, or run a small local server from the repository folder:
-
-```bash
-python3 -m http.server 8000
-```
-
-then visit <http://localhost:8000>.
