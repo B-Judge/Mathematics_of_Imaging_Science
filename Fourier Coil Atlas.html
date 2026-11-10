@@ -1,0 +1,1262 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Fourier Coil Atlas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Spectral:wght@500;600&display=swap">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']],
+    macros: { R:'\\mathbb{R}', C:'\\mathbb{C}', E:'\\mathbb{E}', U:'\\mathbb{U}', V:'\\mathbb{V}', L:'\\mathbb{L}',
+      Hc:'\\mathcal{H}', Fc:'\\mathcal{F}', Pc:'\\mathcal{P}', Ic:'\\mathcal{I}', Sc:'\\mathcal{S}',
+      bm:['\\boldsymbol{#1}',1], dd:'\\,\\mathrm{d}', rect:'\\operatorname{rect}', sinc:'\\operatorname{sinc}',
+      tri:'\\operatorname{tri}', comb:'\\operatorname{comb}', sgn:'\\operatorname{sgn}', step:'\\operatorname{step}',
+      gaus:'\\operatorname{gaus}', cyl:'\\operatorname{cyl}', besinc:'\\operatorname{besinc}',
+      Re:'\\operatorname{Re}', Im:'\\operatorname{Im}', tr:'\\operatorname{tr}', re:['{\\color[RGB]{63,116,219}{#1}}',1], im:['{\\color[RGB]{210,122,42}{#1}}',1], hl:['{\\color[RGB]{184,53,122}{#1}}',1] } },
+  svg: { fontCache: 'global' },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code','canvas','select','option'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg-full.js" async></script>
+<style>
+/* Layout: fixed left index rail (desktop) + one reading column; every phasor uses
+   --re (real / cosine axis) and --im (imaginary / sine axis) consistently. */
+:root{
+  --paper:#f4f6f9; --panel:#ffffff; --ink:#192030; --muted:#566079; --rule:#d6dbe5; --grid:#e7eaf1;
+  --re:#2459c4; --im:#c9661a; --accent:#6b3fa6; --good:#1f7a4d; --bad:#b3263b;
+  --re-soft:rgba(36,89,196,.12); --im-soft:rgba(201,102,26,.14); --accent-soft:rgba(107,63,166,.10);
+  --f-display:"Spectral",Georgia,"Times New Roman",serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --s-1:.82rem; --s0:1rem; --s1:1.2rem; --s2:1.5rem; --s3:2rem; --s4:2.7rem;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#10141c; --panel:#171d28; --ink:#e4e8f0; --muted:#98a2b7; --rule:#2b3344; --grid:#1f2633;
+  --re:#76a5ff; --im:#f0a35c; --accent:#c49ae8; --good:#5cc98f; --bad:#ff7d8f;
+  --re-soft:rgba(118,165,255,.14); --im-soft:rgba(240,163,92,.15); --accent-soft:rgba(196,154,232,.12);
+  color-scheme:dark }}
+:root[data-theme="dark"]{
+  --paper:#10141c; --panel:#171d28; --ink:#e4e8f0; --muted:#98a2b7; --rule:#2b3344; --grid:#1f2633;
+  --re:#76a5ff; --im:#f0a35c; --accent:#c49ae8; --good:#5cc98f; --bad:#ff7d8f;
+  --re-soft:rgba(118,165,255,.14); --im-soft:rgba(240,163,92,.15); --accent-soft:rgba(196,154,232,.12);
+  color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.62;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:28px 28px;background-attachment:fixed}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3,h4{font-family:var(--f-display);text-wrap:balance;line-height:1.2;margin:0}
+h1{font-size:var(--s4);font-weight:600;letter-spacing:-.01em}
+h2{font-size:var(--s3);font-weight:600;padding-top:.4rem}
+h3{font-size:var(--s2);font-weight:600;margin-top:.6rem}
+h4{font-size:var(--s1);font-weight:600}
+p{margin:0}
+code,.mono{font-family:var(--f-mono);font-size:.9em}
+.eyebrow{font-family:var(--f-mono);font-size:var(--s-1);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.re{color:var(--re);font-weight:600}.im{color:var(--im);font-weight:600}
+
+.shell{display:grid;grid-template-columns:250px minmax(0,1fr);gap:40px;max-width:1240px;margin:0 auto;padding-block:28px 80px}
+nav.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);align-self:start;max-height:calc(100vh - 32px);overflow:auto;
+  font-size:.88rem;padding-right:6px}
+nav.rail .navttl{font-family:var(--f-display);font-size:1.15rem;font-weight:600;margin-bottom:8px}
+nav.rail ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+nav.rail li a{display:block;padding:3px 8px;border-radius:4px;color:var(--ink);text-decoration:none}
+nav.rail li a:hover{background:var(--accent-soft)}
+nav.rail li.ch>a{font-weight:600;margin-top:10px}
+nav.rail li.sub a{padding-left:18px;color:var(--muted)}
+nav.rail li a.on{background:var(--accent-soft);color:var(--accent)}
+.mnav{display:none}
+main{min-width:0;display:flex;flex-direction:column;gap:22px}
+.col{max-width:780px;display:flex;flex-direction:column;gap:14px}
+section.chapter{display:flex;flex-direction:column;gap:22px;padding-top:24px;border-top:2px solid var(--ink)}
+section.topic{display:flex;flex-direction:column;gap:14px;scroll-margin-top:16px}
+.lede{font-size:1.08rem;color:var(--muted);max-width:68ch}
+
+.hero{padding-block:8px 18px;display:flex;flex-direction:column;gap:12px}
+.hero .meta{display:flex;flex-wrap:wrap;gap:8px 18px;font-family:var(--f-mono);font-size:var(--s-1);color:var(--muted)}
+
+.math{overflow-x:auto;overflow-y:hidden;padding:4px 0;max-width:100%}
+.eq{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:10px 16px;display:flex;flex-direction:column;gap:6px}
+.eq .lab{font-family:var(--f-mono);font-size:var(--s-1);color:var(--muted)}
+.eq .say{font-size:.92rem;color:var(--muted);border-top:1px dashed var(--rule);padding-top:6px}
+.eq .say b{color:var(--ink)}
+
+.box{border-radius:6px;padding:12px 16px;display:flex;flex-direction:column;gap:6px;border:1px solid var(--rule);background:var(--panel)}
+.box>.tag{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+.box.key{border-left:4px solid var(--accent)} .box.key>.tag{color:var(--accent)}
+.box.tip{border-left:4px solid var(--good)} .box.tip>.tag{color:var(--good)}
+.box.trap{border-left:4px solid var(--bad)} .box.trap>.tag{color:var(--bad)}
+.box.syn{border-left:4px solid var(--re)} .box.syn>.tag{color:var(--re)}
+.box.phasor{border-left:4px solid var(--im)} .box.phasor>.tag{color:var(--im)}
+.box ul,.box ol{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+ul.plain,ol.plain{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:4px}
+
+.tw{overflow-x:auto;border:1px solid var(--rule);border-radius:6px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:.93rem}
+th,td{padding:8px 12px;border-bottom:1px solid var(--rule);text-align:left;vertical-align:middle}
+th{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500;background:var(--paper)}
+tr:last-child td{border-bottom:0}
+
+figure.widget{margin:0;background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:10px;max-width:980px}
+figure.widget .wt{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+figure.widget .wt b{font-family:var(--f-display);font-size:1.12rem}
+figure.widget canvas{width:100%;display:block;border-radius:4px;background:var(--paper);touch-action:none}
+.cv2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:10px}
+.ctrls{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:.88rem}
+.ctrls label{display:flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:.8rem;color:var(--muted)}
+.ctrls input[type=range]{width:150px;accent-color:var(--accent)}
+.ctrls select,.ctrls button,button.btn{font:inherit;font-size:.85rem;padding:5px 10px;border-radius:5px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer}
+button.btn:hover,.ctrls button:hover{border-color:var(--accent)}
+button.btn.pri{background:var(--accent);color:var(--panel);border-color:var(--accent)}
+.readout{font-family:var(--f-mono);font-size:.82rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 18px;font-variant-numeric:tabular-nums}
+.readout b{color:var(--ink);font-weight:500}
+figcaption{font-size:.9rem;color:var(--muted)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--f-mono);font-size:.76rem;color:var(--muted)}
+.legend i{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:5px;border-radius:2px}
+
+details.reveal{border:1px solid var(--rule);border-radius:6px;background:var(--panel)}
+details.reveal>summary{cursor:pointer;padding:9px 14px;font-weight:600;list-style:none;display:flex;gap:10px;align-items:center}
+details.reveal>summary::-webkit-details-marker{display:none}
+details.reveal>summary::before{content:"+";font-family:var(--f-mono);color:var(--accent);width:12px}
+details.reveal[open]>summary::before{content:"−"}
+details.reveal>.body{padding:4px 16px 14px;display:flex;flex-direction:column;gap:10px;border-top:1px dashed var(--rule)}
+
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.pill{display:inline-block;white-space:nowrap;font-family:var(--f-mono);font-size:.72rem;padding:1px 8px;border-radius:99px;border:1px solid var(--rule);color:var(--muted)}
+.pill.hot{border-color:var(--im);color:var(--im)}
+.steps{counter-reset:st;display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.steps>li{counter-increment:st;display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px}
+.steps>li::before{content:counter(st);font-family:var(--f-mono);font-size:.8rem;color:var(--panel);background:var(--accent);border-radius:50%;width:22px;height:22px;display:grid;place-items:center;margin-top:2px}
+
+@media (max-width:900px){
+  .shell{grid-template-columns:minmax(0,1fr);gap:16px;padding-block:12px 60px}
+  nav.rail{display:none}
+  .mnav{display:block;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-bottom:1px solid var(--rule);padding:8px 0}
+  .mnav select{width:100%;font:inherit;padding:8px;border-radius:6px;border:1px solid var(--rule);background:var(--panel);color:var(--ink)}
+  body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+  .cv2,.grid2,.grid3{grid-template-columns:minmax(0,1fr)}
+  h1{font-size:2.1rem} h2{font-size:1.65rem}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+mjx-container[display="true"]{margin:.3em 0!important}
+mjx-container{max-width:100%}
+@media (max-width:640px){
+  mjx-container:not([display="true"]){display:inline-block;max-width:100%;overflow-x:auto;overflow-y:hidden;vertical-align:middle}
+  .math mjx-container[display="true"]{font-size:90%}
+  td mjx-container:not([display="true"]){max-width:none;overflow:visible}
+  .ctrls input[type=range]{width:120px}
+}
+main,.col,section.topic{min-width:0}
+@media (max-width:640px){ .tw table{min-width:540px} }
+:root{--wa:#0f8a7e;--wb:#b8357a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--wa:#4fd1c0;--wb:#f07ab8}}
+:root[data-theme="dark"]{--wa:#4fd1c0;--wb:#f07ab8}
+canvas{display:block;width:100%;max-width:100%}
+.re{color:var(--re);font-weight:600}.im{color:var(--im);font-weight:600}
+figure.widget canvas.c3{cursor:grab}figure.widget canvas.c3:active{cursor:grabbing}
+.wt .hint{font-family:var(--f-mono);font-size:.74rem;color:var(--muted)}
+.ctrls label{max-width:100%;flex-wrap:wrap}.ctrls select{max-width:min(100%,280px);text-overflow:ellipsis}
+.ctrls label.chk{cursor:pointer}.ctrls label.chk input{accent-color:var(--accent);width:16px;height:16px}
+.vbar{gap:8px}.stories{gap:8px;padding-top:8px;border-top:1px dashed var(--rule)}
+.stories .btn.on,.vbar .btn.on{border-color:var(--accent);background:var(--accent-soft)}
+.c3r{gap:4px 22px}.c3r .k{color:var(--accent)}
+.c3cap{font-size:.93rem;line-height:1.55;background:var(--accent-soft);border-radius:6px;padding:10px 12px}
+.c3cap:empty{display:none}
+.kgrid{display:grid;grid-template-columns:minmax(0,2.2fr) minmax(0,1fr);gap:12px;align-items:center}
+.legendrow{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.85rem;color:var(--muted);margin-top:4px}
+.legendrow .sw{display:inline-block;width:22px;height:6px;border-radius:3px;margin-right:7px;vertical-align:middle}
+.box ul,.box ol{margin:.3em 0 0;padding-left:1.15em}.box li{margin:.3em 0}
+.box .math{overflow-x:auto;overflow-y:hidden}
+@media (max-width:640px){ .kgrid{grid-template-columns:minmax(0,1fr)} #kdial{max-width:260px;margin:0 auto} }
+.ctrls.grp{gap:8px 18px;padding-top:8px;border-top:1px dashed var(--rule)}
+.ctrls .gl{font-family:var(--f-mono);font-size:.74rem;color:var(--accent);text-transform:none;min-width:3.2em}
+.ctrls label.pair{gap:6px}.ctrls label.pair .pl{white-space:nowrap}
+.ctrls label.pair input[type=range]{width:120px}
+.ctrls input.num{width:4.6em;font:inherit;font-family:var(--f-mono);font-size:.8rem;padding:3px 5px;border:1px solid var(--rule);border-radius:4px;background:var(--paper);color:var(--ink)}
+.ctrls input.num:focus{outline:2px solid var(--accent);outline-offset:0}
+.fline{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:.84rem;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:6px 10px}
+.fline .pairtxt{color:var(--muted)}
+.decomp-ed{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:4px 14px 12px;margin-bottom:12px}
+.decomp-ed .ctrls.grp:first-child{border-top:0}
+#decR span.on{color:var(--accent)}
+.wt .btn{font-size:.8rem}
+@media (max-width:640px){ .ctrls label.pair input[type=range]{width:100px} .ctrls label.pair .pl{white-space:normal} }
+/* atlas page */
+.punch{font-size:1.02rem;line-height:1.55;max-width:70ch}
+.trio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:6px 0 10px}
+.chip{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:10px 12px;font-size:.95rem;line-height:1.4}
+.chip b{color:var(--accent);font-size:1.05rem}.chip span{display:block;font-family:var(--f-mono);font-size:.74rem;color:var(--muted);margin-top:4px}
+.modesw{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:4px 0 10px}
+.modesw .btn.on{border-color:var(--accent);background:var(--accent-soft);font-weight:600}
+h3.atl{margin:18px 0 8px;text-align:left;max-width:none;padding:0}
+.atlas{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:12px;max-width:1240px}
+.mcard{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:10px 10px 12px;display:flex;flex-direction:column;gap:6px;min-width:0;position:relative}
+.mcard .mtex{font-size:.95rem;text-align:center;overflow-x:auto;overflow-y:hidden;min-height:3.6em;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.mcard canvas{border-radius:6px;cursor:pointer}
+.mcard .mkey{font-family:var(--f-mono);font-size:.78rem;min-height:1.3em;color:var(--muted);text-align:center;transition:color .2s}
+.mcard .mkey.on{color:var(--accent);font-weight:600}
+.mcard .mwhy{font-size:.92rem;line-height:1.4;text-align:center;border-top:1px dashed var(--rule);padding-top:6px}
+.mcard.paused::after{content:'❚❚ paused · tap';position:absolute;top:58px;right:18px;font-family:var(--f-mono);font-size:.7rem;color:var(--muted)}
+table.dec td{vertical-align:middle}
+.tagx{display:inline-block;font-family:var(--f-mono);font-size:.7rem;color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:0 7px;margin-left:6px;vertical-align:2px}
+.recipe{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 16px}
+.recipe span{background:var(--accent-soft);border-radius:999px;padding:5px 12px;font-size:.88rem}
+.walk{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:12px 14px;margin-bottom:14px;display:flex;flex-direction:column;gap:8px}
+.walk .wh{display:flex;align-items:center;gap:10px}.walk .wh b{font-family:var(--f-display);font-size:1.12rem}
+.walk .wn{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--panel);font-family:var(--f-mono);font-size:.8rem;flex:none}
+.walk .math{overflow-x:auto;overflow-y:hidden}
+.parts{display:flex;flex-wrap:wrap;gap:8px}
+.part{border:1px solid var(--rule);border-left:3px solid #b8357a;border-radius:0 6px 6px 0;padding:4px 10px;font-size:.86rem;background:var(--paper)}
+.part b{font-family:var(--f-mono);font-weight:600;color:#b8357a;margin-right:8px}
+:root[data-theme="dark"] .part b{color:#f07ab8}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .part b{color:#f07ab8}}
+.wsteps{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:10px;align-items:start}
+@media (max-width:760px){.wsteps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:340px){.wsteps{grid-template-columns:minmax(0,1fr)}}
+.wstep{margin:0}.wstep canvas{border-radius:6px}.wstep figcaption{font-family:var(--f-mono);font-size:.76rem;color:var(--muted);text-align:center;margin-top:4px}
+.wmini .mcard{padding:6px;border:0;background:transparent}
+.wans{background:var(--accent-soft);border-radius:6px;overflow-x:auto;overflow-y:hidden}
+@media (max-width:640px){ .trio{grid-template-columns:minmax(0,1fr)} }
+
+/* step-by-step */
+.sol{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:12px 14px;margin-bottom:16px;display:flex;flex-direction:column;gap:10px}
+.sol .wh{display:flex;align-items:center;gap:10px}.sol .wh b{font-family:var(--f-display);font-size:1.12rem}
+.sol .wn{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--panel);font-family:var(--f-mono);font-size:.8rem;flex:none}
+.sol .math{overflow-x:auto;overflow-y:hidden}
+.sgrid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:14px;align-items:start}
+.deriv{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.deriv li{border:1px solid var(--rule);border-left:3px solid var(--rule);border-radius:0 6px 6px 0;padding:4px 10px;background:var(--paper);cursor:pointer;transition:opacity .25s,border-color .25s}
+.deriv li.hid{display:none}
+.deriv li.cur{border-left-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.deriv li:not(.cur){opacity:.7}
+.deriv li .math mjx-container{margin:4px 0!important}
+.deriv li.final .math{background:var(--accent-soft);border-radius:4px}
+.stag{font-family:var(--f-mono);font-size:.72rem;color:var(--accent);letter-spacing:.02em}
+.spanel{position:sticky;top:12px;display:flex;flex-direction:column;gap:8px}
+.sv{display:flex;flex-direction:column;gap:8px}
+.sv canvas{border-radius:6px}
+.swhy{font-size:1rem;line-height:1.5;background:var(--accent-soft);border-radius:8px;padding:10px 12px}
+.svm .mcard{border:0;background:transparent;padding:0}.svm .mwhy:empty{display:none}
+.snav{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.snav .btn[disabled]{opacity:.4;cursor:default}
+.sprog{display:inline-flex;align-items:center;gap:4px;font-family:var(--f-mono);font-size:.76rem;color:var(--muted);margin:0 6px}
+.sprog i{display:inline-block;width:14px;height:6px;border-radius:3px;background:var(--rule)}
+.sprog i.done{background:var(--accent-soft);outline:1px solid var(--accent)}.sprog i.on{background:var(--accent)}
+.sprog span{margin-left:6px}
+@media (max-width:760px){ .sgrid{grid-template-columns:minmax(0,1fr)} .spanel{position:static;order:-1} }
+
+[hidden]{display:none!important}
+
+</style>
+
+<div class="shell">
+<nav class="rail" aria-label="Coil atlas index"><div class="navttl">Fourier Coil Atlas</div><ol id="railList"></ol></nav>
+<main>
+<div class="mnav"><label for="mnavSel" class="eyebrow">Jump to</label><select id="mnavSel"></select></div>
+
+<header class="hero col" id="top">
+  <span class="eyebrow">BME 5700 · midterm prep</span>
+  <h1>Fourier Coil Atlas</h1>
+  <p class="lede"><b>\(e^{-2\pi i\xi x}\) is a coil.</b> Weight it with \(f(x)\), add up every point, and the total is \(F(\xi)\). Every pair and every rule below is that one move.</p>
+  <div class="legendrow"><span><i class="sw" style="background:linear-gradient(90deg,var(--wa),var(--wb))"></i>coil (colour = position x)</span><span><i class="sw" style="background:var(--accent)"></i>sum = \(F(\xi)\)</span><span><i class="sw" style="background:var(--re)"></i>Re</span><span><i class="sw" style="background:var(--im)"></i>Im</span></div>
+</header>
+
+<!-- 1 -->
+<section class="chapter" id="coil" data-nav="1 · The coil">
+<div class="col">
+  <h2>The coil</h2>
+  <div class="trio">
+    <div class="chip"><b>\(x\)</b> = where you are <i>on</i> the coil<span>summed away</span></div>
+    <div class="chip"><b>\(\xi\)</b> = <i>which</i> coil: turns per unit \(x\)<span>the answer's label</span></div>
+    <div class="chip"><b>\(\xi x\)</b> = turns completed<span>the only thing one point sees</span></div>
+  </div>
+  <p class="punch">Change \(x\): walk along the spring. Change \(\xi\): swap the spring. Far points spin more, and that's what changes the sum.</p>
+  <div id="c-dual"></div>
+</div>
+</section>
+
+<!-- 2 -->
+<section class="chapter" id="atlas" data-nav="2 · Pair atlas">
+<div class="col">
+  <h2>Pair atlas</h2>
+  <p class="punch">Each card sweeps \(\xi\) and pauses at the moments that matter. Purple arrow = the sum. The strip traces \(F(\xi)\) as it goes. Tap a coil to pause it.</p>
+</div>
+<h3 class="atl">Pairs</h3>
+<div id="atlasPairs" class="atlas"></div>
+<h3 class="atl">Rules</h3>
+<div id="atlasRules" class="atlas"></div>
+</section>
+
+<!-- 3 -->
+<section class="chapter" id="solve" data-nav="3 · Solving problems">
+<div class="col">
+  <h2>Solving problems with coils</h2>
+  <h3>Syntax decoder</h3>
+  <div class="tw"><table class="dec"><thead><tr><th>you see in \(f\)</th><th>the coil does</th><th>so \(F\) gets</th></tr></thead><tbody>
+    <tr><td>\(f(\hl{x-x_0})\)</td><td>weights slide to a pre-rotated stretch</td><td>\(\times\,e^{-2\pi i\xi x_0}\) <span class="tagx">rotate</span></td></tr>
+    <tr><td>\(f(\hl{x/a})\)</td><td>wider weights, whole turns sooner</td><td>\(|a|F(a\xi)\) <span class="tagx">squeeze</span></td></tr>
+    <tr><td>\(\hl{e^{2\pi i\xi_0x}}f\)</td><td>signal pre-spun; net spin \(\xi-\xi_0\)</td><td>\(F(\xi-\xi_0)\) <span class="tagx">slide</span></td></tr>
+    <tr><td>\(\hl{\cos(2\pi\xi_0x)}f\)</td><td>two half pre-spins</td><td>\(\tfrac12[F(\xi\mp\xi_0)]\) <span class="tagx">split</span></td></tr>
+    <tr><td>\(f'\)</td><td>every arrow: quarter turn, ×\(2\pi\xi\)</td><td>\(2\pi i\xi F\) <span class="tagx">turn</span></td></tr>
+    <tr><td>\(f*g\)</td><td>each frequency's arrows multiply</td><td>\(F\,G\) <span class="tagx">multiply</span></td></tr>
+    <tr><td>\(\int f\,dx\)</td><td>coil at \(\xi=0\): flat ribbon</td><td>\(F(0)\) <span class="tagx">area</span></td></tr>
+    <tr><td>\(\int f\,e^{-2\pi i\xi_0x}dx\)</td><td>coil at one tightness</td><td>\(F(\xi_0)\) <span class="tagx">read off</span></td></tr>
+    <tr><td>real / even / odd \(f\)</td><td>mirror pairs cancel Im / Re</td><td>\(F^*(-\xi)\) / real / imag</td></tr>
+  </tbody></table></div>
+  <div class="recipe"><span>1 · Find the <b>base shape</b></span><span>2 · Mark <b>stretch</b>, <b>shift</b>, <b>spin</b></span><span>3 · Look up the base pair</span><span>4 · Apply: squeeze → rotate → slide</span></div>
+  <h3>Quick examples</h3>
+  <div id="walks"></div>
+</div>
+</section>
+
+<!-- 3b -->
+<section class="chapter" id="stepwise" data-nav="4 · Step-by-step solutions">
+<div class="col">
+  <h2>Step-by-step solutions</h2>
+  <p class="punch">One rule per step. Press <b>Next step</b>: the working grows on the left; the right shows <b>why</b> that step is done and what it looks like. Click any revealed line to jump back to it.</p>
+  <div id="steps"></div>
+</div>
+</section>
+
+<!-- 4 -->
+<section class="chapter" id="spin" data-nav="5 · Unwind, rewind">
+<div class="col">
+  <h2>Unwind, rewind</h2>
+  <p class="punch"><b>Forward (−) unwinds:</b> a clockwise coil cancels a component's spin and leaves a rod \(Ae^{i\varphi}\). <b>Inverse (+) rewinds:</b> spin that rod back up. \(e^{-i\theta}e^{+i\theta}=1\).</p>
+  <div id="c-spin"></div>
+</div>
+</section>
+
+<!-- 5 -->
+<section class="chapter" id="decomp" data-nav="6 · Signal decomposition">
+<div class="col">
+  <h2>Signal decomposition</h2>
+  <div class="math">\[f(x)=c_0+\sum_n A_n\cos(2\pi\xi_nx+\varphi_n)\]</div>
+  <p class="punch">Sweep the coil. Each wave unwinds into a rod at its own \(\xi_n\): length gives \(A_n\), direction gives \(\varphi_n\). Everything else cancels.</p>
+  <div id="decompEd" class="decomp-ed"></div>
+  <div id="c-decomp"></div>
+  <figure class="widget"><div class="wt"><b>What the coil found</b><button class="btn" id="decNext" type="button">Jump to next component →</button></div>
+    <canvas id="decSpec"></canvas><canvas id="decRec"></canvas>
+    <div class="readout" id="decR"></div>
+    <figcaption>\(A_n=2|F(\xi_n)|/(2R)\), \(\varphi_n=\arg F(\xi_n)\). If two waves are too close in frequency, their peaks merge. Raise \(R\) to separate them.</figcaption>
+  </figure>
+</div>
+</section>
+
+<!-- 6 -->
+<section class="chapter" id="gibbs-sec" data-nav="7 · Cut-off ripples">
+<div class="col">
+  <h2>sinc → rect: exact, if you sum everything</h2>
+  <p class="punch">The rect's corners live in the sinc's slow \(1/\xi\) tails. Cut the tails off and the corners ring. The ring narrows as \(R\) grows, but the 9% overshoot stays (Gibbs).</p>
+  <figure class="widget"><canvas id="gibbs"></canvas><div class="ctrls" id="gibC"></div><div class="readout" id="gibR"></div></figure>
+</div>
+</section>
+</main>
+</div>
+
+<script>
+/* ===== shared drawing library ===== */
+const LIB = (() => {
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  let C = {};
+  function readColors(){
+    C = {paper:css('--paper'),panel:css('--panel'),ink:css('--ink'),muted:css('--muted'),rule:css('--rule'),
+      grid:css('--grid'),re:css('--re'),im:css('--im'),accent:css('--accent'),good:css('--good'),bad:css('--bad'),
+      reS:css('--re-soft'),imS:css('--im-soft'),acS:css('--accent-soft')};
+  }
+  readColors();
+  const redrawers = [];
+  function onRedraw(fn){ redrawers.push(fn); }
+  function redrawAll(){ readColors(); redrawers.forEach(f=>{try{f()}catch(e){console.error(e)}}); }
+  try{ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', redrawAll); }catch(e){}
+  new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  window.addEventListener('resize', ()=>{ clearTimeout(LIB._rt); LIB._rt=setTimeout(redrawAll,120); });
+
+  // canvas with HiDPI; aspect = height/width
+  function setup(cv, aspect){
+    const w = cv.clientWidth || 600, h = Math.round(w*aspect);
+    const d = window.devicePixelRatio || 1;
+    cv.style.height = h+'px';
+    if(cv.width !== Math.round(w*d) || cv.height !== Math.round(h*d)){ cv.width = Math.round(w*d); cv.height = Math.round(h*d); }
+    const ctx = cv.getContext('2d'); ctx.setTransform(d,0,0,d,0,0); ctx.clearRect(0,0,w,h);
+    ctx.fillStyle = C.paper; ctx.fillRect(0,0,w,h);
+    return {ctx,w,h};
+  }
+  // coordinate frame
+  function frame(ctx, box, xr, yr){
+    const [X,Y,W,H] = box;
+    const sx = v => X + (v-xr[0])/(xr[1]-xr[0])*W;
+    const sy = v => Y + H - (v-yr[0])/(yr[1]-yr[0])*H;
+    return {sx,sy,box,xr,yr};
+  }
+  function axes(ctx, F, opt={}){
+    const {sx,sy,box,xr,yr} = F; const [X,Y,W,H]=box;
+    ctx.save(); ctx.lineWidth=1; ctx.strokeStyle=C.rule; ctx.fillStyle=C.muted; ctx.font='11px "IBM Plex Mono", monospace';
+    const tx = opt.xticks||[], ty=opt.yticks||[];
+    ctx.strokeStyle=C.grid; ctx.beginPath();
+    tx.forEach(t=>{ctx.moveTo(sx(t),Y);ctx.lineTo(sx(t),Y+H)}); ty.forEach(t=>{ctx.moveTo(X,sy(t));ctx.lineTo(X+W,sy(t))}); ctx.stroke();
+    ctx.strokeStyle=C.muted; ctx.beginPath();
+    const y0 = (yr[0]<=0&&yr[1]>=0)? sy(0) : Y+H; const x0=(xr[0]<=0&&xr[1]>=0)? sx(0): X;
+    ctx.moveTo(X,y0); ctx.lineTo(X+W,y0); ctx.moveTo(x0,Y); ctx.lineTo(x0,Y+H); ctx.stroke();
+    ctx.textAlign='center'; ctx.textBaseline='top';
+    tx.forEach(t=>{ if(Math.abs(t)>1e-12 || opt.zeroLabel) ctx.fillText(opt.xfmt?opt.xfmt(t):fmt(t), sx(t), Math.min(y0+3, Y+H-12)); });
+    ctx.textAlign='right'; ctx.textBaseline='middle';
+    ty.forEach(t=>{ if(Math.abs(t)>1e-12) ctx.fillText(opt.yfmt?opt.yfmt(t):fmt(t), Math.max(x0-4, X+26), sy(t)); });
+    if(opt.xlabel){ctx.textAlign='right';ctx.textBaseline='bottom';ctx.fillStyle=C.ink;ctx.fillText(opt.xlabel,X+W-2,y0-3)}
+    if(opt.ylabel){ctx.textAlign='left';ctx.textBaseline='top';ctx.fillStyle=C.ink;ctx.fillText(opt.ylabel,x0+5,Y+2)}
+    ctx.restore();
+  }
+  function fmt(v){ if(Math.abs(v)>=100||Number.isInteger(v)) return String(Math.round(v*100)/100); return (Math.round(v*100)/100).toString(); }
+  function curve(ctx, F, xs, ys, color, lw=2, dash=null){
+    ctx.save(); ctx.strokeStyle=color; ctx.lineWidth=lw; if(dash) ctx.setLineDash(dash);
+    const [X,Y,W,H]=F.box; ctx.beginPath(); ctx.rect(X,Y-2,W,H+4); ctx.clip();
+    ctx.beginPath(); let pen=false;
+    for(let i=0;i<xs.length;i++){ const y=ys[i]; if(!isFinite(y)){pen=false;continue}
+      const px=F.sx(xs[i]), py=F.sy(Math.max(Math.min(y,1e6),-1e6)); if(!pen){ctx.moveTo(px,py);pen=true}else ctx.lineTo(px,py); }
+    ctx.stroke(); ctx.restore();
+  }
+  function fill(ctx,F,xs,ys,color){
+    ctx.save(); const [X,Y,W,H]=F.box; ctx.beginPath(); ctx.rect(X,Y,W,H); ctx.clip();
+    ctx.fillStyle=color; ctx.beginPath(); ctx.moveTo(F.sx(xs[0]),F.sy(0));
+    for(let i=0;i<xs.length;i++) ctx.lineTo(F.sx(xs[i]),F.sy(ys[i]));
+    ctx.lineTo(F.sx(xs[xs.length-1]),F.sy(0)); ctx.closePath(); ctx.fill(); ctx.restore();
+  }
+  function stem(ctx,F,x,y,color,r=3,lw=1.6){
+    ctx.save(); ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=lw;
+    ctx.beginPath(); ctx.moveTo(F.sx(x),F.sy(0)); ctx.lineTo(F.sx(x),F.sy(y)); ctx.stroke();
+    ctx.beginPath(); ctx.arc(F.sx(x),F.sy(y),r,0,7); ctx.fill(); ctx.restore();
+  }
+  function arrowUp(ctx,F,x,h,color,label){ // delta-function arrow
+    ctx.save(); ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=2;
+    const px=F.sx(x), y0=F.sy(0), y1=F.sy(h);
+    ctx.beginPath(); ctx.moveTo(px,y0); ctx.lineTo(px,y1); ctx.stroke();
+    const s = (y1<y0)? 1:-1;
+    ctx.beginPath(); ctx.moveTo(px,y1); ctx.lineTo(px-5,y1+8*s); ctx.lineTo(px+5,y1+8*s); ctx.closePath(); ctx.fill();
+    if(label){ctx.font='11px "IBM Plex Mono", monospace';ctx.textAlign='center';ctx.textBaseline=s>0?'bottom':'top';ctx.fillText(label,px,y1-3*s)}
+    ctx.restore();
+  }
+  function arrow(ctx,x0,y0,x1,y1,color,lw=2,head=8){
+    ctx.save(); ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=lw;
+    ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke();
+    const a=Math.atan2(y1-y0,x1-x0), L=Math.hypot(x1-x0,y1-y0); if(L>3){
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x1-head*Math.cos(a-0.4),y1-head*Math.sin(a-0.4));
+    ctx.lineTo(x1-head*Math.cos(a+0.4),y1-head*Math.sin(a+0.4)); ctx.closePath(); ctx.fill();}
+    ctx.restore();
+  }
+  function text(ctx,s,x,y,color,align='left',base='alphabetic',font='12px "IBM Plex Mono", monospace'){
+    ctx.save(); ctx.fillStyle=color||C.ink; ctx.font=font; ctx.textAlign=align; ctx.textBaseline=base; ctx.fillText(s,x,y); ctx.restore();
+  }
+  // complex unit-circle panel: draws the Re (cos) and Im (sin) axes in their colors
+  function unitCircle(ctx,cx,cy,R,opt={}){
+    ctx.save();
+    ctx.strokeStyle=C.rule; ctx.lineWidth=1; ctx.beginPath(); ctx.arc(cx,cy,R,0,7); ctx.stroke();
+    ctx.lineWidth=1.4; ctx.strokeStyle=C.re; ctx.beginPath(); ctx.moveTo(cx-R*1.2,cy); ctx.lineTo(cx+R*1.2,cy); ctx.stroke();
+    ctx.strokeStyle=C.im; ctx.beginPath(); ctx.moveTo(cx,cy+R*1.2); ctx.lineTo(cx,cy-R*1.2); ctx.stroke();
+    ctx.font='11px "IBM Plex Mono", monospace'; ctx.fillStyle=C.re; ctx.textAlign='right'; ctx.textBaseline='bottom';
+    ctx.fillText(opt.reLabel||'Re (cos)',cx+R*1.2,cy-3);
+    ctx.fillStyle=C.im; ctx.textAlign='left'; ctx.textBaseline='top'; ctx.fillText(opt.imLabel||'Im (sin)',cx+4,cy-R*1.2);
+    ctx.restore();
+  }
+  // linspace
+  const lin=(a,b,n)=>Array.from({length:n},(_,i)=>a+(b-a)*i/(n-1));
+  // special functions
+  const sinc = x => Math.abs(x)<1e-9?1:Math.sin(Math.PI*x)/(Math.PI*x);
+  const rect = x => Math.abs(x)<0.5?1:(Math.abs(x)===0.5?0.5:0);
+  const tri = x => Math.abs(x)<1?1-Math.abs(x):0;
+  const gaus = x => Math.exp(-Math.PI*x*x);
+  // complex helpers [re,im]
+  const cx = {
+    mul:(a,b)=>[a[0]*b[0]-a[1]*b[1],a[0]*b[1]+a[1]*b[0]],
+    add:(a,b)=>[a[0]+b[0],a[1]+b[1]],
+    exp:t=>[Math.cos(t),Math.sin(t)],
+    sc:(a,s)=>[a[0]*s,a[1]*s],
+    abs:a=>Math.hypot(a[0],a[1]),
+    div:(a,b)=>{const d=b[0]*b[0]+b[1]*b[1];return[(a[0]*b[0]+a[1]*b[1])/d,(a[1]*b[0]-a[0]*b[1])/d]}
+  };
+  function bindRange(id, out, fmtf){
+    const el=document.getElementById(id), o=out?document.getElementById(out):null;
+    const upd=()=>{ if(o) o.textContent = fmtf?fmtf(+el.value):el.value; };
+    el.addEventListener('input',upd); upd(); return el;
+  }
+  return {C:()=>C,setup,frame,axes,curve,fill,stem,arrowUp,arrow,text,unitCircle,lin,sinc,rect,tri,gaus,cx,onRedraw,redrawAll,bindRange,fmt};
+})();
+
+/* ===== visual drill: plot engine + transform library ===== */
+const VP = (() => {
+const {setup,frame,axes,curve,fill,arrowUp,arrow,text,unitCircle,lin,sinc,rect,tri,gaus,cx} = LIB;
+const PI=Math.PI, TAU=2*Math.PI;
+const C = () => LIB.C();
+const col = n => { const c=C(); return c[n] || n; };
+const soft = n => ({re:'reS',im:'imS',accent:'acS'}[n] ? C()[{re:'reS',im:'imS',accent:'acS'}[n]] : n);
+const registry = [];
+function reg(cv, fn){ registry.push([cv,fn]); }
+LIB.onRedraw(()=>{ registry.forEach(([cv,fn])=>{ if(cv.isConnected) { try{fn()}catch(e){console.error(e)} } }); });
+const part = (v,p)=> Array.isArray(v) ? (p==='im'?v[1]:p==='abs'?Math.hypot(v[0],v[1]):v[0]) : (p==='im'?0:p==='abs'?Math.abs(v):v);
+
+/* Bessel J1 via integral (Simpson) */
+function J1(x){ const n=60; let s=0; for(let i=0;i<=n;i++){ const t=PI*i/n; const w=(i===0||i===n)?1:(i%2?4:2); s+=w*Math.cos(t-x*Math.sin(t)); } return s*(PI/n)/3/PI; }
+const besinc = t => Math.abs(t)<1e-9?1:2*J1(PI*t)/(PI*t);
+
+function autoY(S){ const xr=S.xr||[-3,3]; const xs=lin(xr[0],xr[1],S.n||500); let lo=0,hi=0; (S.items||[]).forEach(it=>{
+      if(it.t==='fn'||it.t==='shade'){ xs.forEach(x=>{const v=part(it.f(x),it.part||'re'); if(isFinite(v)&&Math.abs(v)<50){lo=Math.min(lo,v);hi=Math.max(hi,v);}}); }
+      if(it.t==='cf'){ xs.forEach(x=>{const v=it.f(x); [v[0],v[1],Math.hypot(v[0],v[1])].forEach(q=>{if(isFinite(q)&&Math.abs(q)<50){lo=Math.min(lo,q);hi=Math.max(hi,q);}})}); }
+      if(it.t==='delta'){ lo=Math.min(lo,it.h); hi=Math.max(hi,it.h); }
+      if(it.t==='stem'){ it.pts.forEach(p=>{lo=Math.min(lo,p[1]);hi=Math.max(hi,p[1]);}); }
+      if(it.t==='bracket'||it.t==='label'||it.t==='dot'){ lo=Math.min(lo,it.y); hi=Math.max(hi,it.y); } });
+    if(hi-lo<1e-9){hi=1;} const m=(hi-lo)*0.18; return [lo<0?lo-m:Math.min(0,lo)-m*0.25, hi+m]; }
+function autoX(xr,w){ const sp=xr[1]-xr[0]; const st=[0.25,0.5,1,2,5,10].find(q=>q/sp*(w||600)>=50)||10; const o=[]; for(let t=Math.ceil(xr[0]/st)*st;t<=xr[1]+1e-9;t+=st){ if(Math.abs(t)>1e-9 && t>xr[0]+sp*0.02 && t<xr[1]-sp*0.04) o.push(+t.toFixed(3)); } return o; }
+const sup=s=>typeof s==='string'?s.replace(/\^\{([^}]*)\}/g,'^($1)'):s;
+/* declarative plot */
+function plot(cv, S){
+  const {ctx,w,h} = setup(cv, S.aspect||0.62); const c=C();
+  const pad = S.pad || [24,S.title?22:14,10,20];
+  const box=[pad[0],pad[1],w-pad[0]-pad[2],h-pad[1]-pad[3]];
+  const xr=S.xr||[-3,3]; const N=S.n||500; const xs=lin(xr[0],xr[1],N);
+  const yr=S.yr||autoY(S);
+  const F=frame(ctx,box,xr,yr);
+  if(S.band) S.band.forEach(b=>{ ctx.save(); ctx.fillStyle=soft(b.c||'accent'); ctx.fillRect(F.sx(b.x0),box[1],F.sx(b.x1)-F.sx(b.x0),box[3]); ctx.restore(); });
+  axes(ctx,F,{xticks:S.xt||autoX(xr,box[2]),yticks:S.yt||[],xlabel:S.xl||'',xfmt:S.xfmt,yfmt:S.yfmt});
+  (S.items||[]).forEach(it=>{
+    const color = col(it.c||'accent');
+    if(it.t==='fn'){ curve(ctx,F,xs,xs.map(x=>part(it.f(x),it.part||'re')),color,it.lw||2.2,it.dash||null); }
+    else if(it.t==='cf'){ const v=xs.map(it.f); const has=k=>v.some(q=>Math.abs(q[k])>1e-6);
+      if(it.abs!==false) curve(ctx,F,xs,v.map(q=>Math.hypot(q[0],q[1])),c.accent,1.5,[5,4]);
+      if(has(1)) curve(ctx,F,xs,v.map(q=>q[1]),c.im,2.2);
+      if(has(0)||!has(1)) curve(ctx,F,xs,v.map(q=>q[0]),c.re,2.4); }
+    else if(it.t==='shade'){ const a=it.from??xr[0], b=it.to??xr[1]; const ss=lin(a,b,300); fill(ctx,F,ss,ss.map(x=>part(it.f(x),it.part||'re')),soft(it.c||'accent')); }
+    else if(it.t==='delta'){ if(Math.abs(it.h)>1e-6) arrowUp(ctx,F,it.x,it.h,color,it.label); }
+    else if(it.t==='stem'){ it.pts.forEach(p=>{ ctx.save(); ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=it.lw||1.8; ctx.beginPath(); ctx.moveTo(F.sx(p[0]),F.sy(0)); ctx.lineTo(F.sx(p[0]),F.sy(p[1])); ctx.stroke(); ctx.beginPath(); ctx.arc(F.sx(p[0]),F.sy(p[1]),it.r||3.2,0,7); ctx.fill(); ctx.restore(); }); }
+    else if(it.t==='vline'||it.t==='hline'){ ctx.save(); ctx.strokeStyle=color; ctx.lineWidth=it.lw||1.2; ctx.setLineDash(it.dash||[4,4]); ctx.beginPath();
+      if(it.t==='vline'){ctx.moveTo(F.sx(it.x),box[1]);ctx.lineTo(F.sx(it.x),box[1]+box[3]);} else {ctx.moveTo(box[0],F.sy(it.y));ctx.lineTo(box[0]+box[2],F.sy(it.y));} ctx.stroke(); ctx.restore();
+      if(it.label) text(ctx,it.label,it.t==='vline'?F.sx(it.x)+4:box[0]+box[2]-4,it.t==='vline'?box[1]+12:F.sy(it.y)-4,color,it.t==='vline'?'left':'right'); }
+    else if(it.t==='label'){ text(ctx,sup(it.s),F.sx(it.x)+(it.dx||0),F.sy(it.y)+(it.dy||0),color,it.align||'center',it.base||'middle',it.font||'11px "IBM Plex Mono", monospace'); }
+    else if(it.t==='dot'){ ctx.save(); ctx.fillStyle=color; ctx.beginPath(); ctx.arc(F.sx(it.x),F.sy(it.y),it.r||4.5,0,7); ctx.fill(); ctx.restore(); if(it.label) text(ctx,it.label,F.sx(it.x)+(it.dx??7),F.sy(it.y)+(it.dy??-7),color,it.align||'left'); }
+    else if(it.t==='bracket'){ const y=F.sy(it.y), a=F.sx(it.x0), b=F.sx(it.x1); ctx.save(); ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=1.3;
+      ctx.beginPath(); ctx.moveTo(a,y); ctx.lineTo(b,y); ctx.moveTo(a,y-4); ctx.lineTo(a,y+4); ctx.moveTo(b,y-4); ctx.lineTo(b,y+4); ctx.stroke(); ctx.restore();
+      if(it.label) text(ctx,it.label,(a+b)/2,y-5,color,'center','bottom'); }
+    else if(it.t==='vbracket'){ const x=F.sx(it.x), a=F.sy(it.y0), b=F.sy(it.y1); ctx.save(); ctx.strokeStyle=color; ctx.lineWidth=1.3; ctx.beginPath(); ctx.moveTo(x,a); ctx.lineTo(x,b); ctx.moveTo(x-4,a); ctx.lineTo(x+4,a); ctx.moveTo(x-4,b); ctx.lineTo(x+4,b); ctx.stroke(); ctx.restore();
+      if(it.label) text(ctx,it.label,x+6,(a+b)/2,color,'left','middle'); }
+    else if(it.t==='custom'){ it.draw(ctx,F,c); }
+  });
+  if(S.title) text(ctx,sup(S.title),box[0]+2,13,c.ink,'left','alphabetic','12px "IBM Plex Mono", monospace');
+  if(S.note) text(ctx,S.note,box[0]+box[2],13,c.muted,'right','alphabetic','11px "IBM Plex Mono", monospace');
+  return {ctx,F,c,w,h};
+}
+/* complex value as an arrow on the unit circle */
+function dial(cv, z, o={}){
+  const {ctx,w,h}=setup(cv,o.aspect||1); const c=C(); const R=Math.min(w,h)*0.32, X=w/2, Y=h/2+(o.title?6:0);
+  unitCircle(ctx,X,Y,R,{reLabel:o.reLabel||'Re',imLabel:o.imLabel||'Im'});
+  const s=o.scale||1, zz=[z[0]/s,z[1]/s], m=Math.hypot(...zz);
+  if(o.ghost) o.ghost.forEach(g=>{ arrow(ctx,X,Y,X+R*g[0]/s,Y-R*g[1]/s,c.muted,1.4,6); });
+  ctx.save(); ctx.strokeStyle=c.accent; ctx.setLineDash([4,4]); ctx.beginPath(); ctx.arc(X,Y,m*R,0,7); ctx.stroke(); ctx.restore();
+  ctx.save(); ctx.setLineDash([3,3]); ctx.strokeStyle=c.muted; ctx.beginPath(); ctx.moveTo(X+zz[0]*R,Y-zz[1]*R); ctx.lineTo(X+zz[0]*R,Y); ctx.moveTo(X+zz[0]*R,Y-zz[1]*R); ctx.lineTo(X,Y-zz[1]*R); ctx.stroke(); ctx.restore();
+  ctx.save(); ctx.lineWidth=4; ctx.strokeStyle=c.re; ctx.beginPath(); ctx.moveTo(X,Y); ctx.lineTo(X+zz[0]*R,Y); ctx.stroke(); ctx.strokeStyle=c.im; ctx.beginPath(); ctx.moveTo(X,Y); ctx.lineTo(X,Y-zz[1]*R); ctx.stroke(); ctx.restore();
+  if(m>1e-6) arrow(ctx,X,Y,X+zz[0]*R,Y-zz[1]*R,c.ink,2.6);
+  if(o.arc!=null){ ctx.save(); ctx.strokeStyle=c.accent; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(X,Y,R*0.25,0,-o.arc,o.arc>0); ctx.stroke(); ctx.restore(); }
+  if(o.title) text(ctx,o.title,6,13,c.ink,'left','alphabetic','12px "IBM Plex Mono", monospace');
+  if(o.caption) text(ctx,sup(o.caption),w/2,h-6,c.muted,'center','alphabetic','11px "IBM Plex Mono", monospace');
+}
+/* 2D heat map */
+function heat(cv, f, o={}){
+  const {ctx,w,h}=setup(cv,o.aspect||1); const c=C(); const n=120; const off=document.createElement('canvas'); off.width=n; off.height=n;
+  const oc=off.getContext('2d'); const im=oc.createImageData(n,n);
+  const hex=s=>{ s=s.replace('#',''); if(s.length===3) s=s.split('').map(q=>q+q).join(''); return [0,2,4].map(i=>parseInt(s.slice(i,i+2),16)); };
+  const A=hex(c.paper), B=hex(c[o.c||'re']); const r=o.r||3; let mx=1e-9; const vals=[];
+  for(let j=0;j<n;j++) for(let i=0;i<n;i++){ const x=-r+2*r*i/(n-1), y=r-2*r*j/(n-1); const v=f(x,y); vals.push(v); mx=Math.max(mx,Math.abs(v)); }
+  vals.forEach((v,k)=>{ const t=Math.max(0,Math.min(1,o.signed?(v/mx+1)/2:v/mx)); for(let q=0;q<3;q++) im.data[k*4+q]=A[q]*(1-t)+B[q]*t; im.data[k*4+3]=255; });
+  oc.putImageData(im,0,0); ctx.imageSmoothingEnabled=true; ctx.drawImage(off,0,0,w,h);
+  const S=v=>w/2+v/r*(w/2), T=v=>h/2-v/r*(h/2);
+  ctx.save(); ctx.strokeStyle=c.muted; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(0,h/2); ctx.lineTo(w,h/2); ctx.moveTo(w/2,0); ctx.lineTo(w/2,h); ctx.stroke(); ctx.restore();
+  if(o.after) o.after(ctx,S,T,c);
+  if(o.title) text(ctx,o.title,6,14,c.ink,'left','alphabetic','12px "IBM Plex Mono", monospace');
+  if(o.xl) text(ctx,o.xl,w-6,h/2-5,c.ink,'right'); if(o.yl) text(ctx,o.yl,w/2+5,12,c.ink,'left');
+}
+
+/* ---- transform library: f(x) = A·g((x−x0)/a)·M(x) ---- */
+const BASE={
+ rect:{f:x=>rect(x),G:k=>[sinc(k),0],ft:a=>String.raw`\rect\left(${a}\right)`,Gt:a=>String.raw`\sinc\left(${a}\right)`,name:'rect',cue:'hard edges, flat top'},
+ tri:{f:x=>tri(x),G:k=>[sinc(k)**2,0],ft:a=>String.raw`\tri\left(${a}\right)`,Gt:a=>String.raw`\sinc^2\left(${a}\right)`,name:'tri',cue:'straight ramps, sharp peak'},
+ gaus:{f:x=>gaus(x),G:k=>[gaus(k),0],ft:a=>String.raw`e^{-\pi\left(${a}\right)^2}`,Gt:a=>String.raw`e^{-\pi\left(${a}\right)^2}`,name:'gaus',cue:'smooth bell'},
+ sinc:{f:x=>sinc(x),G:k=>[Math.abs(k)<0.5?1:(Math.abs(Math.abs(k)-0.5)<1e-9?0.5:0),0],ft:a=>String.raw`\sinc\left(${a}\right)`,Gt:a=>String.raw`\rect\left(${a}\right)`,name:'sinc',cue:'decaying ripples, regular zeros'},
+ exp2:{f:x=>Math.exp(-Math.abs(x)),G:k=>[2/(1+4*PI*PI*k*k),0],ft:a=>String.raw`e^{-\left|${a}\right|}`,Gt:a=>String.raw`\dfrac{2}{1+4\pi^2\left(${a}\right)^2}`,name:'two-sided exp',cue:'cusp at center'},
+ exp1:{f:x=>x>=0?Math.exp(-x):0,G:k=>{const d=1+4*PI*PI*k*k;return[1/d,-TAU*k/d]},ft:a=>String.raw`e^{-\left(${a}\right)}\step\left(${a}\right)`,Gt:a=>String.raw`\dfrac{1}{1+2\pi i\left(${a}\right)}`,name:'one-sided exp',cue:'jump then decay'}
+};
+function make(sp){ // sp: {b,a,x0,k0,mod:'none'|'exp'|'cos'}
+  const B=BASE[sp.b], a=sp.a, x0=sp.x0, k0=sp.k0||0, mod=sp.mod||'none';
+  const f=x=>{ const v=B.f((x-x0)/a); if(mod==='exp') return cx.sc(cx.exp(TAU*k0*x),v); if(mod==='cos') return [v*Math.cos(TAU*k0*x),0]; return [v,0]; };
+  const F1=k=>cx.mul(cx.sc(B.G(a*k),Math.abs(a)),cx.exp(-TAU*k*x0));
+  const F=k=>{ if(mod==='exp') return F1(k-k0); if(mod==='cos') return cx.sc(cx.add(F1(k-k0),F1(k+k0)),0.5); return F1(k); };
+  return {f,F,sp};
+}
+const num=v=> v===0.5?String.raw`\tfrac12`:String(v);
+function texOf(sp){
+  const B=BASE[sp.b], a=sp.a, x0=sp.x0, k0=sp.k0||0, mod=sp.mod||'none';
+  const xs = x0===0?'x':(x0>0?`x-${x0}`:`x+${-x0}`);
+  const argF = a===1? xs : (a===0.5? (x0===0?'2x':`2(${xs})`) : String.raw`\frac{${xs}}{${a}}`);
+  let ft=B.ft(argF);
+  if(mod==='exp') ft=String.raw`e^{${k0>0?'':'-'}${2*Math.abs(k0)}\pi ix}\,`+ft;
+  if(mod==='cos') ft=String.raw`\cos(${2*Math.abs(k0)}\pi x)\,`+ft;
+  const xiS=k=> k===0?String.raw`\xi`:(k>0?String.raw`\xi-${k}`:String.raw`\xi+${-k}`);
+  const scArg=k=> a===1? xiS(k) : (a===0.5? String.raw`\tfrac{${xiS(k)}}{2}` : (k===0?String.raw`${a}\xi`:String.raw`${a}(${xiS(k)})`));
+  const ph=k=>{ if(x0===0) return ''; const cc=-2*x0; const v=k===0?String.raw`\xi`:String.raw`(${xiS(k)})`; return String.raw`\,e^{${cc>0?'':'-'}${Math.abs(cc)}\pi i${v}}`; };
+  const amp = a===1?'':num(a)+String.raw`\,`;
+  const term=k=>String.raw`${amp}${B.Gt(scArg(k))}${ph(k)}`;
+  let Ft;
+  if(mod==='exp') Ft=term(k0); else if(mod==='cos') Ft=String.raw`\tfrac12\Big[${term(Math.abs(k0))}+${term(-Math.abs(k0))}\Big]`; else Ft=term(0);
+  return {f:ft,F:Ft};
+}
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+function randSpec(lvl=2){
+  const b=pick(['rect','tri','gaus','sinc','exp2','exp1']);
+  const a=pick([0.5,1,2]); const x0=pick([-2,-1,0,0,1,2]);
+  let mod='none', k0=0; if(lvl>=2 && Math.random()<0.6){ mod=pick(['exp','cos']); k0= mod==='cos'?pick([1,2]):pick([-2,-1,1,2]); }
+  return {b,a,x0,k0,mod};
+}
+function distractors(sp){
+  const out=[], key=s=>JSON.stringify(s);
+  const add=s=>{ if(key(s)!==key(sp) && !out.some(o=>key(o)===key(s))) out.push(s); };
+  if(sp.x0!==0) add({...sp,x0:-sp.x0});
+  if(sp.a!==1) add({...sp,a:sp.a===2?0.5:2});
+  if(sp.mod==='exp') add({...sp,k0:-sp.k0});
+  if(sp.mod==='cos') add({...sp,mod:'exp'});
+  if(sp.mod==='none') add({...sp,mod:'cos',k0:1});
+  if(sp.a===1) add({...sp,a:2});
+  if(sp.x0===0) add({...sp,x0:1});
+  const others=['rect','tri','gaus','sinc','exp2','exp1'].filter(b=>b!==sp.b);
+  while(out.length<3) add({...sp,b:pick(others)});
+  return shuffle(out).slice(0,3);
+}
+function typeset(els){ if(window.MathJax&&MathJax.typesetPromise) return MathJax.typesetPromise(els).catch(()=>{}); setTimeout(()=>typeset(els),400); }
+return {autoY,plot,dial,heat,reg,make,texOf,randSpec,distractors,pick,shuffle,typeset,BASE,J1,besinc,part,PI,TAU};
+})();
+
+/* ===== 3D coil engine v2: function builder, typed inputs, sum range, exact overlay ===== */
+const COIL = (() => {
+const {setup,frame,axes,curve,arrow,text,lin,cx,gaus,rect,tri,sinc}=LIB;
+const PI=Math.PI, TAU=2*PI;
+const C=()=>LIB.C();
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function hex(s){ s=s.replace('#',''); if(s.length===3) s=s.split('').map(q=>q+q).join(''); return [0,2,4].map(i=>parseInt(s.slice(i,i+2),16)); }
+function grad(t,a=1){ const A=hex(css('--wa')||'#0f8a7e'), B=hex(css('--wb')||'#b8357a'); const m=A.map((v,i)=>Math.round(v+(B[i]-v)*t)); return `rgba(${m[0]},${m[1]},${m[2]},${a})`; }
+function rgba(col,a){ if(col.startsWith('#')){ const h=hex(col); return `rgba(${h[0]},${h[1]},${h[2]},${a})`; } return col.replace(/rgba?\(([^)]+)\)/,(m,g)=>`rgba(${g.split(',').slice(0,3).join(',')},${a})`); }
+const fmt=(v,d=2)=>{ if(!isFinite(v)) return '—'; const s=(Math.round(v*10**d)/10**d).toFixed(d); return /^-0\.?0*$/.test(s)?s.slice(1):s; };
+const cfmt=z=>`${fmt(z[0])} ${z[1]<0?'−':'+'} ${fmt(Math.abs(z[1]))}i`;
+const el=(t,c,h)=>{ const e=document.createElement(t); if(c) e.className=c; if(h!=null) e.innerHTML=h; return e; };
+const VIEWS={'3d':[0.95,0.42],'end':[0,0],'re':[PI/2,PI/2],'im':[PI/2,0]};
+const U0=-2, U1=2, XEND=3.05, W=1.45;
+const SPW=0.05; // spike width
+/* base library: t-domain function g(t), and (when it is an ordinary function) its transform G(ν) */
+const LIBF={
+  rect:{n:'rect(t)',g:t=>rect(t),G:v=>[sinc(v),0],pair:'rect(t) ↔ sinc(ν)',w:1},
+  tri:{n:'tri(t)',g:t=>tri(t),G:v=>[sinc(v)**2,0],pair:'tri(t) ↔ sinc²(ν)',w:1},
+  gaus:{n:'gaus(t) = e^(−πt²)',g:t=>gaus(t),G:v=>[gaus(v),0],pair:'e^(−πt²) ↔ e^(−πν²)',w:1},
+  sinc:{n:'sinc(t)',g:t=>sinc(t),G:v=>[Math.abs(v)<0.5?1:(Math.abs(v)===0.5?0.5:0),0],pair:'sinc(t) ↔ rect(ν)',w:1,slow:true},
+  sinc2:{n:'sinc²(t)',g:t=>sinc(t)**2,G:v=>[tri(v),0],pair:'sinc²(t) ↔ tri(ν)',w:1},
+  exp2:{n:'e^(−|t|)',g:t=>Math.exp(-Math.abs(t)),G:v=>[2/(1+4*PI*PI*v*v),0],pair:'e^(−|t|) ↔ 2/(1+4π²ν²)',w:1},
+  exp1:{n:'e^(−t) step(t)',g:t=>t>=0?Math.exp(-t):0,G:v=>{const d=1+4*PI*PI*v*v;return[1/d,-TAU*v/d];},pair:'e^(−t)step(t) ↔ 1/(1+2πiν)',w:1},
+  lor:{n:'1/(1+4π²t²)',g:t=>1/(1+4*PI*PI*t*t),G:v=>[0.5*Math.exp(-Math.abs(v)),0],pair:'1/(1+4π²t²) ↔ ½e^(−|ν|)',w:1},
+  xgaus:{n:'t·gaus(t)  (odd)',g:t=>t*gaus(t),G:v=>[0,-v*gaus(v)],pair:'t e^(−πt²) ↔ −iν e^(−πν²)',w:1},
+  dgaus:{n:'gaus′(t) = −2πt·gaus(t)',g:t=>-TAU*t*gaus(t),G:v=>[0,TAU*v*gaus(v)],pair:'d/dt e^(−πt²) ↔ 2πiν e^(−πν²)',w:1},
+  chirp:{n:'chirp e^(iπt²)',g:t=>[Math.cos(PI*t*t),Math.sin(PI*t*t)],G:v=>cx.exp(PI/4-PI*v*v),pair:'e^(iπt²) ↔ e^(iπ/4) e^(−iπν²)',w:1,slow:true},
+  spike:{n:'δ(t)  (narrow spike)',g:t=>gaus(t/SPW)/SPW,G:v=>[gaus(SPW*v),0],pair:'δ(t) ↔ 1',w:SPW},
+  one:{n:'1  (constant)',g:t=>1,G:null,pair:'1 ↔ δ(ν)',w:1},
+  cos:{n:'cos(2πt)',g:t=>Math.cos(TAU*t),G:null,pair:'cos(2πt) ↔ ½[δ(ν−1)+δ(ν+1)]',w:1},
+  sin:{n:'sin(2πt)',g:t=>Math.sin(TAU*t),G:null,pair:'sin(2πt) ↔ (1/2i)[δ(ν−1)−δ(ν+1)]',w:1},
+  phasor:{n:'phasor e^(2πit)',g:t=>[Math.cos(TAU*t),Math.sin(TAU*t)],G:null,pair:'e^(2πit) ↔ δ(ν−1)',w:1},
+  step:{n:'step(t)',g:t=>t>=0?1:0,G:null,pair:'step(t) ↔ ½δ(ν) + 1/(2πiν)',w:1},
+  sgn:{n:'sgn(t)',g:t=>t>=0?1:-1,G:null,pair:'sgn(t) ↔ 1/(iπν)',w:1},
+  train:{n:'pulse train (period 1, width ½)',g:t=>{const u=t-Math.round(t);return Math.abs(u)<0.25?1:0;},G:null,pair:'↔ Σ ½sinc(n/2) δ(ν−n)',w:0.25},
+  comb:{n:'comb(t) (narrow spikes, spacing 1)',g:t=>{const u=t-Math.round(t);return gaus(u/SPW)/SPW;},G:null,pair:'comb(t) ↔ comb(ν)',w:SPW}
+};
+const MODS={none:'none',exp:'× e^(2πiξ₀t)',cos:'× cos(2πξ₀t)',sin:'× sin(2πξ₀t)'};
+
+/* paired slider + typed number input */
+function pair(parent,label,min,max,step,val,onIn,opt={}){
+  const w=el('label','pair',`<span class="pl">${label}</span>`); const r=el('input'); r.type='range'; r.min=min; r.max=max; r.step=step; r.value=val; r.setAttribute('aria-label',label);
+  const n=el('input','num'); n.type='number'; n.step=opt.nstep||step; n.value=val; if(opt.nmin!=null) n.min=opt.nmin; if(opt.nmax!=null) n.max=opt.nmax; n.setAttribute('aria-label',label+' value');
+  w.append(r,n); parent.appendChild(w);
+  const api={get:()=>{ const v=parseFloat(r.dataset.v); return isNaN(v)?+r.value:v; }, set:v=>{ v=+v; r.dataset.v=v; r.value=Math.max(min,Math.min(max,v)); n.value=+(+v).toFixed(4); }, el:w};
+  r.dataset.v=val;
+  r.addEventListener('input',()=>{ r.dataset.v=r.value; n.value=r.value; onIn(); });
+  n.addEventListener('input',()=>{ if(n.value===''||isNaN(+n.value)) return; let v=+n.value; if(opt.nmin!=null) v=Math.max(opt.nmin,v); if(opt.nmax!=null) v=Math.min(opt.nmax,v); r.dataset.v=v; r.value=Math.max(min,Math.min(max,v)); onIn(); });
+  n.addEventListener('change',()=>{ n.value=+(+r.dataset.v).toFixed(4); });
+  return api;
+}
+
+function make(mount,cfg){
+  const root=document.getElementById(mount); const inv=cfg.mode==='inv';
+  const U=inv?'ξ':'x', Pn=inv?'x':'ξ', sgn=inv?1:-1, FN=inv?'F':'f', RN=inv?'f':'F';
+  const fig=el('figure','widget coil'); root.appendChild(fig);
+  if(cfg.title) fig.appendChild(el('div','wt',`<b>${cfg.title}</b><span class="hint">drag to rotate · type or slide any number</span>`));
+  const cv=el('canvas','c3'); fig.appendChild(cv);
+  const vbar=el('div','ctrls vbar'); fig.appendChild(vbar);
+  [['3d','3D'],['end','Look down the '+U+' axis'],['re','Side: Re vs '+U],['im','Side: Im vs '+U]].forEach(([k,l])=>{ const b=el('button','btn',l); b.type='button'; b.dataset.v=k; b.onclick=()=>goView(k); vbar.appendChild(b); });
+  const spin=el('button','btn','⟳ Spin'); spin.type='button'; vbar.appendChild(spin);
+  const sweep=el('button','btn','▶ Sweep '+Pn); sweep.type='button'; vbar.appendChild(sweep);
+  const g1=el('div','ctrls grp'); g1.appendChild(el('span','gl','coil')); fig.appendChild(g1);
+  const P={}; let S=null;
+  const redraw=()=>draw(), rebuildDraw=()=>{ rebuild(); draw(); };
+  P.p=pair(g1,`${Pn} = tightness (turns per unit ${U})`,cfg.pR[0],cfg.pR[1],0.01,cfg.p0,redraw,{nstep:0.01});
+  P.u=pair(g1,`cursor ${U}`,-(cfg.D0||2),cfg.D0||2,0.01,cfg.u0??0.5,redraw);
+  // function builder
+  let bSel=null, mSel=null; const fline=el('div','fline');
+  if(!cfg.custom){
+    const g2=el('div','ctrls grp'); g2.appendChild(el('span','gl',inv?'F(ξ) =':'f(x) =')); fig.appendChild(g2);
+    const keys=cfg.lib||Object.keys(LIBF);
+    const wb=el('label','',`base <select>${keys.map(k=>`<option value="${k}"${k===(cfg.base0||keys[0])?' selected':''}>${LIBF[k].n.replace(/t/g,'t')}</option>`).join('')}</select>`); g2.appendChild(wb); bSel=wb.querySelector('select');
+    const p0=cfg.par0||{};
+    P.A=pair(g2,'amplitude A',-3,3,0.05,p0.A??1,rebuildDraw);
+    P.a=pair(g2,'width a',0.1,4,0.05,p0.a??1,rebuildDraw,{nmin:0.02,nmax:20});
+    P.s=pair(g2,`shift ${U}₀`,-3,3,0.05,p0.s??0,rebuildDraw);
+    const wm=el('label','',`modulate <select>${Object.entries(MODS).map(([k,l])=>`<option value="${k}"${k===(p0.mod||'none')?' selected':''}>${l.replace(/t/g,U)}</option>`).join('')}</select>`); g2.appendChild(wm); mSel=wm.querySelector('select');
+    P.k=pair(g2,`ξ₀ (modulation)`.replace('ξ₀',inv?'x₀':'ξ₀'),-3,3,0.05,p0.k??1,rebuildDraw);
+    bSel.addEventListener('change',rebuildDraw); mSel.addEventListener('change',rebuildDraw);
+    fig.appendChild(fline);
+  }
+  const g3=el('div','ctrls grp'); g3.appendChild(el('span','gl','range')); fig.appendChild(g3);
+  P.R=pair(g3,`sum over ${U} ∈ ±R`,1,60,0.5,cfg.R0||2,rebuildDraw,{nmin:0.5,nmax:200});
+  P.D=pair(g3,`show ${U} ∈ ±`,1,8,0.5,cfg.D0||2,()=>{ const D=P.D.get(); const r=P.u.el.querySelector('input[type=range]'); r.min=-D; r.max=D; draw(); },{nmin:0.5,nmax:20});
+  const g4=el('div','ctrls grp'); fig.appendChild(g4);
+  const chk=(label,val)=>{ const w=el('label','chk',`<input type="checkbox"${val?' checked':''}> ${label}`); g4.appendChild(w); return w.querySelector('input'); };
+  const cW=chk(`multiply by ${FN}(${U})`,cfg.weighted??true), cS=chk('shadows',cfg.shadows??true), cE=chk('end screen',cfg.endScreen??true), cX=chk('exact transform (dashed)',cfg.exact??true), cG=cfg.ghost?chk(`compare: coil at 2${Pn}`,false):null;
+  const stbar=cfg.stories?el('div','ctrls stories'):null; if(stbar) fig.appendChild(stbar);
+  const cap=el('div','c3cap'); if(cfg.stories) fig.appendChild(cap);
+  const cvS=el('canvas','c3s'); fig.appendChild(cvS);
+  const read=el('div','readout c3r'); fig.appendChild(read);
+  if(cfg.caption) fig.appendChild(el('figcaption','',cfg.caption));
+
+  let custom=cfg.custom||null;
+  function fnNow(){ // returns {f(u)->[re,im], exact(p)->[re,im]|null, w (narrowest feature), label}
+    if(custom) return custom;
+    const B=LIBF[bSel.value], A=P.A.get(), a=P.a.get(), s=P.s.get(), m=mSel.value, k=P.k.get();
+    const g=t=>{ const v=B.g(t); return Array.isArray(v)?v:[v,0]; };
+    const base=u=>cx.sc(g((u-s)/a),A);
+    const f=u=>{ const b=base(u); if(m==='none') return b; if(m==='exp') return cx.mul(b,cx.exp(TAU*k*u)); if(m==='cos') return cx.sc(b,Math.cos(TAU*k*u)); return cx.sc(b,Math.sin(TAU*k*u)); };
+    // exact forward transform of f (sign −); inverse with sign + equals forward evaluated at −p
+    let ex=null; if(B.G){ const F0=v=>cx.sc(cx.mul(B.G(a*v),cx.exp(-TAU*v*s)),A*Math.abs(a));
+      const Fm=v=> m==='none'?F0(v): m==='exp'?F0(v-k): m==='cos'?cx.sc(cx.add(F0(v-k),F0(v+k)),0.5): cx.mul(cx.sub?cx.sub(F0(v-k),F0(v+k)):[F0(v-k)[0]-F0(v+k)[0],F0(v-k)[1]-F0(v+k)[1]],[0,-0.5]);
+      ex=inv?(p=>Fm(-p)):Fm; }
+    const shift=s?`${U} ${s>0?'−':'+'} ${fmt(Math.abs(s))}`:U; const arg=a===1?shift:(s?`(${shift})/${fmt(a)}`:`${U}/${fmt(a)}`);
+    const nm=B.n.split('  ')[0].replace(/\(t\)/,'').replace(/ = .*/,'');
+    const label=`${FN}(${U}) = ${A===1?'':fmt(A)+'·'}${nm.replace(/t/g,'·')}`;
+    let lab2=`${FN}(${U}) = ${A===1?'':fmt(A)+' · '}${B.n.split('  ')[0].replace(/ = .*/,'').replace(/\bt\b/g,arg)}`;
+    if(m!=='none') lab2+=' '+MODS[m].replace('ξ₀',fmt(k)).replace(/t\)/,U+')');
+    return {f,ex,w:B.w*a,label:lab2,pair:B.pair,slow:B.slow,deltas:!B.G};
+  }
+  function rebuild(){ const F=fnNow(); const R=P.R.get(); const pmax=Math.max(Math.abs(cfg.pR[0]),Math.abs(cfg.pR[1]))+(mSel&&mSel.value!=='none'?Math.abs(P.k.get()):0);
+    const N=Math.min(24000,Math.max(1500,Math.ceil(2*R*pmax*14),Math.ceil(2*R/(F.w/6)))); const du=2*R/(N-1);
+    const us=new Float64Array(N), fr=new Float64Array(N), fi=new Float64Array(N); const one=!cW.checked;
+    for(let i=0;i<N;i++){ const u=-R+i*du; us[i]=u; const v=one?[1,0]:F.f(u); fr[i]=v[0]; fi[i]=v[1]; }
+    const Fat=p=>{ let re=0,im=0; const dt=sgn*TAU*p*du; let c=Math.cos(sgn*TAU*p*us[0]), s=Math.sin(sgn*TAU*p*us[0]); const cd=Math.cos(dt), sd=Math.sin(dt);
+      for(let i=0;i<N;i++){ const w=(i===0||i===N-1)?.5:1; re+=w*(fr[i]*c-fi[i]*s); im+=w*(fr[i]*s+fi[i]*c); const c2=c*cd-s*sd; s=s*cd+c*sd; c=c2; } return [re*du,im*du]; };
+    const G=lin(cfg.pR[0],cfg.pR[1],cfg.nG||361), FG=G.map(Fat); let Fm=0; FG.forEach(z=>Fm=Math.max(Fm,Math.hypot(...z))); if(Fm<1e-9) Fm=1;
+    // display samples over ±D (max D 20)
+    S={F,Fat,G,FG,Fm,R,N,one}; dispCache=null; if(cfg.onBuild) cfg.onBuild(S,api); }
+  let dispCache=null;
+  function disp(){ const D=P.D.get(), p=P.p.get(); const key=D+'|'+p+'|'+(cG&&cG.checked); if(dispCache&&dispCache.key===key) return dispCache;
+    const n=Math.min(9000,Math.max(1200,Math.ceil(2*D*Math.max(Math.abs(p),Math.abs(2*p))*24),Math.ceil(2*D/(S.F.w/5)))); const us=lin(-D,D,n);
+    const fu=us.map(u=>S.one?[1,0]:S.F.f(u)); let M=0; fu.forEach(v=>M=Math.max(M,Math.hypot(v[0],v[1]))); if(M<1e-9) M=1;
+    dispCache={key,us,fu,M,D}; return dispCache; }
+  // camera
+  let yaw=VIEWS['3d'][0], pitch=VIEWS['3d'][1], tw=null;
+  function cam(w,h){ const sc=Math.min(w/(w<520?6:7.4),h/4.2); const cyw=Math.cos(yaw), syw=Math.sin(yaw), cp=Math.cos(pitch), sp=Math.sin(pitch); const ox=w*0.47, oy=h*0.53, Dd=24;
+    return (u,re,im)=>{ const x1=re*cyw+u*syw, z1=-re*syw+u*cyw; const y2=im*cp-z1*sp, z2=im*sp+z1*cp; const k=Dd/(Dd+z2*0.9); return [ox+x1*sc*k, oy-y2*sc*k, z2]; }; }
+  function draw(){ if(!S) rebuild(); const c=C(); const p=P.p.get(), D=P.D.get(); let uc=Math.max(-D,Math.min(D,P.u.get())); const Q=disp(); const sw=2/D; // world scale for the axis
+    if(!custom&&fline) fline.innerHTML=`<span class="mono">${S.F.label}</span><span class="mono pairtxt">base pair: ${S.F.pair}</span>`;
+    const {ctx,w,h}=setup(cv,(cv.clientWidth||600)<520?0.9:(cfg.aspect||0.56)); const Pp=cam(w,h); const P3=(u,re,im)=>Pp(u*sw,re,im);
+    const line=(pts,col,lw,dash,world)=>{ ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=lw; if(dash) ctx.setLineDash(dash); ctx.beginPath(); pts.forEach((q,i)=>{ const s=world?Pp(...q):P3(...q); i?ctx.lineTo(s[0],s[1]):ctx.moveTo(s[0],s[1]); }); ctx.stroke(); ctx.restore(); };
+    const lab=(q,s,col,al='center',font,world)=>{ const s2=world?Pp(...q):P3(...q); text(ctx,s,s2[0],s2[1],col,al,'middle',font||'12px "IBM Plex Mono", monospace'); };
+    const z=(i,pp)=>{ const t=sgn*TAU*pp*Q.us[i]; const e=[Math.cos(t),Math.sin(t)]; return cx.sc(cx.mul(Q.fu[i],e),1/Q.M); };
+    const zAt=(u,pp)=>{ const v=S.one?[1,0]:S.F.f(u); const t=sgn*TAU*pp*u; return cx.sc(cx.mul(v,[Math.cos(t),Math.sin(t)]),1/Q.M); };
+    const step=Math.max(1,Math.floor(Q.us.length/1600));
+    if(cS.checked){ const XE=XEND-0.25; line([[U0,-W,-W],[XE,-W,-W],[XE,W,-W],[U0,W,-W],[U0,-W,-W]],rgba(c.re,.35),1,[3,4],true); line([[U0,-W,-W],[XE,-W,-W],[XE,-W,W],[U0,-W,W],[U0,-W,-W]],rgba(c.im,.35),1,[3,4],true);
+      line([[U0,0,-W],[XE,0,-W]],rgba(c.re,.35),1,null,true); line([[U0,-W,0],[XE,-W,0]],rgba(c.im,.35),1,null,true);
+      const re=[], im=[]; for(let i=0;i<Q.us.length;i+=step){ const q=z(i,p); re.push([Q.us[i],q[0],-W]); im.push([Q.us[i],-W,q[1]]); } line(re,rgba(c.re,.85),1.8); line(im,rgba(c.im,.85),1.8);
+      lab([U0-0.08,W*0.75,-W],'Re shadow',c.re,'right','11px "IBM Plex Mono", monospace',true); lab([U0-0.08,-W,W*0.75],'Im shadow',c.im,'right','11px "IBM Plex Mono", monospace',true); }
+    const Fp=S.Fat(p);
+    const endScreen=()=>{ if(!cE.checked) return; const sq=[[XEND,-W,-W],[XEND,W,-W],[XEND,W,W],[XEND,-W,W],[XEND,-W,-W]]; ctx.save(); ctx.fillStyle=rgba(c.panel,.55); ctx.beginPath(); sq.forEach((q,i)=>{const s=Pp(...q); i?ctx.lineTo(s[0],s[1]):ctx.moveTo(s[0],s[1]);}); ctx.closePath(); ctx.fill(); ctx.restore();
+      line(sq,rgba(c.accent,.6),1.2,null,true); line(lin(0,TAU,90).map(t=>[XEND,Math.cos(t),Math.sin(t)]),rgba(c.muted,.5),1,null,true);
+      line([[XEND,-W,0],[XEND,W,0]],rgba(c.re,.6),1,null,true); line([[XEND,0,-W],[XEND,0,W]],rgba(c.im,.6),1,null,true);
+      const pts=[]; for(let i=0;i<Q.us.length;i+=step){ const q=z(i,p); pts.push([XEND,q[0],q[1]]); } line(pts,grad(.5,.45),1.1,null,true);
+      const sF=1.3/S.Fm; const a=Pp(XEND,0,0), b=Pp(XEND,Fp[0]*sF,Fp[1]*sF); arrow(ctx,a[0],a[1],b[0],b[1],c.accent,3,10);
+      lab([XEND,0,W+0.28],`end view: ${RN}(${Pn}) ➜`,c.accent,'center',null,true); };
+    const endBehind=Pp(XEND,0,0)[2]>Pp(0,0,0)[2]+0.01; if(endBehind) endScreen();
+    line([[U0-0.3,0,0],[XEND+0.2,0,0]],c.muted,1.3,null,true); { const a=Pp(XEND-0.1,0,0), b=Pp(XEND+0.35,0,0); arrow(ctx,a[0],a[1],b[0],b[1],c.muted,1.3,8); lab([XEND+0.55,0,0],U,c.ink,'center',null,true); }
+    const axLen=Math.hypot(Pp(2,0,0)[0]-Pp(-2,0,0)[0],Pp(2,0,0)[1]-Pp(-2,0,0)[1]);
+    if(axLen>60){ const stp=[0.25,0.5,1,2,5].find(q=>q/D*axLen/2*1>=34)||5; for(let t=Math.ceil(-D/stp)*stp;t<=D+1e-9;t+=stp){ const s=P3(t,0,0); ctx.save(); ctx.fillStyle=c.muted; ctx.beginPath(); ctx.arc(s[0],s[1],2,0,7); ctx.fill(); ctx.restore(); const s2=P3(t,-0.18,-0.18); text(ctx,String(+t.toFixed(2)),s2[0],s2[1]+9,c.muted,'center','middle','10.5px "IBM Plex Mono", monospace'); } }
+    line([[U0,0,0],[U0,1.15,0]],c.re,1.4,null,true); line([[U0,0,0],[U0,0,1.15]],c.im,1.4,null,true); lab([U0,1.32,0],'Re',c.re,'center',null,true); lab([U0,0,1.32],'Im',c.im,'center',null,true);
+    if(!S.one){ const pts=[]; for(let i=0;i<Q.us.length;i+=step){ const t=sgn*TAU*p*Q.us[i]; pts.push([Q.us[i],Math.cos(t),Math.sin(t)]); } line(pts,rgba(c.muted,.3),1); }
+    if(cG&&cG.checked){ const pts=[]; for(let i=0;i<Q.us.length;i+=step){ const q=z(i,2*p); pts.push([Q.us[i],q[0],q[1]]); } line(pts,rgba(c.muted,.75),1.4,[4,3]); }
+    { const pts=[]; for(let i=0;i<Q.us.length;i++){ const q=z(i,p); pts.push(P3(Q.us[i],q[0],q[1])); } let zmin=1e9,zmax=-1e9; pts.forEach(s=>{zmin=Math.min(zmin,s[2]);zmax=Math.max(zmax,s[2]);});
+      ctx.save(); ctx.lineWidth=2.6; ctx.lineCap='round'; const seg=Math.max(1,Math.floor(pts.length/900));
+      for(let i=0;i<pts.length-1;i+=seg){ const a=0.3+0.7*(1-(pts[i][2]-zmin)/((zmax-zmin)||1)); ctx.strokeStyle=grad(i/(pts.length-1),a); ctx.beginPath(); ctx.moveTo(pts[i][0],pts[i][1]); for(let j=i+1;j<=Math.min(pts.length-1,i+seg);j++) ctx.lineTo(pts[j][0],pts[j][1]); ctx.stroke(); } ctx.restore(); }
+    { const q=zAt(uc,p); line(lin(0,TAU,90).map(t=>[uc,Math.cos(t),Math.sin(t)]),rgba(c.ink,.28),1); const a=P3(uc,0,0), b=P3(uc,q[0],q[1]); arrow(ctx,a[0],a[1],b[0],b[1],c.ink,2.4,8);
+      if(cS.checked){ line([[uc,q[0],q[1]],[uc,q[0],-W]],rgba(c.re,.6),1,[2,3]); line([[uc,q[0],q[1]],[uc,-W,q[1]]],rgba(c.im,.6),1,[2,3]); }
+      if(cG&&cG.checked){ const q2=zAt(uc/2,2*p); const a2=P3(uc/2,0,0), b2=P3(uc/2,q2[0],q2[1]); arrow(ctx,a2[0],a2[1],b2[0],b2[1],c.muted,2,7); } }
+    if(!endBehind) endScreen();
+    text(ctx,`coil: ${S.one?'':FN+'('+U+')·'}e^(${inv?'+':'−'}2πi·${Pn}·${U}),  ${Pn} = ${fmt(p)}`,10,16,c.ink,'left','alphabetic','12px "IBM Plex Mono", monospace');
+    text(ctx,`${fmt(Math.abs(p*2*D),1)} turns shown (${U} ∈ ±${fmt(D,1)}) · summed over ±${fmt(S.R,1)} · ${sgn<0?'clockwise':'counter-clockwise'} seen from the end`,10,32,c.muted,'left','alphabetic','11px "IBM Plex Mono", monospace');
+    // spectrum strip
+    { const asp=(cvS.clientWidth||600)<520?0.45:0.22; const {ctx:g,w:ww}=setup(cvS,asp); const hh=Math.round(ww*asp); const box=[26,18,ww-36,hh-36];
+      const ex=(cX.checked&&S.F.ex&&!S.one)?S.G.map(S.F.ex):null; let lo=0,hi=0; S.FG.concat(ex||[]).forEach(v=>{lo=Math.min(lo,v[0],v[1]);hi=Math.max(hi,v[0],v[1],Math.hypot(...v));}); const m=(hi-lo||1)*.1;
+      const F=frame(g,box,cfg.pR,[lo-m,hi+m]); const sp=cfg.pR[1]-cfg.pR[0]; const st=sp>8?2:1; axes(g,F,{xticks:lin(Math.ceil(cfg.pR[0]/st)*st,Math.floor(cfg.pR[1]/st)*st,Math.round((Math.floor(cfg.pR[1]/st)-Math.ceil(cfg.pR[0]/st)))+1).filter(t=>t!==0),yticks:[],xlabel:Pn});
+      curve(g,F,S.G,S.FG.map(v=>Math.hypot(...v)),c.accent,1.3,[5,4]); const hasIm=S.FG.some(v=>Math.abs(v[1])>2e-3*S.Fm)||(ex&&ex.some(v=>Math.abs(v[1])>2e-3*S.Fm));
+      if(ex){ if(hasIm) curve(g,F,S.G,ex.map(v=>v[1]),rgba(c.ink,.75),1.3,[3,3]); curve(g,F,S.G,ex.map(v=>v[0]),rgba(c.ink,.75),1.4,[3,3]); }
+      if(hasIm) curve(g,F,S.G,S.FG.map(v=>v[1]),c.im,2); curve(g,F,S.G,S.FG.map(v=>v[0]),c.re,2.2);
+      g.save(); g.strokeStyle=c.ink; g.beginPath(); g.moveTo(F.sx(p),box[1]); g.lineTo(F.sx(p),box[1]+box[3]); g.stroke(); g.restore();
+      [[Fp[0],c.re],[Fp[1],c.im]].forEach(([v,col])=>{ g.save(); g.fillStyle=col; g.beginPath(); g.arc(F.sx(p),F.sy(v),4,0,7); g.fill(); g.restore(); });
+      text(g,`${RN}(${Pn}) = sum of the whole coil for every tightness ${Pn}${ex?' · dashed: exact':''}`,box[0]+2,12,c.ink,'left','alphabetic','11.5px "IBM Plex Mono", monospace'); }
+    const turns=p*uc; const exv=(S.F.ex&&!S.one)?S.F.ex(p):null;
+    read.innerHTML=`<span>cursor: ${Pn}·${U} = ${fmt(p)}·${fmt(uc)} = <b>${fmt(turns)} turns</b> → arrow at <b>${fmt(sgn*360*turns,0)}°</b></span><span>coil sum over ±${fmt(S.R,1)}: ${RN}(${fmt(p)}) ≈ <b>${cfmt(Fp)}</b></span>`+(exv?`<span>exact: <b>${cfmt(exv)}</b></span>`:(S.F.deltas&&!S.one?`<span>exact transform has δ's: peaks grow with R</span>`:''))+(cG&&cG.checked?`<span>grey coil (2${Pn}) at ${U} = ${fmt(uc/2)}: same ${fmt(turns)} turns, same arrow, but sum ${cfmt(S.Fat(2*p))}</span>`:'');
+    if(cfg.onDraw) cfg.onDraw(p,Fp,S);
+  }
+  // interaction
+  let drag=null; cv.addEventListener('pointerdown',e=>{ drag=[e.clientX,e.clientY,yaw,pitch]; cv.setPointerCapture(e.pointerId); stopSpin(); tw=null; });
+  cv.addEventListener('pointermove',e=>{ if(!drag) return; yaw=drag[2]+(e.clientX-drag[0])*0.01; pitch=Math.max(-PI/2,Math.min(PI/2,drag[3]+(e.clientY-drag[1])*0.01)); draw(); });
+  cv.addEventListener('pointerup',()=>drag=null); cv.addEventListener('pointercancel',()=>drag=null);
+  function goView(k){ stopSpin(); const [y1,p1]=VIEWS[k]; const y0=yaw, p0=pitch; let dy=y1-y0; dy=((dy+PI)%TAU+TAU)%TAU-PI; const t0=performance.now(); tw=true;
+    const st=t=>{ if(!tw) return; const s=Math.min(1,(t-t0)/800), e=s<.5?2*s*s:1-Math.pow(-2*s+2,2)/2; yaw=y0+dy*e; pitch=p0+(p1-p0)*e; draw(); if(s<1) requestAnimationFrame(st); else tw=null; }; requestAnimationFrame(st); }
+  let sraf=null; function stopSpin(){ if(sraf){cancelAnimationFrame(sraf); sraf=null;} spin.textContent='⟳ Spin'; }
+  spin.onclick=()=>{ if(sraf){ stopSpin(); return; } spin.textContent='❚❚ Stop'; let last=0; const st=t=>{ if(last) yaw+=(t-last)/1000*0.5; last=t; draw(); sraf=requestAnimationFrame(st); }; sraf=requestAnimationFrame(st); };
+  let wraf=null; function stopSweep(){ if(wraf){cancelAnimationFrame(wraf); wraf=null;} sweep.textContent='▶ Sweep '+Pn; }
+  sweep.onclick=()=>{ if(wraf){ stopSweep(); return; } sweep.textContent='❚❚ Pause'; let last=0; const st=t=>{ if(last){ let v=P.p.get()+(t-last)/1000*(cfg.pR[1]-cfg.pR[0])/14; if(v>cfg.pR[1]) v=cfg.pR[0]; P.p.set(v); } last=t; draw(); wraf=requestAnimationFrame(st); }; wraf=requestAnimationFrame(st); };
+  [cS,cE,cX].concat(cG?[cG]:[]).forEach(i=>i.addEventListener('change',draw)); cW.addEventListener('change',rebuildDraw);
+  if(stbar) cfg.stories.forEach(s=>{ const b=el('button','btn',s.label); b.type='button'; b.onclick=()=>{ stopSweep(); if(s.b&&bSel) bSel.value=s.b; if(s.mod&&mSel) mSel.value=s.mod; ['A','a','s','k','R','D','p','u'].forEach(k=>{ if(s[k]!=null&&P[k]) P[k].set(s[k]); }); if(s.D!=null){ const r=P.u.el.querySelector('input[type=range]'); r.min=-s.D; r.max=s.D; } if(s.w!=null) cW.checked=s.w; if(cG&&s.g!=null) cG.checked=s.g;
+      stbar.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); cap.innerHTML=s.cap; if(window.MathJax&&MathJax.typesetPromise) MathJax.typesetPromise([cap]).catch(()=>{}); rebuild(); draw(); if(s.v) goView(s.v); }; stbar.appendChild(b); });
+  LIB.onRedraw(()=>{ if(fig.isConnected) draw(); });
+  const api={draw,rebuild:rebuildDraw,setCustom:f=>{custom=f; rebuild(); draw();},P,getS:()=>S,goView,stopSweep};
+  rebuild(); draw();
+  return api;
+}
+
+/* ---------- triple coil: why forward is clockwise and inverse counter-clockwise ---------- */
+function triple(mount){
+  const root=document.getElementById(mount); const fig=el('figure','widget coil'); root.appendChild(fig);
+  fig.appendChild(el('div','wt','<b>Unwind, then rewind</b><span class="hint">drag to rotate</span>'));
+  const cv=el('canvas','c3'); fig.appendChild(cv);
+  const vbar=el('div','ctrls vbar'); fig.appendChild(vbar);
+  const g=el('div','ctrls grp'); fig.appendChild(g);
+  const modeW=el('label','',`mode <select><option value="f">forward: signal × clockwise kernel</option><option value="i">inverse: measured arrow × counter-clockwise kernel</option></select>`); g.appendChild(modeW); const mode=modeW.querySelector('select');
+  const P={};
+  P.k0=pair(g,'signal frequency ξ₀',-2.5,2.5,0.05,1.5,()=>draw()); P.A=pair(g,'signal amplitude A',0.1,1,0.05,1,()=>draw()); P.ph=pair(g,'signal phase φ (°)',-180,180,5,40,()=>draw());
+  P.k=pair(g,'kernel ξ',-2.5,2.5,0.05,1,()=>draw());
+  const run=el('button','btn','▶ Run x'); run.type='button'; vbar.appendChild(run);
+  const jump=el('button','btn','set ξ = ξ₀'); jump.type='button'; vbar.appendChild(jump);
+  [['3d','3D'],['end','Look down the x axis'],['re','Side: Re vs x']].forEach(([k,l])=>{ const b=el('button','btn',l); b.type='button'; b.onclick=()=>goView(k); vbar.appendChild(b); });
+  const read=el('div','readout c3r'); fig.appendChild(read);
+  fig.appendChild(el('figcaption','','Top × middle = bottom: lengths multiply, angles add. Press <b>set ξ = ξ₀</b>: the bottom becomes a rod pointing at \\(Ae^{i\\varphi}\\). Switch to inverse to spin it back.'));
+  let yaw=0.95, pitch=0.42, xc=-2, raf=null;
+  function cam(w,h){ const narrow=w<520; const sc=Math.min(w/(narrow?7.4:6.4),h/(narrow?10:8.6)); const cy=Math.cos(yaw), sy=Math.sin(yaw), cp=Math.cos(pitch), sp=Math.sin(pitch); const ox=narrow?w*0.5:w*0.64, oy=narrow?h*0.53:h*0.5, D=30;
+    return (u,re,im,off)=>{ const Y=im+off; const x1=re*cy+u*sy, z1=-re*sy+u*cy; const y2=Y*cp-z1*sp, z2=Y*sp+z1*cp; const k=D/(D+z2*0.9); return [ox+x1*sc*k, oy-y2*sc*k, z2]; }; }
+  function draw(){ const c=C(); const inv=mode.value==='i'; const k0=P.k0.get(), A=P.A.get(), ph=P.ph.get()*PI/180, k=P.k.get();
+    const {ctx,w,h}=setup(cv,(cv.clientWidth||600)<520?1.55:0.62); const Pp=cam(w,h); const scv=Math.min(w/(w<520?7.4:6.4),h/(w<520?10:8.6));
+    const rows=inv?[
+      {off:3.1,f:x=>cx.sc(cx.exp(ph),A),lab:'measured arrow F(ξ₀) = A e^(iφ)',lab2:'a constant arrow: a straight rod',col:c.accent},
+      {off:0,f:x=>cx.exp(TAU*k0*x),lab:'× e^(+2πi·ξ₀·x)',lab2:`counter-clockwise, ξ₀ = ${fmt(k0)}`,col:c.muted},
+      {off:-3.1,f:x=>cx.sc(cx.exp(TAU*k0*x+ph),A),lab:'= rebuilt signal',lab2:'A e^(i(2πξ₀x+φ))',col:null}]
+     :[{off:3.1,f:x=>cx.sc(cx.exp(TAU*k0*x+ph),A),lab:'signal A e^(i(2πξ₀x+φ))',lab2:`ξ₀ = ${fmt(k0)}: ${k0>=0?'counter-clockwise':'clockwise'}`,col:null},
+       {off:0,f:x=>cx.exp(-TAU*k*x),lab:'× kernel e^(−2πi·ξ·x)',lab2:`ξ = ${fmt(k)}: ${k>=0?'clockwise':'counter-clockwise'}`,col:c.muted},
+       {off:-3.1,f:x=>cx.sc(cx.exp(TAU*(k0-k)*x+ph),A),lab:'= product',lab2:`net ${fmt(k0-k)} turns/unit x${Math.abs(k0-k)<0.026?': a straight rod!':''}`,col:c.accent}];
+    const xs=lin(-2,2,700);
+    rows.forEach(r=>{ // axis + label
+      const a=Pp(-2.3,0,0,r.off), b=Pp(2.4,0,0,r.off); ctx.save(); ctx.strokeStyle=c.muted; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke(); ctx.restore();
+      const pts=xs.map(x=>{ const z=r.f(x); return Pp(x,z[0],z[1],r.off); }); let zmin=1e9,zmax=-1e9; pts.forEach(s=>{zmin=Math.min(zmin,s[2]);zmax=Math.max(zmax,s[2]);});
+      ctx.save(); ctx.lineWidth=2.4; ctx.lineCap='round'; for(let i=0;i<pts.length-1;i++){ const al=0.3+0.7*(1-(pts[i][2]-zmin)/((zmax-zmin)||1)); ctx.strokeStyle=r.col?rgba(r.col,al):grad(i/(pts.length-1),al); ctx.beginPath(); ctx.moveTo(pts[i][0],pts[i][1]); ctx.lineTo(pts[i+1][0],pts[i+1][1]); ctx.stroke(); } ctx.restore();
+      const z=r.f(xc); const o=Pp(xc,0,0,r.off), t=Pp(xc,z[0],z[1],r.off); arrow(ctx,o[0],o[1],t[0],t[1],c.ink,2.4,8);
+      const ring=lin(0,TAU,60).map(q=>Pp(xc,Math.cos(q),Math.sin(q),r.off)); ctx.save(); ctx.strokeStyle=rgba(c.ink,.22); ctx.beginPath(); ring.forEach((s,i)=>i?ctx.lineTo(s[0],s[1]):ctx.moveTo(s[0],s[1])); ctx.stroke(); ctx.restore();
+      const L=Pp(0,0,0,r.off); const narrow=w<520; const lx=narrow?8:12, ly=narrow?L[1]-1.5*scv:L[1]; text(ctx,r.lab,lx,ly-8,c.ink,'left','middle','12px "IBM Plex Mono", monospace'); text(ctx,r.lab2,lx,ly+9,c.muted,'left','middle','11px "IBM Plex Mono", monospace'); });
+    const z1=rows[0].f(xc), z2=rows[1].f(xc), z3=rows[2].f(xc); const ang=v=>fmt(Math.atan2(v[1],v[0])*180/PI,0)+'°';
+    read.innerHTML=`<span>at x = ${fmt(xc)}: top angle ${ang(z1)} + middle angle ${ang(z2)} = bottom angle ${ang(z3)}</span><span>lengths: ${fmt(Math.hypot(...z1))} × ${fmt(Math.hypot(...z2))} = ${fmt(Math.hypot(...z3))}</span>`; }
+  function goView(kk){ const T={'3d':[0.95,0.42],'end':[0,0],'re':[PI/2,PI/2]}[kk]; const y0=yaw,p0=pitch; let dy=T[0]-y0; dy=((dy+PI)%TAU+TAU)%TAU-PI; const t0=performance.now(); const st=t=>{ const s=Math.min(1,(t-t0)/800), e=s<.5?2*s*s:1-Math.pow(-2*s+2,2)/2; yaw=y0+dy*e; pitch=p0+(T[1]-p0)*e; draw(); if(s<1) requestAnimationFrame(st); }; requestAnimationFrame(st); }
+  let drag=null; cv.addEventListener('pointerdown',e=>{ drag=[e.clientX,e.clientY,yaw,pitch]; cv.setPointerCapture(e.pointerId); }); cv.addEventListener('pointermove',e=>{ if(!drag) return; yaw=drag[2]+(e.clientX-drag[0])*0.01; pitch=Math.max(-PI/2,Math.min(PI/2,drag[3]+(e.clientY-drag[1])*0.01)); draw(); }); cv.addEventListener('pointerup',()=>drag=null);
+  run.onclick=()=>{ if(raf){ cancelAnimationFrame(raf); raf=null; run.textContent='▶ Run x'; return; } run.textContent='❚❚ Pause'; let last=0; const st=t=>{ if(last){ xc+=(t-last)/1000*0.35; if(xc>2) xc=-2; } last=t; draw(); raf=requestAnimationFrame(st); }; raf=requestAnimationFrame(st); };
+  jump.onclick=()=>{ P.k.set(P.k0.get()); draw(); };
+  mode.addEventListener('change',draw); LIB.onRedraw(()=>{ if(fig.isConnected) draw(); }); draw();
+}
+function dual(mount,cf,ci){
+  const root=document.getElementById(mount); const sw=el('div','modesw',`<span class="gl">mode</span><button type="button" class="btn on" data-m="f">Forward&nbsp; F(ξ) = ∫ f(x) e<sup>−2πiξx</sup> dx</button><button type="button" class="btn" data-m="i">Inverse&nbsp; f(x) = ∫ F(ξ) e<sup>+2πiξx</sup> dξ</button>`); root.appendChild(sw);
+  const a=el('div'); a.id=mount+'-f'; const b=el('div'); b.id=mount+'-i'; b.hidden=true; root.append(a,b);
+  const A=make(a.id,cf), B=make(b.id,Object.assign({mode:'inv'},ci));
+  sw.querySelectorAll('button').forEach(bt=>bt.onclick=()=>{ const inv=bt.dataset.m==='i'; a.hidden=inv; b.hidden=!inv; sw.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===bt)); requestAnimationFrame(()=>{ (inv?B:A).draw(); }); });
+  return {A,B};
+}
+return {make,dual,triple,pair,grad,fmt,cfmt,LIBF};
+})();
+
+/* ===== mini coil cards: non-tunable keyframed animations ===== */
+const MINI = (() => {
+const {setup,frame,axes,curve,arrow,text,lin,cx}=LIB;
+const PI=Math.PI, TAU=2*PI; const C=()=>LIB.C(); const {grad,fmt}=COIL;
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function rgba(col,a){ if(col.startsWith('#')){ let s=col.slice(1); if(s.length===3) s=s.split('').map(q=>q+q).join(''); return `rgba(${parseInt(s.slice(0,2),16)},${parseInt(s.slice(2,4),16)},${parseInt(s.slice(4,6),16)},${a})`; } return col; }
+const reduce=(()=>{ try{ return matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){ return false; } })();
+const cards=[]; const XEND=2.95, W=1.3;
+function card(parent,sp){
+  const d=document.createElement('div'); d.className='mcard'; parent.appendChild(d);
+  const tp=sp.tex.split('\\ \\leftrightarrow\\ '); d.innerHTML=`<div class="mtex">${tp.length===2?`<span>\\(${tp[0]}\\)</span><span>\\(\\leftrightarrow\\ ${tp[1]}\\)</span>`:`<span>\\(${sp.tex}\\)</span>`}</div><canvas class="m3" aria-label="animated coil for ${sp.name||'pair'}"></canvas><canvas class="mst"></canvas><div class="mkey"></div><div class="mwhy">${sp.why}</div>`;
+  const cv=d.querySelector('.m3'), cs=d.querySelector('.mst'), kl=d.querySelector('.mkey');
+  const R=sp.R||3, D=sp.D||2, rng=sp.range||[-2,2]; const f=sp.f?(u=>{ const v=sp.f(u); return Array.isArray(v)?v:[v,0]; }):null; const dl=sp.deltas||[];
+  // numeric transform (sum over ±R)
+  const pm=Math.max(Math.abs(rng[0]),Math.abs(rng[1])); const N=f?Math.max(900,Math.ceil(2*R*pm*16),Math.ceil(2*R/((sp.w||1)/6))):0; const du=f?2*R/(N-1):0;
+  const us=f?lin(-R,R,N):[], fv=f?us.map(f):[];
+  const Fat=k=>{ let re=0,im=0; for(let i=0;i<N;i++){ const w=(i===0||i===N-1)?.5:1; const t=-TAU*k*us[i]; const c=Math.cos(t), s=Math.sin(t); re+=w*(fv[i][0]*c-fv[i][1]*s); im+=w*(fv[i][0]*s+fv[i][1]*c); } re*=du; im*=du; dl.forEach(([x0,w0])=>{ const t=-TAU*k*x0; re+=w0*Math.cos(t); im+=w0*Math.sin(t); }); return [re,im]; };
+  const G=lin(rng[0],rng[1],241), FG=G.map(Fat); let Fm=0; FG.forEach(z=>Fm=Math.max(Fm,Math.hypot(...z))); if(Fm<1e-9) Fm=1;
+  const ds=f?lin(-D,D,Math.max(500,Math.ceil(2*D*pm*26),Math.ceil(2*D/((sp.w||1)/4)))):[]; const dv=f?ds.map(f):[]; let M=sp.M||0; if(!M){ dv.forEach(v=>M=Math.max(M,Math.hypot(...v))); dl.forEach(q=>M=Math.max(M,Math.abs(q[1]))); } if(M<1e-9) M=1;
+  // timeline: sweep with holds at keys
+  const keys=(sp.keys||[]).slice().sort((a,b)=>a.xi-b.xi); const sweepS=sp.sweep||7, hold=1.6;
+  const segs=[]; let t=0, prev=rng[0]; keys.forEach(k=>{ const dur=(k.xi-prev)/(rng[1]-rng[0])*sweepS; segs.push({t0:t,t1:t+dur,a:prev,b:k.xi}); t+=dur; segs.push({t0:t,t1:t+hold,a:k.xi,b:k.xi,key:k}); t+=hold; prev=k.xi; });
+  segs.push({t0:t,t1:t+(rng[1]-prev)/(rng[1]-rng[0])*sweepS,a:prev,b:rng[1]}); t=segs[segs.length-1].t1; segs.push({t0:t,t1:t+0.8,a:rng[1],b:rng[1]}); const T=t+0.8;
+  const st={tm:keys.length?segs[1].t0+0.01:0,visible:false,paused:reduce,xi:rng[0],key:null};
+  function at(tm){ tm=((tm%T)+T)%T; const s=segs.find(q=>tm>=q.t0&&tm<=q.t1)||segs[0]; const u=(s.t1>s.t0)?(tm-s.t0)/(s.t1-s.t0):0; return {xi:s.a+(s.b-s.a)*u,key:s.key||null}; }
+  function cam(w,h){ const sc=Math.min(w/6.6,h/3.5); const yaw=0.95, pitch=0.4; const cy=Math.cos(yaw), sy=Math.sin(yaw), cp=Math.cos(pitch), spn=Math.sin(pitch); const ox=w*0.45, oy=h*0.54;
+    return (u,re,im)=>{ const x1=re*cy+u*sy, z1=-re*sy+u*cy; const y2=im*cp-z1*spn, z2=im*spn+z1*cp; const k=24/(24+z2*0.9); return [ox+x1*sc*k, oy-y2*sc*k, z2]; }; }
+  function draw(){ const c=C(); const {xi,key}=at(st.tm); st.xi=xi; const Fk=Fat(xi);
+    const {ctx,w,h}=setup(cv,0.62); const P=cam(w,h); const sw=2/D; const P3=(u,a,b)=>P(u*sw,a,b);
+    const line=(pts,col,lw,dash)=>{ ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=lw; if(dash) ctx.setLineDash(dash); ctx.beginPath(); pts.forEach((s,i)=>i?ctx.lineTo(s[0],s[1]):ctx.moveTo(s[0],s[1])); ctx.stroke(); ctx.restore(); };
+    // end screen (behind)
+    const sq=[[XEND,-W,-W],[XEND,W,-W],[XEND,W,W],[XEND,-W,W],[XEND,-W,-W]].map(q=>P(...q)); ctx.save(); ctx.fillStyle=rgba(c.panel,.6); ctx.beginPath(); sq.forEach((s,i)=>i?ctx.lineTo(s[0],s[1]):ctx.moveTo(s[0],s[1])); ctx.closePath(); ctx.fill(); ctx.restore(); line(sq,rgba(c.accent,.55),1);
+    line(lin(0,TAU,60).map(q=>P(XEND,Math.cos(q),Math.sin(q))),rgba(c.muted,.45),1); line([P(XEND,-W,0),P(XEND,W,0)],rgba(c.re,.55),1); line([P(XEND,0,-W),P(XEND,0,W)],rgba(c.im,.55),1);
+    // axis
+    line([P(-2.25,0,0),P(XEND+0.25,0,0)],c.muted,1.2); line([P(-2,0,0),P(-2,1.05,0)],c.re,1.2); line([P(-2,0,0),P(-2,0,1.05)],c.im,1.2);
+    // bare coil
+    if(f){ const pts=[]; for(let i=0;i<ds.length;i+=2){ const t=-TAU*xi*ds[i]; pts.push(P3(ds[i],Math.cos(t),Math.sin(t))); } line(pts,rgba(c.muted,.25),1); }
+    // weighted coil
+    if(f){ const pts=ds.map((u,i)=>{ const z=cx.mul(dv[i],cx.exp(-TAU*xi*u)); return [P3(u,z[0]/M,z[1]/M),z]; }); const n=pts.length, seg=Math.max(2,Math.floor(n/70));
+      const proj=[]; ctx.save(); ctx.lineWidth=2.4; ctx.lineCap='round';
+      for(let i=0;i<n-1;i+=seg){ ctx.strokeStyle=grad(i/(n-1),0.95); ctx.beginPath(); ctx.moveTo(pts[i][0][0],pts[i][0][1]); for(let j=i+1;j<=Math.min(n-1,i+seg);j++) ctx.lineTo(pts[j][0][0],pts[j][0][1]); ctx.stroke(); } ctx.restore();
+      line(pts.filter((_,i)=>i%2===0).map(q=>P(XEND,q[1][0]/M,q[1][1]/M)),grad(.5,.4),1); }
+    dl.forEach(([x0,w0])=>{ if(Math.abs(x0)>D+1e-9) return; const z=cx.sc(cx.exp(-TAU*xi*x0),w0/M); const a=P3(x0,0,0), b=P3(x0,z[0],z[1]); const col=grad((x0+D)/(2*D)); arrow(ctx,a[0],a[1],b[0],b[1],col,2.4,7); const e=P(XEND,z[0],z[1]), o=P(XEND,0,0); line([o,e],rgba(col,.5)||col,1); });
+    // F arrow on end screen
+    const s=1.15/Fm; const o=P(XEND,0,0), e=P(XEND,Fk[0]*s,Fk[1]*s); arrow(ctx,o[0],o[1],e[0],e[1],c.accent,3,9);
+    text(ctx,`ξ = ${fmt(xi)}`,8,15,c.ink,'left','alphabetic','12px "IBM Plex Mono", monospace');
+    text(ctx,'sum ➜',e[0]>o[0]?o[0]-34:o[0]+6,P(XEND,0,W)[1]-6,c.accent,'left','alphabetic','10.5px "IBM Plex Mono", monospace');
+    // strip
+    { const {ctx:g,w:ww,h:hh}=setup(cs,0.3); const box=[14,8,ww-22,hh-24]; let lo=0,hi=0; FG.forEach(v=>{lo=Math.min(lo,v[0],v[1]);hi=Math.max(hi,v[0],v[1],Math.hypot(...v));}); const m=(hi-lo||1)*.12;
+      const F=frame(g,box,rng,[lo-m,hi+m]); axes(g,F,{xticks:sp.xt||lin(Math.ceil(rng[0]),Math.floor(rng[1]),Math.floor(rng[1])-Math.ceil(rng[0])+1).filter(q=>q!==0),yticks:[],xlabel:'ξ'});
+      const hasIm=FG.some(v=>Math.abs(v[1])>3e-3*Fm), hasRe=FG.some(v=>Math.abs(v[0])>3e-3*Fm);
+      if(hasIm) curve(g,F,G,FG.map(v=>v[1]),rgba(c.im,.25),1.4); if(hasRe) curve(g,F,G,FG.map(v=>v[0]),rgba(c.re,.25),1.4);
+      const n=Math.max(1,G.findIndex(q=>q>xi)); const cut=n<0?G.length:n; const g2=G.slice(0,cut).concat([xi]), f2=FG.slice(0,cut).concat([Fk]);
+      if(hasIm) curve(g,F,g2,f2.map(v=>v[1]),c.im,2); if(hasRe) curve(g,F,g2,f2.map(v=>v[0]),c.re,2.2);
+      g.save(); g.strokeStyle=c.ink; g.beginPath(); g.moveTo(F.sx(xi),box[1]); g.lineTo(F.sx(xi),box[1]+box[3]); g.stroke(); g.restore(); }
+    kl.textContent=key?key.label:''; kl.classList.toggle('on',!!key);
+  }
+  const obj={st,draw,d}; cards.push(obj);
+  cv.addEventListener('click',()=>{ st.paused=!st.paused; d.classList.toggle('paused',st.paused); });
+  if(reduce){ d.classList.add('paused'); }
+  draw(); return obj;
+}
+// one shared loop, visible cards only, ~30 fps
+const io=new IntersectionObserver(es=>es.forEach(e=>{ const c=cards.find(q=>q.d===e.target); if(c) c.st.visible=e.isIntersecting; }),{rootMargin:'100px'});
+let last=0, acc=0;
+function loop(t){ const dt=last?(t-last)/1000:0; last=t; acc+=dt; if(acc>=1/30){ cards.forEach(c=>{ if(c.st.visible&&!c.st.paused){ c.st.tm+=acc; c.draw(); } }); acc=0; } requestAnimationFrame(loop); }
+requestAnimationFrame(loop);
+function observe(){ cards.forEach(c=>io.observe(c.d)); }
+LIB.onRedraw(()=>cards.forEach(c=>c.draw()));
+return {card,observe};
+})();
+
+/* ===== Fourier Coil Atlas sections ===== */
+(function(){
+const {gaus,rect,tri,sinc,cx,lin,setup,frame,axes,curve,arrow,text}=LIB; const PI=Math.PI, TAU=2*PI; const {fmt,cfmt}=COIL;
+const $=id=>document.getElementById(id); const C=()=>LIB.C();
+const R=String.raw;
+
+/* 1 · one coil, forward/inverse switch */
+COIL.dual('c-dual',
+ {title:'The coil',pR:[-3,3],p0:0.6,u0:0.5,base0:'gaus',R0:6,D0:2,ghost:true,
+  stories:[
+    {label:'x vs ξ',b:'one',mod:'none',A:1,a:1,s:0,R:2,D:2,p:0.6,u:1,w:false,g:true,v:'3d',cap:'Bare coil. Black arrow at \\(x\\); grey arrow at \\(x/2\\) on a coil twice as tight. <b>Same arrow</b> (same \\(\\xi x\\)) but <b>different coils, different sums</b>.'},
+    {label:'area',b:'gaus',mod:'none',A:1,a:1,s:0,R:6,D:2,p:0,u:0.5,w:true,g:false,v:'3d',cap:'\\(\\xi=0\\): no turns, so the coil is a flat ribbon. Sum = area = \\(F(0)\\).'},
+    {label:'rod → δ',b:'phasor',mod:'none',A:1,a:1/1.5,s:0,R:6,D:2,p:1.5,u:0.5,w:true,g:false,v:'3d',cap:'Pre-spun signal against an opposite coil gives a <b>straight rod</b>. A rod never cancels, so the sum keeps growing with \\(R\\). That growth is the δ.'},
+    {label:'rect: whole turns',b:'rect',mod:'none',A:1,a:1,s:0,R:6,D:2,p:1,u:0.4,w:true,g:false,v:'end',cap:'One unit of coil at \\(\\xi=1\\) is exactly one full turn. Balanced, so the sum is 0: the zero of \\(\\sinc\\).'},
+    {label:'sinc → rect',b:'sinc',mod:'none',A:1,a:1,s:0,R:40,D:4,p:0.3,u:0.5,w:true,g:false,v:'3d',cap:'In-band (\\(|\\xi|&lt;\\tfrac12\\)) the coil rides the sinc and the sum is 1. Out of band they cancel. Use a big \\(R\\) for a clean rect.'},
+    {label:'shift',b:'gaus',mod:'none',A:1,a:1,s:1,R:6,D:2,p:0.5,u:1,w:true,g:false,v:'3d',cap:'Weights slid to \\(x=1\\), where the coil has already turned. The sum rotates by \\(-2\\pi\\xi x_0\\).'},
+    {label:'odd → imaginary',b:'xgaus',mod:'none',A:1,a:1,s:0,R:6,D:2,p:0.5,u:0.6,w:true,g:false,v:'end',cap:'Mirror points carry opposite weights, so Re cancels and \\(F\\) is purely imaginary.'},
+    {label:'cos → split',b:'gaus',mod:'cos',A:1,a:0.8,s:0,k:2,R:6,D:2,p:2,u:0.3,w:true,g:false,v:'3d',cap:'Two half-strength pre-spins. Each unwinds at its own \\(\\pm2\\), giving two half copies.'}]},
+ {title:'The coil (inverse)',pR:[-2.5,2.5],p0:0.3,u0:0.5,base0:'sinc',R0:40,D0:3,
+  stories:[
+    {label:'sinc, R = 2',b:'sinc',mod:'none',A:1,a:1,s:0,R:2,D:2,p:0.3,u:0.5,w:true,v:'3d',cap:'Tails cut at \\(|\\xi|\\le2\\): rounded, ringing rect.'},
+    {label:'sinc, R = 60',b:'sinc',mod:'none',A:1,a:1,s:0,R:60,D:4,p:0.3,u:0.5,w:true,v:'3d',cap:'Keep the tails and you get a clean rect.'},
+    {label:'gaus',b:'gaus',mod:'none',A:1,a:1,s:0,R:3,D:2,p:0.3,u:0.5,w:true,v:'3d',cap:'A fast-dying spectrum needs only a small \\(R\\).'},
+    {label:'phase ramp → shift',b:'gaus',mod:'exp',A:1,a:1,s:0,k:-1,R:3,D:2,p:1,u:0.5,w:true,v:'end',cap:'\\(F\\) is pre-twisted by \\(e^{-2\\pi i\\xi}\\). At \\(x=1\\) the counter-clockwise coil untwists it, so \\(f\\) peaks at \\(x=1\\).'}]});
+
+/* 2 · atlas */
+const P=[
+ {name:'1 ↔ δ(ξ)',tex:R`1\ \leftrightarrow\ \delta(\xi)`,f:x=>1,R:2,range:[-1.5,1.5],keys:[{xi:0,label:'0 turns: flat ribbon, all adds up → δ'},{xi:1,label:'whole turns → 0'}],why:'Nothing to cancel <b>only</b> at ξ = 0.'},
+ {name:'δ(x) ↔ 1',tex:R`\delta(x)\ \leftrightarrow\ 1`,deltas:[[0,1]],range:[-2,2],keys:[{xi:1,label:'the hub never turns → 1'}],why:'One point on the axis. Spin all you like: it stays 1.'},
+ {name:'δ(x−x0)',tex:R`\delta(x-1)\ \leftrightarrow\ e^{-2\pi i\xi}`,deltas:[[1,1]],range:[-1.2,1.2],keys:[{xi:0.25,label:'¼ turn → −i'},{xi:0.5,label:'½ turn → −1'}],why:'One point, out at x₀: it <b>orbits</b> as ξ grows.'},
+ {name:'phasor',tex:R`e^{2\pi i x}\ \leftrightarrow\ \delta(\xi-1)`,f:x=>[Math.cos(TAU*x),Math.sin(TAU*x)],R:3,range:[-0.6,2],keys:[{xi:1,label:'spins cancel → straight rod → δ'}],why:'Pre-spun signal + opposite coil = <b>rod</b>.'},
+ {name:'cos',tex:R`\cos(2\pi x)\ \leftrightarrow\ \tfrac12[\delta(\xi-1)+\delta(\xi+1)]`,f:x=>Math.cos(TAU*x),R:3,range:[-1.6,1.6],keys:[{xi:-1,label:'one half unwinds → ½ rod'},{xi:1,label:'other half unwinds → ½ rod'}],why:'Two opposite spins → <b>two half-rods</b>.'},
+ {name:'sin',tex:R`\sin(2\pi x)\ \leftrightarrow\ \tfrac{1}{2i}[\delta(\xi-1)-\delta(\xi+1)]`,f:x=>Math.sin(TAU*x),R:3,range:[-1.6,1.6],keys:[{xi:-1,label:'rod along +Im → +i/2'},{xi:1,label:'rod along −Im → −i/2'}],why:'Same as cos, but the rods point along <b>∓Im</b>.'},
+ {name:'rect',tex:R`\rect(x)\ \leftrightarrow\ \sinc(\xi)`,f:x=>rect(x),R:2,range:[-2.6,2.6],keys:[{xi:0,label:'area = 1'},{xi:1,label:'exactly 1 turn → 0'},{xi:1.5,label:'1½ turns: leftover half → −0.21'},{xi:2,label:'2 turns → 0'}],why:'Whole turns <b>balance</b> → sinc zeros at integers.'},
+ {name:'sinc',tex:R`\sinc(x)\ \leftrightarrow\ \rect(\xi)`,f:x=>sinc(x),R:24,D:3,range:[-1.2,1.2],keys:[{xi:0.25,label:'in band: coil rides the sinc → 1'},{xi:0.8,label:'out of band → cancels → 0'}],why:'sinc = every spin in |ξ|&lt;½, equally. The coil <b>finds one</b> if it is in band.'},
+ {name:'tri',tex:R`\tri(x)\ \leftrightarrow\ \sinc^2(\xi)`,f:x=>tri(x),R:2,range:[-2.6,2.6],keys:[{xi:0,label:'area = 1'},{xi:1,label:'whole turn → 0'},{xi:1.5,label:'small, never negative'}],why:'rect∗rect: softer corners, <b>faster</b> fall-off.'},
+ {name:'gaus',tex:R`e^{-\pi x^2}\ \leftrightarrow\ e^{-\pi\xi^2}`,f:x=>gaus(x),R:3,range:[-2,2],keys:[{xi:0,label:'area = 1'},{xi:0.5,label:'e^(−π/4) ≈ 0.46'},{xi:1,label:'e^(−π) ≈ 0.04'}],why:'Bell in, <b>bell out</b>. Its own transform.'},
+ {name:'exp2',tex:R`e^{-|x|}\ \leftrightarrow\ \frac{2}{1+4\pi^2\xi^2}`,f:x=>Math.exp(-Math.abs(x)),R:8,range:[-1.5,1.5],keys:[{xi:0,label:'area = 2'},{xi:0.5,label:'cusp → slow 1/ξ² tail'}],why:'Sharp cusp → <b>slow</b> tails.'},
+ {name:'exp1',tex:R`e^{-x}\step(x)\ \leftrightarrow\ \frac{1}{1+2\pi i\xi}`,f:x=>x>=0?Math.exp(-x):0,R:8,range:[-1.5,1.5],keys:[{xi:0,label:'area = 1'},{xi:0.3,label:'lopsided weights → arrow tilts'}],why:'One-sided → Re even, Im <b>odd</b>.'},
+ {name:'comb',tex:R`\comb(x)\ \leftrightarrow\ \comb(\xi)`,deltas:lin(-5,5,11).map(x=>[x,1]),D:3,range:[-0.3,2.2],keys:[{xi:0.5,label:'½ turn per spike → alternate → 0'},{xi:1,label:'1 turn per spike → all line up → spike'}],why:'Spikes every 1 line up only at <b>whole turns per spacing</b>.'},
+ {name:'sgn',tex:R`\sgn(x)\ \leftrightarrow\ \frac{1}{i\pi\xi}`,f:x=>x>=0?1:-1,R:3,range:[-1.5,1.5],keys:[{xi:0.25,label:'left half flipped → only Im'},{xi:1,label:'jump → 1/ξ fall-off'}],why:'Odd → <b>imaginary</b>. Jump → 1/ξ.'}];
+const Q=[
+ {name:'shift',tex:R`f(x-x_0)\ \leftrightarrow\ e^{-2\pi i\xi x_0}F(\xi)`,f:x=>gaus(x-1),R:3,range:[-1.2,1.2],keys:[{xi:0.25,label:'sum turned −90°, same length'},{xi:0.5,label:'turned −180°'}],why:'Slide the weights = <b>rotate</b> the sum.'},
+ {name:'scale',tex:R`f(x/a)\ \leftrightarrow\ |a|F(a\xi)`,f:x=>rect(x/2),R:2,range:[-1.6,1.6],keys:[{xi:0,label:'area = 2'},{xi:0.5,label:'width 2 already 1 full turn → 0'}],why:'Wider → whole turns <b>sooner</b> → narrower F.'},
+ {name:'mod',tex:R`e^{2\pi i\xi_0x}f(x)\ \leftrightarrow\ F(\xi-\xi_0)`,f:x=>cx.sc(cx.exp(TAU*1.5*x),gaus(x)),R:3,range:[-0.5,3],keys:[{xi:1.5,label:'spins cancel → bell centred at ξ₀'}],why:'Pre-spun → spectrum <b>slides</b>.'},
+ {name:'deriv',tex:R`f'(x)\ \leftrightarrow\ 2\pi i\xi\,F(\xi)`,f:x=>-TAU*x*gaus(x),R:3,range:[-1.6,1.6],keys:[{xi:0,label:'zero area → 0'},{xi:0.5,label:'quarter turn: pure +Im'}],why:'Every arrow: <b>quarter turn</b>, ×2πξ.'}];
+P.forEach(sp=>MINI.card($('atlasPairs'),sp)); Q.forEach(sp=>MINI.card($('atlasRules'),sp)); MINI.observe();
+
+/* 3 · walkthroughs */
+const L=n=>`<span class="tagx">${n}</span>`;
+const WK=[
+ {t:'Shape + stretch + shift + spin',q:R`\mathcal F\Big\{\rect\Big(\frac{x\hl{\,-\,3}}{\hl{2}}\Big)\,\hl{e^{2\pi i x}}\Big\}`,
+  parts:[['rect','base → sinc(ξ)'],['÷2','stretch → 2 sinc(2ξ)'],['−3','slide → × e^(−6πiξ)'],['e^(2πix)','pre-spin → ξ ↦ ξ − 1']],
+  steps:[{S:{xr:[-3,3],items:[{t:'fn',f:sinc,c:'re'}]},c:'base'},{S:{xr:[-3,3],items:[{t:'fn',f:k=>2*sinc(2*k),c:'re'}]},c:'squeeze ×2, taller ×2'},{S:{xr:[-2,2],n:900,items:[{t:'cf',f:k=>cx.sc(cx.exp(-6*PI*k),2*sinc(2*k))}]},c:'rotate: wiggles inside |F|'},{S:{xr:[-1,3],n:900,items:[{t:'cf',f:k=>cx.sc(cx.exp(-6*PI*(k-1)),2*sinc(2*(k-1)))},{t:'vline',x:1,c:'muted'}]},c:'slide to ξ = 1'}],
+  a:R`F(\xi)=2\sinc\big(2(\xi-1)\big)\,e^{-6\pi i(\xi-1)}`},
+ {t:'Read spikes off a sum of waves',q:R`f(x)=\hl{3}+\hl{2\cos(4\pi x)}-\hl{\sin(6\pi x)}`,
+  parts:[['3','no spin → 3δ(ξ)'],['2cos(2π·2x)','half-rods at ±2 → δ(ξ∓2)'],['−sin(2π·3x)','rods on ±Im → ±(i/2)δ(ξ∓3)']],
+  steps:[{S:{xr:[0,2],n:600,items:[{t:'fn',f:x=>3+2*Math.cos(4*PI*x)-Math.sin(6*PI*x),c:'re'}]},c:'f(x)'},{S:{xr:[-3.6,3.6],yr:[-0.8,3.4],items:[{t:'delta',x:0,h:3,c:'re',label:'3'},{t:'delta',x:2,h:1,c:'re',label:'1'},{t:'delta',x:-2,h:1,c:'re',label:'1'},{t:'delta',x:3,h:0.5,c:'im',label:'+i/2'},{t:'delta',x:-3,h:-0.5,c:'im',label:'−i/2'}]},c:'one rod per spin'}],
+  a:R`F=3\delta(\xi)+\delta(\xi-2)+\delta(\xi+2)+\tfrac i2\delta(\xi-3)-\tfrac i2\delta(\xi+3)`},
+ {t:'An integral is the coil at one ξ',q:R`\int e^{-\pi x^2}\hl{\cos(2\pi x)}\,dx=\ ?`,
+  parts:[['cos(2πx)','= Re of the coil at ξ = 1'],['e^(−πx²) even','→ F real → ∫f cos = F(1)'],['F(1)','= e^(−π)']],
+  mini:{name:'gaus at ξ=1',tex:R`\text{coil at }\xi=1`,f:x=>gaus(x),R:3,range:[0,1.4],keys:[{xi:1,label:'sum = e^(−π) ≈ 0.043'}],why:'Stop the sweep at ξ = 1 and read the arrow.'},
+  steps:[{S:{xr:[-2,2],items:[{t:'fn',f:gaus,c:'re'},{t:'dot',x:1,y:Math.exp(-PI),c:'accent',label:'F(1)'}]},c:'F(ξ) = e^(−πξ²)'}],
+  a:R`e^{-\pi}\approx0.043`},
+ {t:'Convolution → multiply arrows',q:R`\rect(x)\hl{\,*\,}\rect(x)=\ ?`,
+  parts:[['∗','arrows multiply at each ξ'],['sinc · sinc','= sinc²'],['sinc² ↔ tri','read back']],
+  steps:[{S:{xr:[-1.5,1.5],items:[{t:'fn',f:rect,c:'re'}]},c:'rect'},{S:{xr:[-3,3],items:[{t:'fn',f:sinc,c:'re'}]},c:'sinc'},{S:{xr:[-3,3],items:[{t:'fn',f:k=>sinc(k)**2,c:'accent'}]},c:'sinc × sinc'},{S:{xr:[-1.5,1.5],items:[{t:'fn',f:tri,c:'accent'}]},c:'tri(x)'}],
+  a:R`\rect*\rect=\tri(x)`},
+ {t:'Nyquist from the spectrum width',q:R`\text{sample }f(x)=\sinc^2(\hl{2}x)`,
+  parts:[['×2 inside','stretch ½ → ½ tri(ξ/2)'],['tri support','|ξ| < 2 → B = 4'],['no overlap','1/Δx ≥ B']],
+  steps:[{S:{xr:[-2,2],items:[{t:'fn',f:x=>sinc(2*x)**2,c:'re'}]},c:'f(x)'},{S:{xr:[-3,3],band:[{x0:-2,x1:2}],items:[{t:'fn',f:k=>0.5*tri(k/2),c:'re'},{t:'bracket',x0:-2,x1:2,y:0.6,label:'B = 4',c:'ink'}]},c:'½ tri(ξ/2)'},{S:{xr:[-7,7],items:[-1,0,1].map(j=>({t:'fn',f:k=>0.5*tri((k-4*j)/2),c:j?'muted':'re'}))},c:'copies every 4 just touch'}],
+  a:R`\Delta x\le\tfrac14`},
+ {t:'Inverse: a phase ramp means a shift',q:R`F(\xi)=\rect(\xi/\hl{4})\,\hl{e^{-2\pi i\xi}}\ \to\ f(x)=\ ?`,
+  parts:[['rect(ξ/4)','↔ 4 sinc(4x)'],['e^(−2πiξ·1)','phase ramp → shift by +1']],
+  steps:[{S:{xr:[-3,3],n:800,items:[{t:'cf',f:k=>cx.sc(cx.exp(-TAU*k),Math.abs(k)<2?1:0)}]},c:'|F| = rect, ramp inside'},{S:{xr:[-1.5,3.5],n:800,items:[{t:'fn',f:x=>4*sinc(4*(x-1)),c:'re'},{t:'vline',x:1,c:'muted'}]},c:'4 sinc(4(x − 1))'}],
+  a:R`f(x)=4\sinc\big(4(x-1)\big)`},
+ {t:'Predict real/imag before computing',q:R`\mathcal F\{\hl{x}\,e^{-|x|}\}`,
+  parts:[['real + odd','→ F imaginary, odd'],['x · f','↔ (i/2π) F′'],['F{e^(−|x|)}','= 2/(1+4π²ξ²)']],
+  steps:[{S:{xr:[-4,4],items:[{t:'fn',f:x=>x*Math.exp(-Math.abs(x)),c:'re'}]},c:'odd f'},{S:{xr:[-1,1],n:600,items:[{t:'cf',f:k=>[0,-8*PI*k/(1+4*PI*PI*k*k)**2],abs:false}]},c:'orange, odd'}],
+  a:R`F(\xi)=\frac{-8\pi i\,\xi}{(1+4\pi^2\xi^2)^2}`},
+ {t:'Build e^(−|x|) from two halves',q:R`e^{-|x|}=\hl{e^{-x}\step(x)}+\hl{e^{x}\step(-x)}`,
+  parts:[['e^(−x)step(x)','↔ 1/(1+2πiξ)'],['x → −x','wind backwards → ξ → −ξ'],['add','Im cancels, Re doubles']],
+  steps:[{S:{xr:[-1.5,1.5],items:[{t:'cf',f:k=>{const d=1+4*PI*PI*k*k;return[1/d,-TAU*k/d];}}]},c:'right half'},{S:{xr:[-1.5,1.5],items:[{t:'cf',f:k=>{const d=1+4*PI*PI*k*k;return[1/d,TAU*k/d];}}]},c:'left half: mirror'},{S:{xr:[-1.5,1.5],items:[{t:'fn',f:k=>2/(1+4*PI*PI*k*k),c:'re'}]},c:'sum: real, even'}],
+  a:R`e^{-|x|}\leftrightarrow\frac{2}{1+4\pi^2\xi^2}`},
+ {t:'Energy: Parseval',q:R`\int\hl{\sinc^2(x)}\,dx=\ ?`,
+  parts:[['sinc²','= |sinc|²: an energy'],['Parseval','∫|f|² = ∫|F|²'],['sinc ↔ rect','∫rect² = 1']],
+  steps:[{S:{xr:[-3,3],items:[{t:'shade',f:x=>sinc(x)**2,c:'re'},{t:'fn',f:x=>sinc(x)**2,c:'re'}]},c:'∫|f|²'},{S:{xr:[-1.2,1.2],items:[{t:'shade',f:k=>rect(k),c:'accent'},{t:'fn',f:k=>rect(k),c:'accent'}]},c:'∫|F|² = 1'}],
+  a:R`\int\sinc^2(x)\,dx=1`},
+ {t:'Sine modulation: orange copies',q:R`\mathcal F\{e^{-\pi x^2}\hl{\sin(4\pi x)}\}`,
+  parts:[['sin(2π·2x)','= (e^+ − e^−)/2i'],['1/(2i)','= −i/2: orange'],['each spin','slides a copy to ±2']],
+  steps:[{S:{xr:[-2,2],n:600,items:[{t:'fn',f:x=>gaus(x)*Math.sin(4*PI*x),c:'re'}]},c:'odd f'},{S:{xr:[-3.5,3.5],items:[{t:'cf',f:k=>[0,-0.5*gaus(k-2)+0.5*gaus(k+2)],abs:false}]},c:'−½ at +2, +½ at −2'}],
+  a:R`F(\xi)=\tfrac{1}{2i}\big[e^{-\pi(\xi-2)^2}-e^{-\pi(\xi+2)^2}\big]`},
+ {t:'Delta with a scaled argument',q:R`\mathcal F\{\delta(\hl{2}x-\hl{4})\}`,
+  parts:[['δ(2(x−2))','= ½ δ(x−2): squeezing halves the area'],['spike at 2','→ arrow at angle −2πξ·2']],
+  steps:[{S:{xr:[-1,3.5],yr:[-0.1,1.2],items:[{t:'delta',x:2,h:0.5,c:'re',label:'½'}]},c:'weight ½ at x = 2'},{S:{xr:[-1.2,1.2],n:600,items:[{t:'cf',f:k=>cx.sc(cx.exp(-4*PI*k),0.5)}]},c:'|F| = ½, spinning'}],
+  a:R`\tfrac12e^{-4\pi i\xi}`},
+ {t:'Area under the spectrum = f(0)',q:R`\int\hl{\sinc(\xi)}\,d\xi=\ ?`,
+  parts:[['∫F dξ','= inverse at x = 0 → f(0)'],['sinc ↔ rect','rect(0) = 1']],
+  steps:[{S:{xr:[-4,4],items:[{t:'shade',f:sinc,c:'re'},{t:'fn',f:sinc,c:'re'}]},c:'∫F dξ'},{S:{xr:[-1.2,1.2],items:[{t:'fn',f:rect,c:'accent'},{t:'dot',x:0,y:1,c:'accent',label:'f(0) = 1'}]},c:'rect(0)'}],
+  a:R`\int\sinc\,d\xi=1`},
+ {t:'Reverse x = wind backwards',q:R`\mathcal F\{e^{x}\step(\hl{-x})\}`,
+  parts:[['f(−x)','↔ F(−ξ)'],['e^(−x)step(x)','↔ 1/(1+2πiξ)']],
+  steps:[{S:{xr:[-4,1.5],items:[{t:'fn',f:x=>x<=0?Math.exp(x):0,c:'re'}]},c:'left-sided'},{S:{xr:[-1.5,1.5],items:[{t:'cf',f:k=>{const d=1+4*PI*PI*k*k;return[1/d,TAU*k/d];}}]},c:'orange flipped'}],
+  a:R`\frac{1}{1-2\pi i\xi}`},
+ {t:'Window a cosine',q:R`\mathcal F\{\hl{\rect(x/4)}\,\hl{\cos(6\pi x)}\}`,
+  parts:[['rect(x/4)','↔ 4 sinc(4ξ)'],['cos(2π·3x)','split: ½ copy at ±3']],
+  steps:[{S:{xr:[-3,3],n:800,items:[{t:'fn',f:x=>rect(x/4)*Math.cos(6*PI*x),c:'re',lw:1.4}]},c:'4 units of cosine'},{S:{xr:[-5,5],n:900,items:[{t:'fn',f:k=>2*sinc(4*(k-3))+2*sinc(4*(k+3)),c:'re'}]},c:'two sincs, width ¼'}],
+  a:R`2\sinc\big(4(\xi-3)\big)+2\sinc\big(4(\xi+3)\big)`},
+ {t:'Through a blur: read the MTF',q:R`\cos(2\pi\cdot2x)\ \to\ \boxed{h=\tfrac1b\gaus(x/b),\ b=0.3}\ \to\ ?`,
+  parts:[['phasor in','→ same phasor out × H(ξ)'],['H(ξ)','= e^(−πb²ξ²)'],['H(2)','= e^(−0.36π) ≈ 0.32']],
+  steps:[{S:{xr:[0,3],yr:[0,1.1],items:[{t:'fn',f:k=>Math.exp(-PI*0.09*k*k),c:'accent'},{t:'dot',x:2,y:Math.exp(-0.36*PI),c:'accent',label:'0.32'}]},c:'MTF'},{S:{xr:[0,1.5],n:500,yr:[-1.1,1.1],items:[{t:'fn',f:x=>Math.cos(4*PI*x),c:'muted',dash:[5,4]},{t:'fn',f:x=>Math.exp(-0.36*PI)*Math.cos(4*PI*x),c:'re'}]},c:'in (dashed) → out'}],
+  a:R`g(x)\approx0.32\cos(4\pi x)`},
+ {t:'Product → convolution',q:R`\mathcal F\{\sinc(x)\hl{\cdot}\sinc(x)\}`,
+  parts:[['·','product ↔ convolution'],['sinc ↔ rect','rect ∗ rect = tri']],
+  steps:[{S:{xr:[-3,3],items:[{t:'fn',f:x=>sinc(x)**2,c:'re'}]},c:'sinc²(x)'},{S:{xr:[-1.5,1.5],items:[{t:'fn',f:rect,c:'muted',dash:[4,3]},{t:'fn',f:tri,c:'accent'}]},c:'rect ∗ rect'}],
+  a:R`\sinc^2(x)\leftrightarrow\tri(\xi)`}];
+(function(){ const box=$('walks');
+  WK.forEach((w,i)=>{ const d=document.createElement('div'); d.className='walk';
+    d.innerHTML=`<div class="wh"><span class="wn">${i+1}</span><b>${w.t}</b></div><div class="math">\\[${w.q}\\]</div>
+      <div class="parts">${w.parts.map(p=>`<span class="part"><b>${p[0]}</b>${p[1]}</span>`).join('')}</div>
+      <div class="wsteps" style="--n:${w.steps.length+(w.mini?1:0)}">${w.mini?'<div class="wmini"></div>':''}${w.steps.map(s=>`<figure class="wstep"><canvas></canvas><figcaption>${s.c}</figcaption></figure>`).join('')}</div>
+      <div class="wans">\\[\\boxed{${w.a}}\\]</div>`;
+    box.appendChild(d);
+    if(w.mini){ MINI.card(d.querySelector('.wmini'),w.mini); }
+    const cvs=d.querySelectorAll('.wstep canvas'); const draw=()=>w.steps.forEach((s,j)=>VP.plot(cvs[j],{aspect:0.62,n:500,...s.S})); VP.reg(cvs[0],draw); draw(); });
+  MINI.observe(); })();
+
+/* 4 · spin */
+COIL.triple('c-spin');
+
+/* 5 · decomposition */
+(function(){ if(!$('c-decomp')) return;
+  const comps=[{on:true,A:1,k:0.5,ph:0},{on:true,A:0.6,k:1.5,ph:90},{on:true,A:0.4,k:2.5,ph:-45},{on:false,A:0.3,k:3.25,ph:0}]; let dc=0.3;
+  const ed=$('decompEd'); const rows=[];
+  const sig=x=>{ let v=dc; comps.forEach(c=>{ if(c.on) v+=c.A*Math.cos(TAU*c.k*x+c.ph*PI/180); }); return v; };
+  let coil=null, peaks=[], pk=-1;
+  const upd=()=>{ if(coil) coil.setCustom(mk()); };
+  const mk=()=>({f:x=>[sig(x),0],ex:null,w:0.5,label:'',pair:'',deltas:true});
+  { const r=document.createElement('div'); r.className='ctrls grp'; r.innerHTML='<span class="gl">DC</span>'; ed.appendChild(r); const dcp=COIL.pair(r,'offset c₀',-1,1,0.05,dc,()=>{ dc=dcp.get(); upd(); }); }
+  comps.forEach((c,i)=>{ const r=document.createElement('div'); r.className='ctrls grp'; r.innerHTML=`<label class="chk"><input type="checkbox"${c.on?' checked':''}> <span class="gl">wave ${i+1}</span></label>`; ed.appendChild(r);
+    const ck=r.querySelector('input'); ck.addEventListener('change',()=>{ c.on=ck.checked; upd(); });
+    const a=COIL.pair(r,'A',0,1.5,0.05,c.A,()=>{ c.A=a.get(); upd(); }); const k=COIL.pair(r,'ξ',0,4,0.05,c.k,()=>{ c.k=k.get(); upd(); }); const p=COIL.pair(r,'φ (°)',-180,180,5,c.ph,()=>{ c.ph=p.get(); upd(); }); rows.push({a,k,p}); });
+  function analyze(S){ const R=S.R, T=2*R; const G=S.G, A=S.FG.map(z=>Math.hypot(...z)); const cand=[]; const hw=Math.max(1,Math.round((1.6/T)/(G[1]-G[0])));
+    let mx=0; G.forEach((g,i)=>{ if(g>=-1e-9) mx=Math.max(mx,A[i]); });
+    G.forEach((g,i)=>{ if(g<-1e-9) return; let ok=A[i]>0.2*mx; for(let j=Math.max(0,i-hw);j<=Math.min(G.length-1,i+hw)&&ok;j++) if(A[j]>A[i]) ok=false; if(ok) cand.push(i); });
+    peaks=cand.map(i=>{ let best=G[i], bv=A[i]; const d=G[1]-G[0]; for(let t=-1;t<=1;t+=0.05){ const q=G[i]+t*d; if(q<0) continue; const z=S.Fat(q); const m=Math.hypot(...z); if(m>bv){bv=m;best=q;} } const z=S.Fat(best); const isDC=Math.abs(best)<0.6/T;
+      return {k:isDC?0:best, A:isDC?z[0]/T:2*bv/T, ph:isDC?0:Math.atan2(z[1],z[0]), z}; });
+    drawA(); }
+  function drawA(){ const c=C();
+    { const {ctx,w}=setup($('decSpec'),0.34); const H=Math.round(w*0.34); const box=[30,30,w-40,H-52]; const F=frame(ctx,box,[-0.2,4.2],[0,1.75]); axes(ctx,F,{xticks:[0.5,1,1.5,2,2.5,3,3.5,4],yticks:[0.5,1,1.5],xlabel:'ξ'});
+      comps.forEach(cc=>{ if(!cc.on) return; ctx.save(); ctx.strokeStyle=c.muted; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(F.sx(cc.k),F.sy(cc.A),6,0,7); ctx.stroke(); ctx.restore(); });
+      if(Math.abs(dc)>1e-9){ ctx.save(); ctx.strokeStyle=c.muted; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(F.sx(0),F.sy(Math.abs(dc)),6,0,7); ctx.stroke(); ctx.restore(); }
+      peaks.forEach((q,i)=>{ const x=F.sx(q.k), y=F.sy(Math.abs(q.A)); ctx.save(); ctx.strokeStyle=c.accent; ctx.fillStyle=c.accent; ctx.lineWidth=i===pk?3.5:2.4; ctx.beginPath(); ctx.moveTo(x,F.sy(0)); ctx.lineTo(x,y); ctx.stroke(); ctx.beginPath(); ctx.arc(x,y,3.5,0,7); ctx.fill(); ctx.restore();
+        const r=11, cy=y-r-8; ctx.save(); ctx.strokeStyle=c.rule; ctx.beginPath(); ctx.arc(x,cy,r,0,7); ctx.stroke(); ctx.restore(); const ph=q.k===0?(q.A<0?PI:0):q.ph; arrow(ctx,x,cy,x+r*Math.cos(ph),cy-r*Math.sin(ph),c.ink,1.6,5); });
+      text(ctx,'found by the coil: amplitude (stem) + phase (dial) · ○ = true component',box[0]+2,14,c.ink,'left','alphabetic','11.5px "IBM Plex Mono", monospace'); }
+    { const {ctx,w}=setup($('decRec'),0.3); const H=Math.round(w*0.3); const box=[30,22,w-40,H-44]; const xs=lin(-3,3,900); const rec=x=>{ let v=0; peaks.forEach(q=>{ v+= q.k===0?q.A:q.A*Math.cos(TAU*q.k*x+q.ph); }); return v; };
+      const fv=xs.map(sig), rv=xs.map(rec); const lo=Math.min(...fv,...rv), hi=Math.max(...fv,...rv); const m=(hi-lo||1)*.1; const F=frame(ctx,box,[-3,3],[lo-m,hi+m]); axes(ctx,F,{xticks:[-2,-1,1,2],yticks:[],xlabel:'x'});
+      peaks.forEach(q=>curve(ctx,F,xs,xs.map(x=>q.k===0?q.A:q.A*Math.cos(TAU*q.k*x+q.ph)),C().rule,1.2));
+      curve(ctx,F,xs,fv,COIL.grad(.5),3); curve(ctx,F,xs,rv,c.accent,1.8,[6,4]);
+      text(ctx,'signal (solid) vs sum of the components the coil found (dashed) · thin: each component',box[0]+2,12,c.ink,'left','alphabetic','11.5px "IBM Plex Mono", monospace'); }
+    $('decR').innerHTML=peaks.map((q,i)=>`<span${i===pk?' class="on"':''}>${q.k===0?`DC: <b>${fmt(q.A)}</b>`:`ξ = <b>${fmt(q.k)}</b>: A = <b>${fmt(q.A)}</b>, φ = <b>${fmt(q.ph*180/PI,0)}°</b>`}</span>`).join('')||'<span>no peaks above threshold</span>'; }
+  coil=COIL.make('c-decomp',{title:'The coil as a frequency detector',custom:mk(),pR:[-4,4],p0:0.5,u0:0.5,R0:6,D0:2,exact:false,onBuild:(S)=>analyze(S),
+    caption:'Same frequency as the coil → rod → peak. Longer \\(R\\) → sharper peaks.'});
+  $('decNext').onclick=()=>{ if(!peaks.length) return; pk=(pk+1)%peaks.length; coil.P.p.set(peaks[pk].k); coil.goView('end'); coil.draw(); drawA(); };
+  LIB.onRedraw(drawA);
+})();
+
+
+/* 7 · Gibbs */
+(function(){ if(!$('gibbs')) return; let R=8;
+  const fR=(x,Rr)=>{ const N=Math.max(1500,Math.ceil(Rr*Math.max(1,Math.abs(x)+0.5)*40)); const d=Rr/N; let s=0; for(let i=0;i<=N;i++){ const q=i*d; const w=(i===0||i===N)?.5:1; s+=w*sinc(q)*Math.cos(TAU*q*x); } return 2*s*d; };
+  const xs=lin(-1.2,1.2,481); const cache={};
+  const curveFor=Rr=>{ if(!cache[Rr]) cache[Rr]=xs.map(x=>fR(x,Rr)); return cache[Rr]; };
+  function draw(){ const c=C(); const {ctx,w}=setup($('gibbs'),0.42); const H=Math.round(w*0.42); const box=[30,24,w-40,H-46]; const F=frame(ctx,box,[-1.2,1.2],[-0.2,1.25]); axes(ctx,F,{xticks:[-1,-0.5,0.5,1],yticks:[0.5,1],xlabel:'x'});
+    ctx.save(); ctx.strokeStyle=c.ink; ctx.setLineDash([5,4]); ctx.lineWidth=1.4; ctx.beginPath(); ctx.moveTo(F.sx(-1.2),F.sy(0)); ctx.lineTo(F.sx(-0.5),F.sy(0)); ctx.lineTo(F.sx(-0.5),F.sy(1)); ctx.lineTo(F.sx(0.5),F.sy(1)); ctx.lineTo(F.sx(0.5),F.sy(0)); ctx.lineTo(F.sx(1.2),F.sy(0)); ctx.stroke(); ctx.restore();
+    ctx.save(); ctx.strokeStyle=C().rule; ctx.setLineDash([2,3]); ctx.beginPath(); ctx.moveTo(box[0],F.sy(1.0895)); ctx.lineTo(box[0]+box[2],F.sy(1.0895)); ctx.stroke(); ctx.restore(); text(ctx,'1.09',box[0]+box[2]-2,F.sy(1.0895)-4,c.muted,'right','alphabetic','10.5px "IBM Plex Mono", monospace');
+    [2,8].filter(r=>r!==R).forEach((r,i)=>curve(ctx,F,xs,curveFor(r),i?c.re:c.im,1.3));
+    const y=curveFor(R); curve(ctx,F,xs,y,c.accent,2.6);
+    let mx=Math.max(...y); for(let i=0;i<=160;i++){ const xx=0.5-4/R*i/160; if(xx<0) break; mx=Math.max(mx,fR(xx,R)); } const ihalf=xs.findIndex(x=>x>=0.5); text(ctx,`rebuilt rect from ∫ over |ξ| ≤ R · bold: R = ${fmt(R,1)}`,box[0]+2,12,c.ink,'left','alphabetic','11.5px "IBM Plex Mono", monospace');
+    $('gibR').innerHTML=`<span>peak = <b>${fmt(mx,3)}</b> (overshoot ${fmt((mx-1)*100,1)}% of the jump)</span><span>value at x = ½: <b>${fmt(fR(0.5,R),3)}</b></span><span>orange R = 2 · blue R = 8 · dashed = exact rect</span>`; }
+  const g=$('gibC'); const pr=COIL.pair(g,'sum range R',1,100,1,R,()=>{ R=Math.max(0.5,pr.get()); draw(); },{nmin:0.5,nmax:400});
+  LIB.onRedraw(draw); draw();
+})();
+})();
+
+/* ===== step-by-step solutions ===== */
+(function(){
+const {gaus,rect,tri,sinc,cx,lin}=LIB; const PI=Math.PI, TAU=2*PI; const $=id=>document.getElementById(id); const R=String.raw;
+const Fg=k=>[gaus(k),0];
+const SOL=[
+ {t:'Shifted, stretched, modulated Gaussian',q:R`\mathcal F\Big\{e^{-\pi(x-2)^2/4}\cos(6\pi x)\Big\}`,
+  steps:[
+   {m:R`f(x)=\underbrace{\gaus}_{\text{base}}\Big(\frac{x\,\hl{-\,2}}{\hl{2}}\Big)\,\hl{\cos(2\pi\cdot3x)}`,tag:'read the recipe',why:'Rewrite into <b>base · stretch · shift · spin</b> form. Every later step is one rule.',vis:[{xr:[-2,6],n:800,items:[{t:'fn',f:x=>gaus((x-2)/2),c:'muted',dash:[4,4]},{t:'fn',f:x=>gaus((x-2)/2)*Math.cos(6*PI*x),c:'re',lw:1.5},{t:'vline',x:2,c:'muted',label:'x₀ = 2'}]}]},
+   {m:R`e^{-\pi x^2}\ \leftrightarrow\ e^{-\pi\xi^2}`,tag:'base pair',why:'Start from the plain bell. Bell in, <b>bell out</b>.',mini:{name:'gaus',tex:R`\gaus(x)\ \leftrightarrow\ \gaus(\xi)`,f:x=>gaus(x),R:3,range:[-1.5,1.5],keys:[{xi:0,label:'area = 1'},{xi:0.5,label:'≈ 0.46'}],why:''}},
+   {m:R`\gaus(x/2)\ \leftrightarrow\ 2\,e^{-4\pi\xi^2}`,tag:'stretch: |a|F(aξ)',why:'Twice as wide → the coil reaches whole turns <b>twice as soon</b>: F is half as wide and twice as tall.',vis:[{xr:[-1.5,1.5],items:[{t:'fn',f:gaus,c:'muted',dash:[4,4]},{t:'fn',f:k=>2*gaus(2*k),c:'re'}]}]},
+   {m:R`\gaus\Big(\frac{x-2}{2}\Big)\ \leftrightarrow\ 2\,e^{-4\pi\xi^2}\,\hl{e^{-4\pi i\xi}}`,tag:'shift: × e^(−2πiξx₀)',why:'Weights slide to x₀ = 2, where the coil has already turned. Same length, <b>rotated</b> arrows.',vis:[{xr:[-1.2,1.2],n:900,items:[{t:'cf',f:k=>cx.sc(cx.exp(-4*PI*k),2*gaus(2*k))}]}]},
+   {m:R`\times\cos(2\pi\cdot3x)\ \Rightarrow\ \tfrac12G(\xi-3)+\tfrac12G(\xi+3)`,tag:'modulate: split',why:'cos = two half pre-spins → two <b>half copies</b>, at ±3.',vis:[{xr:[-4.5,4.5],n:1200,items:[{t:'cf',f:k=>cx.add(cx.sc(cx.exp(-4*PI*(k-3)),gaus(2*(k-3))),cx.sc(cx.exp(-4*PI*(k+3)),gaus(2*(k+3))))}]}]},
+   {m:R`e^{-4\pi i(\xi\mp3)}=e^{-4\pi i\xi}\,\underbrace{e^{\pm12\pi i}}_{=1}`,tag:'tidy',why:'±12πi is <b>six whole turns</b>, so that factor is 1.'}],
+  a:R`F(\xi)=e^{-4\pi i\xi}\Big[e^{-4\pi(\xi-3)^2}+e^{-4\pi(\xi+3)^2}\Big]`},
+
+ {t:'Inverse transform: undo stretch and phase ramp',q:R`F(\xi)=\sinc^2(\xi/2)\,e^{-4\pi i\xi}\ \Rightarrow\ f(x)=\ ?`,
+  steps:[
+   {m:R`F=\underbrace{\sinc^2}_{\text{base}}\big(\xi/\hl{2}\big)\cdot\hl{e^{-2\pi i\xi\cdot2}}`,tag:'read the recipe',why:'Spot the base pair, the stretch inside, and the <b>phase ramp</b>.',vis:[{xr:[-4,4],n:900,items:[{t:'cf',f:k=>cx.sc(cx.exp(-4*PI*k),sinc(k/2)**2)}]}]},
+   {m:R`\tri(x)\ \leftrightarrow\ \sinc^2(\xi)`,tag:'base pair',why:'sinc² is rect∗rect in disguise: its partner is <b>tri</b>.',vis:[{xr:[-1.5,1.5],items:[{t:'fn',f:tri,c:'re'}]},{xr:[-3,3],items:[{t:'fn',f:k=>sinc(k)**2,c:'re'}]}]},
+   {m:R`\begin{gathered}\tri(2x)\ \leftrightarrow\ \tfrac12\sinc^2(\xi/2)\\ \Downarrow\\ \sinc^2(\xi/2)\ \leftrightarrow\ 2\tri(2x)\end{gathered}`,tag:'stretch: a = ½',why:'A <b>wider</b> F means a <b>narrower</b> f. Multiply by 2 to clear the ½.',vis:[{xr:[-1.5,1.5],items:[{t:'fn',f:tri,c:'muted',dash:[4,4]},{t:'fn',f:x=>2*tri(2*x),c:'re'}]}]},
+   {m:R`\hl{e^{-2\pi i\xi\cdot2}}F\ \leftrightarrow\ f(x-2)`,tag:'phase ramp → shift',why:'A ramp of 2 turns per unit ξ = weights <b>slid to x = 2</b>.',vis:[{xr:[-1,3.5],items:[{t:'fn',f:x=>2*tri(2*(x-2)),c:'re'},{t:'vline',x:2,c:'muted',label:'x = 2'}]}]},
+   {m:R`\int f\,dx=F(0)=1:\quad 2\cdot\tfrac12=1\ \checkmark`,tag:'check: area',why:'Height 2 × base 1 / 2 = 1 = F(0). <b>Always check the area.</b>'}],
+  a:R`f(x)=2\tri\big(2(x-2)\big)`},
+
+ {t:'Convolve two Gaussians',q:R`e^{-\pi x^2}*e^{-\pi x^2/4}=\ ?`,
+  steps:[
+   {m:R`f*g\ \leftrightarrow\ F\cdot G`,tag:'convolution → multiply',why:'Convolving is painful; <b>multiplying arrows</b> is easy.',vis:[{xr:[-4,4],items:[{t:'fn',f:gaus,c:'re'},{t:'fn',f:x=>gaus(x/2),c:'im'}]}]},
+   {m:R`F=e^{-\pi\xi^2},\qquad G=2e^{-4\pi\xi^2}`,tag:'two base pairs',why:'Width 1 and width 2: the second spectrum is <b>half as wide, twice as tall</b>.',vis:[{xr:[-1.5,1.5],items:[{t:'fn',f:gaus,c:'re'},{t:'fn',f:k=>2*gaus(2*k),c:'im'}]}]},
+   {m:R`F\,G=2e^{-5\pi\xi^2}`,tag:'multiply',why:'Gaussian × Gaussian: <b>exponents add</b>.',vis:[{xr:[-1.5,1.5],items:[{t:'fn',f:k=>2*Math.exp(-5*PI*k*k),c:'accent'}]}]},
+   {m:R`\begin{gathered}2e^{-\pi(\sqrt5\xi)^2}=\tfrac{2}{\sqrt5}\cdot\sqrt5\,e^{-\pi(\sqrt5\xi)^2}\\ \updownarrow\\ \tfrac{2}{\sqrt5}\,e^{-\pi x^2/5}\end{gathered}`,tag:'read back: a = √5',why:'Match the form |a|·gaus(aξ) ↔ gaus(x/a). Widths add <b>in quadrature</b>: √(1²+2²).',vis:[{xr:[-5,5],items:[{t:'fn',f:x=>2/Math.sqrt(5)*Math.exp(-PI*x*x/5),c:'accent'}]}]},
+   {m:R`\text{area}=1\cdot2=2,\qquad \tfrac{2}{\sqrt5}\cdot\sqrt5=2\ \checkmark`,tag:'check: areas multiply',why:'F(0)·G(0) = area of the result.'}],
+  a:R`\frac{2}{\sqrt5}\,e^{-\pi x^2/5}`},
+
+ {t:'An integral with no antiderivative: Parseval',q:R`\int_{-\infty}^{\infty}\sinc^4(x)\,dx`,
+  steps:[
+   {m:R`\sinc^4=\big|\sinc^2\big|^2`,tag:'spot an energy',why:'A <b>square</b> of something with a known transform.',vis:[{xr:[-3,3],items:[{t:'shade',f:x=>sinc(x)**4,c:'re'},{t:'fn',f:x=>sinc(x)**4,c:'re'}]}]},
+   {m:R`\begin{gathered}\int|f|^2dx=\int|F|^2d\xi\\ f=\sinc^2\ \leftrightarrow\ F=\tri\end{gathered}`,tag:'Parseval',why:'Energy is the same on <b>both sides</b>. Move to the easy side.'},
+   {m:R`\int\tri^2(\xi)\,d\xi=2\int_0^1(1-\xi)^2d\xi=2\cdot\tfrac13`,tag:'integrate the easy side',why:'A triangle squared: <b>polynomial</b>, done.',vis:[{xr:[-1.4,1.4],items:[{t:'shade',f:k=>tri(k)**2,c:'accent'},{t:'fn',f:k=>tri(k)**2,c:'accent'}]}]}],
+  a:R`\int\sinc^4(x)\,dx=\tfrac23`},
+
+ {t:'Fourier series of a pulse train',q:R`\begin{gathered}f=\rect(x)*\tfrac12\comb(x/2)\\ \text{period }2,\ \text{width }1\end{gathered}`,
+  steps:[
+   {m:R`L=2\ \Rightarrow\ \text{only }\xi=n/2`,tag:'periodic → harmonics',why:'Periods stack only at <b>whole turns per period</b>. Everywhere else they fan out.',mini:{name:'train',tex:R`\text{coil on a pulse train}`,f:x=>{const u=x-2*Math.round(x/2);return Math.abs(u)<0.5?1:0;},R:8,D:3,range:[0,1.4],keys:[{xi:0.5,label:'1 turn per period → stack'},{xi:0.75,label:'1½ turns → alternate → 0'},{xi:1,label:'2 turns per period, but each pulse = 1 full turn → 0'}],why:''}},
+   {m:R`\rect(x)\ \leftrightarrow\ \sinc(\xi)`,tag:'one period',why:'One period sets the <b>envelope</b>.',vis:[{xr:[-3,3],items:[{t:'fn',f:sinc,c:'muted',dash:[4,4]}]}]},
+   {m:R`F_n=\tfrac1L F_0\big(\tfrac nL\big)=\tfrac12\sinc\big(\tfrac n2\big)`,tag:'sample the envelope',why:'Sample at n/L and divide by L.',vis:[{xr:[-3.2,3.2],yr:[-0.25,0.62],items:[{t:'fn',f:k=>0.5*sinc(k),c:'muted',dash:[4,4]},...lin(-6,6,13).map(n=>({t:'delta',x:n/2,h:0.5*sinc(n/2),c:'re'}))]}]},
+   {m:R`\begin{gathered}F_0=\tfrac12,\quad F_{\pm1}=\tfrac1\pi\\ F_{\pm2}=0,\quad F_{\pm3}=-\tfrac1{3\pi}\end{gathered}`,tag:'read values',why:'Even harmonics vanish: <b>duty cycle ½</b>.'}],
+  a:R`f(x)=\sum_n\tfrac12\sinc\big(\tfrac n2\big)e^{i\pi nx}`},
+
+ {t:'Aliasing: where does 7 land?',q:R`\cos(2\pi\cdot7x)\ \text{sampled at }\Delta x=0.1`,
+  steps:[
+   {m:R`\cos(2\pi\cdot7x)\leftrightarrow\tfrac12\big[\delta(\xi-7)+\delta(\xi+7)\big]`,tag:'two half-rods',why:'Two spins, ±7.',vis:[{xr:[-12,12],yr:[-0.05,0.7],items:[{t:'delta',x:7,h:0.5,c:'re',label:'½'},{t:'delta',x:-7,h:0.5,c:'re',label:'½'}]}]},
+   {m:R`\text{sampling}\Rightarrow\text{copies every }1/\Delta x=10`,tag:'sampling → replicate',why:'Samples can\'t tell ξ from <b>ξ + 10</b>: the coil lands on the same dots.',vis:[{xr:[-12,12],yr:[-0.05,0.7],items:[7,-7,-3,3,17,-17].map(x=>({t:'delta',x,h:0.5,c:Math.abs(x)===7?'re':'muted'}))}]},
+   {m:R`7-10=-3,\quad -7+10=3`,tag:'fold into the band',why:'Nyquist band |ξ| &lt; 5 now holds ±3.',vis:[{xr:[-12,12],yr:[-0.05,0.7],band:[{x0:-5,x1:5}],items:[{t:'delta',x:3,h:0.5,c:'im',label:'3'},{t:'delta',x:-3,h:0.5,c:'im',label:'−3'}]}]},
+   {m:R`\text{at }x_j=j/10:\ \cos(1.4\pi j)=\cos(0.6\pi j)`,tag:'check on the samples',why:'Identical dots, <b>different curves</b>.',vis:[{xr:[0,1],n:800,items:[{t:'fn',f:x=>Math.cos(14*PI*x),c:'re',lw:1.3},{t:'fn',f:x=>Math.cos(6*PI*x),c:'im',dash:[5,4]},{t:'stem',pts:lin(0,1,11).map(x=>[x,Math.cos(14*PI*x)]),c:'ink'}]}]}],
+  a:R`\text{appears as }\cos(2\pi\cdot3x)`},
+
+ {t:'LSIV output: phasors in, phasors out',q:R`\begin{gathered}f=1+\cos(4\pi x)\\ \downarrow\ h=\tfrac1b\gaus(x/b),\ b=0.2\\ g=\ ?\end{gathered}`,
+  steps:[
+   {m:R`f=1+\tfrac12e^{2\pi i(2)x}+\tfrac12e^{-2\pi i(2)x}`,tag:'split into phasors',why:'A system only ever sees <b>phasors</b>.',vis:[{xr:[-3,3],yr:[-0.1,1.3],items:[{t:'delta',x:0,h:1,c:'re',label:'1'},{t:'delta',x:2,h:0.5,c:'re',label:'½'},{t:'delta',x:-2,h:0.5,c:'re',label:'½'}]}]},
+   {m:R`H(\xi)=\mathcal F\{h\}=e^{-\pi b^2\xi^2}`,tag:'transfer function',why:'Unit-area Gaussian PSF → H(0) = 1, real, no phase.',vis:[{xr:[0,3],yr:[0,1.1],items:[{t:'fn',f:k=>Math.exp(-PI*0.04*k*k),c:'accent'}]}]},
+   {m:R`H(0)=1,\quad H(\pm2)=e^{-0.16\pi}\approx0.605`,tag:'read H at each phasor',why:'Each arrow gets × H(ξ): <b>lengths multiply</b>.',vis:[{xr:[0,3],yr:[0,1.1],items:[{t:'fn',f:k=>Math.exp(-PI*0.04*k*k),c:'accent'},{t:'dot',x:0,y:1,c:'accent'},{t:'dot',x:2,y:Math.exp(-0.16*PI),c:'accent',label:'0.605'}]}]},
+   {m:R`g=1+0.605\cos(4\pi x)`,tag:'reassemble',why:'Same frequencies, smaller swing. Mean unchanged.',vis:[{xr:[0,1.5],n:500,yr:[-0.1,2.2],items:[{t:'fn',f:x=>1+Math.cos(4*PI*x),c:'muted',dash:[5,4]},{t:'fn',f:x=>1+0.605*Math.cos(4*PI*x),c:'re'}]}]}],
+  a:R`g(x)\approx1+0.605\cos(4\pi x)`},
+
+ {t:'Derivative trick',q:R`\mathcal F\{x\,e^{-\pi x^2}\}`,
+  steps:[
+   {m:R`\begin{gathered}\tfrac{d}{dx}e^{-\pi x^2}=-2\pi x\,e^{-\pi x^2}\\ \Downarrow\\ x\,e^{-\pi x^2}=-\tfrac1{2\pi}\tfrac{d}{dx}e^{-\pi x^2}\end{gathered}`,tag:'spot a derivative',why:'x·gaus is just a <b>scaled slope</b> of gaus.',vis:[{xr:[-2.5,2.5],items:[{t:'fn',f:gaus,c:'muted',dash:[4,4]},{t:'fn',f:x=>x*gaus(x),c:'re'}]}]},
+   {m:R`f'\ \leftrightarrow\ 2\pi i\xi\,F`,tag:'derivative rule',why:'Every arrow: <b>quarter turn</b>, stretched by 2πξ.',mini:{name:'deriv',tex:R`\gaus'(x)\ \leftrightarrow\ 2\pi i\xi\,\gaus(\xi)`,f:x=>-TAU*x*gaus(x),R:3,range:[-1.2,1.2],keys:[{xi:0.5,label:'pure +Im: quarter turn'}],why:''}},
+   {m:R`-\tfrac{1}{2\pi}\cdot2\pi i\xi\,e^{-\pi\xi^2}=-i\xi\,e^{-\pi\xi^2}`,tag:'combine',why:'Constants pass straight through.',vis:[{xr:[-2.5,2.5],items:[{t:'cf',f:k=>[0,-k*gaus(k)],abs:false}]}]},
+   {m:R`\text{real, odd}\Rightarrow\text{imaginary, odd}\ \checkmark`,tag:'check: symmetry',why:'Orange only, antisymmetric. <b>Matches.</b>'}],
+  a:R`-i\xi\,e^{-\pi\xi^2}`}];
+
+const box=$('steps'); if(!box) return;
+SOL.forEach((s,si)=>{
+  const d=document.createElement('div'); d.className='sol';
+  d.innerHTML=`<div class="wh"><span class="wn">${si+1}</span><b>${s.t}</b></div><div class="math sq">\\[${s.q}\\]</div>
+   <div class="sgrid"><ol class="deriv">${s.steps.map((st,i)=>`<li data-i="${i}"><span class="stag">${i+1} · ${st.tag}</span><div class="math">\\[${st.m}\\]</div></li>`).join('')}<li class="final" data-i="${s.steps.length}"><span class="stag">answer</span><div class="math">\\[\\boxed{${s.a}}\\]</div></li></ol>
+   <div class="spanel">${s.steps.map((st,i)=>`<div class="sv" data-i="${i}"><div class="swhy">${st.why}</div>${st.mini?'<div class="svm"></div>':''}${(st.vis||[]).map(()=>'<canvas></canvas>').join('')}</div>`).join('')}<div class="sv" data-i="${s.steps.length}"><div class="swhy"><b>Done.</b> Every step was one rule from the decoder.</div></div></div></div>
+   <div class="snav"><button class="btn" type="button" data-a="prev">◀ Back</button><span class="sprog"></span><button class="btn pri" type="button" data-a="next">Next step ▶</button><button class="btn" type="button" data-a="all">Show all</button><button class="btn" type="button" data-a="reset">Restart</button></div>`;
+  box.appendChild(d);
+  s.steps.forEach((st,i)=>{ if(st.mini) MINI.card(d.querySelector(`.sv[data-i="${i}"] .svm`),st.mini); });
+  let cur=0, all=false; const N=s.steps.length;
+  const drawV=i=>{ const st=s.steps[i]; if(!st||!st.vis) return; const cvs=d.querySelectorAll(`.sv[data-i="${i}"] canvas`); st.vis.forEach((S,j)=>VP.plot(cvs[j],{aspect:st.vis.length>1?0.62:0.5,n:600,...S})); };
+  function show(){ d.querySelectorAll('.deriv li').forEach(li=>{ const i=+li.dataset.i; li.classList.toggle('hid',!all&&i>cur); li.classList.toggle('cur',i===cur); });
+    d.querySelectorAll('.sv').forEach(v=>v.hidden=+v.dataset.i!==cur); requestAnimationFrame(()=>drawV(cur));
+    d.querySelector('.sprog').innerHTML=Array.from({length:N+1},(_,i)=>`<i class="${i<cur?'done':i===cur?'on':''}"></i>`).join('')+`<span>${cur<N?`step ${cur+1} of ${N}`:'answer'}</span>`;
+    d.querySelector('[data-a="prev"]').disabled=cur===0; d.querySelector('[data-a="next"]').disabled=cur===N; }
+  d.querySelector('.snav').addEventListener('click',e=>{ const a=e.target.closest('button'); if(!a) return; const k=a.dataset.a;
+    if(k==='next'&&cur<N) cur++; if(k==='prev'&&cur>0) cur--; if(k==='all'){ all=!all; a.textContent=all?'Hide future steps':'Show all'; } if(k==='reset'){ cur=0; all=false; d.querySelector('[data-a="all"]').textContent='Show all'; } show(); });
+  d.querySelectorAll('.deriv li').forEach(li=>li.addEventListener('click',()=>{ if(li.classList.contains('hid')) return; cur=+li.dataset.i; show(); }));
+  LIB.onRedraw(()=>drawV(cur)); show();
+});
+MINI.observe();
+})();
+
+/* ===== navigation + init ===== */
+(function(){
+  const list=document.getElementById('railList'), sel=document.getElementById('mnavSel'); if(!list) return;
+  const links=[];
+  document.querySelectorAll('section[data-nav]').forEach(sec=>{
+    const li=document.createElement('li'); li.className=sec.classList.contains('chapter')?'ch':'sub';
+    const a=document.createElement('a'); a.href='#'+sec.id; a.textContent=sec.getAttribute('data-nav').replace(/&amp;/g,'&');
+    li.appendChild(a); list.appendChild(li); links.push([sec,a]);
+    const o=document.createElement('option'); o.value=sec.id; o.textContent=(li.className==='sub'?'   ':'')+a.textContent; sel&&sel.appendChild(o);
+  });
+  sel&&sel.addEventListener('change',()=>{ const t=document.getElementById(sel.value); if(t) t.scrollIntoView({behavior:'smooth'}); });
+  const io=new IntersectionObserver(es=>{ es.forEach(e=>{ if(e.isIntersecting){ links.forEach(([s,a])=>a.classList.toggle('on',s===e.target)); if(sel) sel.value=e.target.id; } }); },{rootMargin:'-10% 0px -80% 0px'});
+  links.forEach(([s])=>io.observe(s));
+})();
+window.addEventListener('load',()=>{ LIB.redrawAll(); });
+(function wait(){ if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){ MathJax.startup.promise.then(()=>LIB.redrawAll()); } else setTimeout(wait,200); })();
+LIB.redrawAll();
+
+</script>
+
+</body></html>
