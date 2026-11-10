@@ -1,0 +1,1504 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Imaging Science Field Guide</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Spectral:wght@500;600&display=swap">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']],
+    macros: { R:'\\mathbb{R}', C:'\\mathbb{C}', E:'\\mathbb{E}', U:'\\mathbb{U}', V:'\\mathbb{V}', L:'\\mathbb{L}',
+      Hc:'\\mathcal{H}', Fc:'\\mathcal{F}', Pc:'\\mathcal{P}', Ic:'\\mathcal{I}', Sc:'\\mathcal{S}',
+      bm:['\\boldsymbol{#1}',1], dd:'\\,\\mathrm{d}', rect:'\\operatorname{rect}', sinc:'\\operatorname{sinc}',
+      tri:'\\operatorname{tri}', comb:'\\operatorname{comb}', sgn:'\\operatorname{sgn}', step:'\\operatorname{step}',
+      gaus:'\\operatorname{gaus}', cyl:'\\operatorname{cyl}', besinc:'\\operatorname{besinc}',
+      Re:'\\operatorname{Re}', Im:'\\operatorname{Im}', tr:'\\operatorname{tr}', re:['{\\color[RGB]{63,116,219}{#1}}',1], im:['{\\color[RGB]{210,122,42}{#1}}',1] } },
+  svg: { fontCache: 'global' },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code','canvas','select','option'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg-full.js" async></script>
+<style>
+/* Layout: fixed left index rail (desktop) + one reading column; every phasor uses
+   --re (real / cosine axis) and --im (imaginary / sine axis) consistently. */
+:root{
+  --paper:#f4f6f9; --panel:#ffffff; --ink:#192030; --muted:#566079; --rule:#d6dbe5; --grid:#e7eaf1;
+  --re:#3f74db; --im:#d27a2a; --accent:#6b3fa6; --good:#1f7a4d; --bad:#b3263b;
+  --re-soft:rgba(36,89,196,.12); --im-soft:rgba(201,102,26,.14); --accent-soft:rgba(107,63,166,.10);
+  --f-display:"Spectral",Georgia,"Times New Roman",serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --s-1:.82rem; --s0:1rem; --s1:1.2rem; --s2:1.5rem; --s3:2rem; --s4:2.7rem;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#10141c; --panel:#171d28; --ink:#e4e8f0; --muted:#98a2b7; --rule:#2b3344; --grid:#1f2633;
+  --re:#76a5ff; --im:#f0a35c; --accent:#c49ae8; --good:#5cc98f; --bad:#ff7d8f;
+  --re-soft:rgba(118,165,255,.14); --im-soft:rgba(240,163,92,.15); --accent-soft:rgba(196,154,232,.12);
+  color-scheme:dark }}
+:root[data-theme="dark"]{
+  --paper:#10141c; --panel:#171d28; --ink:#e4e8f0; --muted:#98a2b7; --rule:#2b3344; --grid:#1f2633;
+  --re:#76a5ff; --im:#f0a35c; --accent:#c49ae8; --good:#5cc98f; --bad:#ff7d8f;
+  --re-soft:rgba(118,165,255,.14); --im-soft:rgba(240,163,92,.15); --accent-soft:rgba(196,154,232,.12);
+  color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.62;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:28px 28px;background-attachment:fixed}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3,h4{font-family:var(--f-display);text-wrap:balance;line-height:1.2;margin:0}
+h1{font-size:var(--s4);font-weight:600;letter-spacing:-.01em}
+h2{font-size:var(--s3);font-weight:600;padding-top:.4rem}
+h3{font-size:var(--s2);font-weight:600;margin-top:.6rem}
+h4{font-size:var(--s1);font-weight:600}
+p{margin:0}
+code,.mono{font-family:var(--f-mono);font-size:.9em}
+.eyebrow{font-family:var(--f-mono);font-size:var(--s-1);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.re{color:var(--re);font-weight:600}.im{color:var(--im);font-weight:600}
+
+.shell{display:grid;grid-template-columns:250px minmax(0,1fr);gap:40px;max-width:1240px;margin:0 auto;padding-block:28px 80px}
+nav.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);align-self:start;max-height:calc(100vh - 32px);overflow:auto;
+  font-size:.88rem;padding-right:6px}
+nav.rail .navttl{font-family:var(--f-display);font-size:1.15rem;font-weight:600;margin-bottom:8px}
+nav.rail ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+nav.rail li a{display:block;padding:3px 8px;border-radius:4px;color:var(--ink);text-decoration:none}
+nav.rail li a:hover{background:var(--accent-soft)}
+nav.rail li.ch>a{font-weight:600;margin-top:10px}
+nav.rail li.sub a{padding-left:18px;color:var(--muted)}
+nav.rail li a.on{background:var(--accent-soft);color:var(--accent)}
+.mnav{display:none}
+main{min-width:0;display:flex;flex-direction:column;gap:22px}
+.col{max-width:780px;display:flex;flex-direction:column;gap:14px}
+section.chapter{display:flex;flex-direction:column;gap:22px;padding-top:24px;border-top:2px solid var(--ink)}
+section.topic{display:flex;flex-direction:column;gap:14px;scroll-margin-top:16px}
+.lede{font-size:1.08rem;color:var(--muted);max-width:68ch}
+
+.hero{padding-block:8px 18px;display:flex;flex-direction:column;gap:12px}
+.hero .meta{display:flex;flex-wrap:wrap;gap:8px 18px;font-family:var(--f-mono);font-size:var(--s-1);color:var(--muted)}
+
+.math{overflow-x:auto;overflow-y:hidden;padding:4px 0;max-width:100%}
+.eq{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:10px 16px;display:flex;flex-direction:column;gap:6px}
+.eq .lab{font-family:var(--f-mono);font-size:var(--s-1);color:var(--muted)}
+.eq .say{font-size:.92rem;color:var(--muted);border-top:1px dashed var(--rule);padding-top:6px}
+.eq .say b{color:var(--ink)}
+
+.box{border-radius:6px;padding:12px 16px;display:flex;flex-direction:column;gap:6px;border:1px solid var(--rule);background:var(--panel)}
+.box>.tag{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+.box.key{border-left:4px solid var(--accent)} .box.key>.tag{color:var(--accent)}
+.box.tip{border-left:4px solid var(--good)} .box.tip>.tag{color:var(--good)}
+.box.trap{border-left:4px solid var(--bad)} .box.trap>.tag{color:var(--bad)}
+.box.syn{border-left:4px solid var(--re)} .box.syn>.tag{color:var(--re)}
+.box.phasor{border-left:4px solid var(--im)} .box.phasor>.tag{color:var(--im)}
+.box ul,.box ol{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:3px}
+ul.plain,ol.plain{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:4px}
+
+.tw{overflow-x:auto;border:1px solid var(--rule);border-radius:6px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:.93rem}
+th,td{padding:8px 12px;border-bottom:1px solid var(--rule);text-align:left;vertical-align:middle}
+th{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500;background:var(--paper)}
+tr:last-child td{border-bottom:0}
+
+figure.widget{margin:0;background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:10px;max-width:980px}
+figure.widget .wt{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+figure.widget .wt b{font-family:var(--f-display);font-size:1.12rem}
+figure.widget canvas{width:100%;display:block;border-radius:4px;background:var(--paper);touch-action:none}
+.cv2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:10px}
+.ctrls{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:.88rem}
+.ctrls label{display:flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:.8rem;color:var(--muted)}
+.ctrls input[type=range]{width:150px;accent-color:var(--accent)}
+.ctrls select,.ctrls button,button.btn{font:inherit;font-size:.85rem;padding:5px 10px;border-radius:5px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer}
+button.btn:hover,.ctrls button:hover{border-color:var(--accent)}
+button.btn.pri{background:var(--accent);color:var(--panel);border-color:var(--accent)}
+.readout{font-family:var(--f-mono);font-size:.82rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 18px;font-variant-numeric:tabular-nums}
+.readout b{color:var(--ink);font-weight:500}
+figcaption{font-size:.9rem;color:var(--muted)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--f-mono);font-size:.76rem;color:var(--muted)}
+.legend i{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:5px;border-radius:2px}
+
+details.reveal{border:1px solid var(--rule);border-radius:6px;background:var(--panel)}
+details.reveal>summary{cursor:pointer;padding:9px 14px;font-weight:600;list-style:none;display:flex;gap:10px;align-items:center}
+details.reveal>summary::-webkit-details-marker{display:none}
+details.reveal>summary::before{content:"+";font-family:var(--f-mono);color:var(--accent);width:12px}
+details.reveal[open]>summary::before{content:"−"}
+details.reveal>.body{padding:4px 16px 14px;display:flex;flex-direction:column;gap:10px;border-top:1px dashed var(--rule)}
+
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.pill{display:inline-block;white-space:nowrap;font-family:var(--f-mono);font-size:.72rem;padding:1px 8px;border-radius:99px;border:1px solid var(--rule);color:var(--muted)}
+.pill.hot{border-color:var(--im);color:var(--im)}
+.steps{counter-reset:st;display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.steps>li{counter-increment:st;display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px}
+.steps>li::before{content:counter(st);font-family:var(--f-mono);font-size:.8rem;color:var(--panel);background:var(--accent);border-radius:50%;width:22px;height:22px;display:grid;place-items:center;margin-top:2px}
+
+@media (max-width:900px){
+  .shell{grid-template-columns:minmax(0,1fr);gap:16px;padding-block:12px 60px}
+  nav.rail{display:none}
+  .mnav{display:block;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-bottom:1px solid var(--rule);padding:8px 0}
+  .mnav select{width:100%;font:inherit;padding:8px;border-radius:6px;border:1px solid var(--rule);background:var(--panel);color:var(--ink)}
+  body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+  .cv2,.grid2,.grid3{grid-template-columns:minmax(0,1fr)}
+  h1{font-size:2.1rem} h2{font-size:1.65rem}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+mjx-container[display="true"]{margin:.3em 0!important}
+mjx-container{max-width:100%}
+@media (max-width:640px){
+  mjx-container:not([display="true"]){display:inline-block;max-width:100%;overflow-x:auto;overflow-y:hidden;vertical-align:middle}
+  .math mjx-container[display="true"]{font-size:90%}
+  td mjx-container:not([display="true"]){max-width:none;overflow:visible}
+  .ctrls input[type=range]{width:120px}
+}
+main,.col,section.topic{min-width:0}
+@media (max-width:640px){ .tw table{min-width:540px} }
+
+</style>
+
+<div class="shell">
+<nav class="rail" id="rail" aria-label="Course index"><div class="navttl">Field Guide</div><ol id="railList"></ol></nav>
+<main>
+<div class="mnav"><label for="mnavSel" class="eyebrow">Jump to</label><select id="mnavSel"></select></div>
+
+<header class="hero col" id="top">
+  <a class="eyebrow site-home" href="../index.html" style="align-self:flex-start;margin-bottom:6px;color:var(--accent);text-decoration:none">&larr; All walkthroughs</a>
+  <span class="eyebrow">BME 5700 · Mathematics of Imaging Science · Barrett &amp; Myers</span>
+  <h1>Imaging Science Field Guide</h1>
+  <p class="lede">A walk through every section of the syllabus so far: vector spaces and operators (Ch. 1), delta functions (Ch. 2), Fourier analysis (Ch. 3), and deterministic imaging systems (Ch. 7). Each topic gives the formula, how to read its notation, a picture you can move, and the tricks that make the algebra short.</p>
+  <div class="meta"><span>Ch. 1 · §1.1–1.8</span><span>Ch. 2 · §2.1–2.4</span><span>Ch. 3 · §3.1–3.6</span><span>Ch. 7 · §7.1–7.2 (+7.3 preview)</span></div>
+  <div class="legend"><span><i style="background:var(--re)"></i>real part · cosine axis</span><span><i style="background:var(--im)"></i>imaginary part · sine axis</span><span><i style="background:var(--accent)"></i>key results / magnitudes</span></div>
+</header>
+
+<section class="chapter" id="ch0" data-nav="0 · How to use this guide">
+<div class="col">
+  <span class="eyebrow">Orientation</span>
+  <h2>The one idea behind the whole course</h2>
+  <p>Barrett &amp; Myers treat every imaging system the same way: the <b>object</b> is a vector \(\mathbf f\) in some space \(\U\), the <b>image</b> is a vector \(\mathbf g\) in some space \(\V\), and the <b>imaging system</b> is an operator \(\Hc\) that maps one to the other.</p>
+  <div class="eq"><div class="math">\[ \mathbf g = \Hc\,\mathbf f \qquad(\text{plus noise later: } \mathbf g=\Hc\mathbf f+\mathbf n)\]</div>
+  <div class="say">Chapter 1 gives you the language for \(\U,\V,\Hc\). Chapter 2 gives you the delta function, which is how you probe \(\Hc\) one point at a time. Chapter 3 gives you the Fourier basis, which makes shift-invariant \(\Hc\) diagonal. Chapter 7 puts these together for real systems.</div></div>
+</div>
+
+<section class="topic col" id="map" data-nav="Syllabus map" data-sub>
+  <h3>Syllabus map</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Syllabus item</th><th>Book §</th><th>In this guide</th><th>Fourier-exam weight</th></tr></thead>
+    <tbody>
+      <tr><td>Linear vector spaces; objects &amp; images as vectors</td><td>1.1</td><td><a href="#vs">1.1</a></td><td><span class="pill">background</span></td></tr>
+      <tr><td>Operator theory; imaging as mapping</td><td>1.2</td><td><a href="#ops">1.2</a></td><td><span class="pill">background</span></td></tr>
+      <tr><td>Hilbert-space operators (adjoint, projector)</td><td>1.3</td><td><a href="#hso">1.3</a></td><td><span class="pill hot">adjoint used in 3 &amp; 7</span></td></tr>
+      <tr><td>Eigenanalysis</td><td>1.4</td><td><a href="#eig">1.4</a></td><td><span class="pill hot">eigenfunctions of convolution</span></td></tr>
+      <tr><td>SVD</td><td>1.5</td><td><a href="#svd">1.5</a></td><td><span class="pill hot">FT = SVD of LSIV</span></td></tr>
+      <tr><td>Moore–Penrose pseudoinverse; MNLS</td><td>1.6–1.7</td><td><a href="#pinv">1.6–1.7</a></td><td><span class="pill">background</span></td></tr>
+      <tr><td>Delta functions</td><td>2.1–2.4</td><td><a href="#ch2">Ch. 2</a></td><td><span class="pill hot">essential</span></td></tr>
+      <tr><td>Fourier series</td><td>3.2</td><td><a href="#fs">3.2</a></td><td><span class="pill hot">core</span></td></tr>
+      <tr><td>1D Fourier transform</td><td>3.3</td><td><a href="#ft">3.3</a></td><td><span class="pill hot">core</span></td></tr>
+      <tr><td>FT ↔ SVD connection</td><td>7.2.4–7.2.5</td><td><a href="#lsiv">7.2.3–7.2.6</a></td><td><span class="pill hot">core</span></td></tr>
+      <tr><td>Multidimensional FT</td><td>3.4</td><td><a href="#mdft">3.4</a></td><td><span class="pill hot">core</span></td></tr>
+      <tr><td>Sampling, aliasing, DFT</td><td>3.5–3.6</td><td><a href="#samp">3.5</a>, <a href="#dft">3.6</a></td><td><span class="pill hot">core</span></td></tr>
+      <tr><td>Representing objects and images</td><td>7.1</td><td><a href="#ch7">7.1</a></td><td><span class="pill">supporting</span></td></tr>
+      <tr><td>Linear CC imaging systems</td><td>7.2</td><td><a href="#cc">7.2</a></td><td><span class="pill hot">transfer functions</span></td></tr>
+      <tr><td>Radon transform, central slice, FBP</td><td>4.4</td><td><a href="#radon">preview</a></td><td><span class="pill">upcoming</span></td></tr>
+      <tr><td>Linear CD systems</td><td>7.3</td><td><a href="#cd">preview</a></td><td><span class="pill">upcoming</span></td></tr>
+    </tbody></table></div>
+</section>
+
+<section class="topic col" id="notation" data-nav="Notation decoder" data-sub>
+  <h3>Notation decoder</h3>
+  <p>Most confusion in this book is notational. Read symbols this way:</p>
+  <div class="tw"><table>
+    <thead><tr><th>Symbol</th><th>Read it as</th><th>Watch for</th></tr></thead>
+    <tbody>
+      <tr><td>\(\mathbf f\) (bold)</td><td>a vector: a column of numbers <i>or</i> a whole function \(f(x)\)</td><td>B&amp;M bold a function when they think of it as one point in a Hilbert space</td></tr>
+      <tr><td>\(f_n\) vs \(\mathbf f_n\)</td><td>\(n\)-th <i>component</i> vs \(n\)-th <i>vector in a set</i></td><td>\(f_{nj}\) = \(j\)-th component of vector \(\mathbf f_n\)</td></tr>
+      <tr><td>\(\Hc\) (calligraphic)</td><td>a general operator</td><td>\(\mathbf H\) (bold roman) means it is a matrix</td></tr>
+      <tr><td>\(\Hc^\dagger\)</td><td>adjoint ("dagger"): transpose + conjugate</td><td>for real matrices it is just \(\mathbf H^t\)</td></tr>
+      <tr><td>\(z^*\)</td><td>complex conjugate</td><td>flips the sign of the <span class="im">imaginary</span> part: reflect across the <span class="re">real</span> axis</td></tr>
+      <tr><td>\((\mathbf a,\mathbf b)\) or \(\mathbf a^\dagger\mathbf b\)</td><td>scalar (inner) product; conjugate goes on the <b>first</b> slot</td><td>physics convention: \((\lambda\mathbf a,\mathbf b)=\lambda^*(\mathbf a,\mathbf b)\)</td></tr>
+      <tr><td>\(\mathbf b\mathbf a^\dagger\)</td><td>outer product: an <i>operator</i> (matrix), not a number</td><td>\(\mathbf b\mathbf a^\dagger\mathbf c=(\mathbf a,\mathbf c)\,\mathbf b\)</td></tr>
+      <tr><td>\(\delta_{mn}\) vs \(\delta(x)\)</td><td>Kronecker delta (0/1) vs Dirac delta (generalized function)</td><td>\(\delta_{mn}\) for discrete indices, \(\delta(\nu-\nu')\) for continuous ones</td></tr>
+      <tr><td>\(x,\ \mathbf r\) and \(\xi,\ \boldsymbol\rho\)</td><td>space variables and their spatial frequencies</td><td>\(\boldsymbol\rho=(\xi,\eta)\) in 2D, \((\xi,\eta,\zeta)\) in 3D</td></tr>
+      <tr><td>\(\mathbf r_d\)</td><td>a position on the <b>d</b>etector (image space)</td><td>\(h(\mathbf r_d,\mathbf r)\): response at \(\mathbf r_d\) to a point at \(\mathbf r\)</td></tr>
+      <tr><td>\(\mu_n\), \(\sqrt{\mu_n}\)</td><td>eigenvalue of \(\Hc^\dagger\Hc\); singular value of \(\Hc\)</td><td>the singular value is the <b>square root</b></td></tr>
+      <tr><td>\(\L_2(a,b)\), \(\E^N\)</td><td>square-integrable functions on \((a,b)\); \(N\)-component vectors with the usual dot product</td><td>\(\L_2(\R^q)\) for functions of a \(q\)-D vector</td></tr>
+      <tr><td>\(\mathcal F_n\), \(\mathcal F^{-1}_n\)</td><td>\(n\)-dimensional Fourier transform and inverse</td><td>B&amp;M use the \(2\pi\)-in-the-exponent convention (no \(1/2\pi\) prefactors)</td></tr>
+    </tbody></table></div>
+</section>
+
+<section class="topic col" id="phasor" data-nav="The unit-circle picture" data-sub>
+  <h3>The unit-circle picture you will use everywhere</h3>
+  <p>Euler's formula ties the complex exponential to the two trig functions. Picture \(e^{i\theta}\) as an arrow of length 1 on the unit circle. Its shadow on the horizontal axis is the <span class="re">cosine</span>; its shadow on the vertical axis is the <span class="im">sine</span>.</p>
+  <div class="eq"><div class="math">\[ e^{i\theta}=\re{\cos\theta}+i\,\im{\sin\theta},\qquad \cos\theta=\frac{e^{i\theta}+e^{-i\theta}}{2},\qquad \sin\theta=\frac{e^{i\theta}-e^{-i\theta}}{2i}\]</div>
+  <div class="say"><b>Read it as:</b> a cosine is two counter-rotating phasors whose imaginary parts cancel; a sine is the same pair with the opposite sign on one of them, divided by \(i\) (a 90° rotation). This is exactly why \(\cos\) transforms to <i>two</i> delta functions at \(\pm\xi_0\).</div></div>
+  <figure class="widget" id="w-phasor">
+    <div class="wt"><b>Phasor on the unit circle</b><span class="legend"><span><i style="background:var(--re)"></i>cos θ = Re</span><span><i style="background:var(--im)"></i>sin θ = Im</span></span></div>
+    <div class="cv2"><canvas id="cvPh1"></canvas><canvas id="cvPh2"></canvas></div>
+    <div class="ctrls">
+      <label for="phTh">θ <input type="range" id="phTh" min="0" max="6.2832" step="0.01" value="0.9"><span id="phThV"></span></label>
+      <label for="phMode">show <select id="phMode"><option value="1">e^{iθ}</option><option value="2">e^{iθ} and e^{−iθ} (cosine pair)</option><option value="3">e^{iθ} and −e^{−iθ} (sine pair)</option></select></label>
+      <button id="phPlay" class="btn" type="button">Play</button>
+    </div>
+    <div class="readout" id="phOut"></div>
+    <figcaption>The right panel unrolls the two shadows along θ. Switch to the cosine pair: the two arrows mirror each other across the real axis, so their sum is always real and equals 2 cos θ.</figcaption>
+  </figure>
+  <div class="box tip"><span class="tag">Tricks that save time</span>
+    <ul>
+      <li>\(e^{i\pi}=-1,\ e^{i\pi/2}=i,\ e^{2\pi i n}=1\) for integer \(n\). Quarter turns are multiplications by \(i\).</li>
+      <li>\(|e^{i\theta}|=1\) always, so multiplying by a phase factor never changes a magnitude. This is why the shift theorem leaves \(|F(\xi)|\) alone.</li>
+      <li>\((e^{i\theta})^*=e^{-i\theta}\): conjugation reflects across the <span class="re">real</span> axis.</li>
+      <li>\(e^{ia}-e^{-ia}=2i\sin a\) and \(e^{ia}+e^{-ia}=2\cos a\). Factor out the "midpoint" phase: \(e^{ia}-e^{ib}=e^{i(a+b)/2}\,2i\sin\frac{a-b}{2}\).</li>
+    </ul></div>
+</section>
+</section>
+<section class="chapter" id="ch1" data-nav="1 · Vectors &amp; Operators">
+<div class="col">
+  <span class="eyebrow">Chapter 1</span>
+  <h2>Vectors and Operators</h2>
+  <p class="lede">Everything you know about arrows in 3D carries over to functions. A function is a vector with infinitely many components, one for each value of \(x\). Integrals play the role that sums play for ordinary vectors.</p>
+</div>
+
+<section class="topic col" id="vs" data-nav="1.1 Vector spaces, norms, Hilbert space" data-sub>
+  <h3>1.1 Linear vector spaces</h3>
+  <p>A <b>vector</b> is anything you can add to another one and scale by a number. The collection of such things, closed under those two operations, is a <b>linear vector space</b>. Examples: \(N\)-tuples (\(\R^N\), \(\C^N\)), polynomials of degree \(\le N\), square-integrable functions.</p>
+  <h4>Metrics and norms</h4>
+  <p>A <b>norm</b> \(\|\mathbf f\|\) is a length. It must be \(\ge 0\) (zero only for \(\mathbf 0\)), scale as \(\|\lambda\mathbf f\|=|\lambda|\,\|\mathbf f\|\), and obey the triangle inequality. A norm gives a distance: \(d(\mathbf f_1,\mathbf f_2)=\|\mathbf f_1-\mathbf f_2\|\).</p>
+  <div class="eq"><span class="lab">(1.3)–(1.6) The \(L_p\) family</span>
+  <div class="math">\[\|\mathbf f\|_2=\Big(\sum_{n=1}^N|f_n|^2\Big)^{1/2},\quad \|\mathbf f\|_1=\sum_n|f_n|,\quad \|\mathbf f\|_p=\Big(\sum_n|f_n|^p\Big)^{1/p},\quad \|\mathbf f\|_\infty=\max_n|f_n|\]</div>
+  <div class="say">Only \(p=2\) comes from a scalar product. That one fact is why the whole book lives in \(L_2\): you get angles, projections, adjoints, and orthogonal bases for free.</div></div>
+  <h4>Completeness: Cauchy, Banach, Hilbert</h4>
+  <ul class="plain">
+    <li><b>Cauchy sequence</b>: terms get arbitrarily close to <i>each other</i>. Every convergent sequence is Cauchy, but the limit might fall outside the space (e.g. rationals converging to \(\sqrt2\)).</li>
+    <li><b>Complete</b>: every Cauchy sequence converges to something inside the space. \(\E^N\) is complete.</li>
+    <li><b>Banach space</b> = complete normed space. <b>Hilbert space</b> = Banach space whose norm comes from a scalar product: \(\|\mathbf f\|=\sqrt{(\mathbf f,\mathbf f)}\).</li>
+  </ul>
+  <div class="eq"><span class="lab">Scalar product rules (physics convention, used throughout B&amp;M)</span>
+  <div class="math">\[(\mathbf f_1,\mathbf f_2)=(\mathbf f_2,\mathbf f_1)^*,\quad (\mathbf f_1,\lambda\mathbf f_2)=\lambda(\mathbf f_1,\mathbf f_2),\quad (\lambda\mathbf f_1,\mathbf f_2)=\lambda^*(\mathbf f_1,\mathbf f_2),\quad (\mathbf f,\mathbf f)\ge0\]</div></div>
+  <div class="grid2">
+    <div class="eq"><span class="lab">(1.9) Euclidean \(\E^N\)</span><div class="math">\[(\mathbf f_1,\mathbf f_2)=\sum_{n=1}^N f_{1n}^*\,f_{2n}\]</div></div>
+    <div class="eq"><span class="lab">(1.10) Function space \(\L_2(\alpha,\beta)\)</span><div class="math">\[(\mathbf f_1,\mathbf f_2)=\int_\alpha^\beta\!dx\,f_1^*(x)\,f_2(x)\]</div></div>
+  </div>
+  <div class="box syn"><span class="tag">Syntax · sum becomes integral</span><p>Compare (1.9) and (1.10). The index \(n\) became the continuous variable \(x\), and \(\sum_n\) became \(\int dx\). Treat \(f(x)\) as "component number \(x\)". That analogy (\(\L_2\) as Euclidean space with infinitely many dimensions) is the engine of the entire book.</p></div>
+  <div class="eq"><span class="lab">(1.14) Schwarz inequality</span><div class="math">\[|(\mathbf f_1,\mathbf f_2)|^2\le\|\mathbf f_1\|^2\,\|\mathbf f_2\|^2\quad\Longleftrightarrow\quad|\cos\theta|\le1\]</div>
+  <div class="say">Equality only when \(\mathbf f_2=\gamma\mathbf f_1\). So \((\mathbf f_1,\mathbf f_2)/(\|\mathbf f_1\|\|\mathbf f_2\|)\) is the cosine of the angle between two functions.</div></div>
+  <p><b>Weighted spaces</b> \(\L_2(\alpha,\beta;w)\) put a weight \(w(x)\ge0\) in the integral; \(\cos x\) is not in \(\L_2(-\infty,\infty)\) but is in \(\L_2(-\infty,\infty;e^{-x^2})\). <b>Sobolev spaces</b> put derivatives in the norm.</p>
+
+  <h4>Basis vectors and expansion coefficients</h4>
+  <div class="eq"><span class="lab">(1.15)–(1.17)</span><div class="math">\[\mathbf f=\sum_n\alpha_n\mathbf u_n,\qquad(\mathbf u_m,\mathbf u_n)=\delta_{mn}\ \Longrightarrow\ \alpha_m=(\mathbf u_m,\mathbf f)\]</div>
+  <div class="say"><b>The recipe:</b> to get a coefficient, take the scalar product with that basis vector; orthonormality kills every other term. You will use this exact move to derive Fourier-series coefficients.</div></div>
+  <figure class="widget" id="w-proj">
+    <div class="wt"><b>Expansion = projection onto basis vectors</b><span class="readout">drag the dot</span></div>
+    <canvas id="cvProj"></canvas>
+    <div class="ctrls"><label for="prRot">basis rotation <input type="range" id="prRot" min="0" max="1.5708" step="0.01" value="0.35"><span id="prRotV"></span></label></div>
+    <div class="readout" id="prOut"></div>
+    <figcaption>The coefficient \(\alpha_1=(\mathbf u_1,\mathbf f)\) is the length of the shadow of \(\mathbf f\) on \(\mathbf u_1\). Rotating the basis changes the coefficients but never the vector, and \(\alpha_1^2+\alpha_2^2=\|\mathbf f\|^2\) every time (that is Parseval in miniature).</figcaption>
+  </figure>
+  <p>An infinite-dimensional space is <b>separable</b> if a countable basis exists (\(n=1\dots\infty\)). \(\L_2(\alpha,\beta)\) is separable, even for infinite limits.</p>
+
+  <h4>1.1.6 Continuous bases</h4>
+  <p>On a finite interval the Fourier basis is \(u_n(x)=\frac1{\sqrt a}e^{2\pi inx/a}\). Let \(a\to\infty\) and the discrete index becomes a continuous label \(\nu\):</p>
+  <div class="eq"><span class="lab">(1.20)–(1.22)</span><div class="math">\[f(x)=\int_{-\infty}^{\infty}\!d\nu\,F(\nu)\,u_\nu(x),\qquad F(\nu)=\int dx\,u_\nu^*(x)f(x),\qquad (u_\nu,u_{\nu'})=\delta(\nu-\nu')\]</div>
+  <div class="say">The Kronecker delta \(\delta_{mn}\) becomes the Dirac delta \(\delta(\nu-\nu')\). The basis function \(e^{2\pi i\nu x}\) is <b>not</b> itself square-integrable; it lies outside the space it spans.</div></div>
+</section>
+
+<section class="topic col" id="ops" data-nav="1.2 Types of operators" data-sub>
+  <h3>1.2 Types of operators</h3>
+  <div class="tw"><table><thead><tr><th>Mapping</th><th>Input → output</th><th>General linear form</th><th>Imaging name</th></tr></thead><tbody>
+    <tr><td>Function</td><td>number → number</td><td>\(f(x_0)\)</td><td></td></tr>
+    <tr><td>Functional</td><td>function → number</td><td>\(\Phi[f]=(\mathbf a,\mathbf f)=\int a^*(x)f(x)dx\) (Riesz)</td><td>one detector reading</td></tr>
+    <tr><td>Integral transform</td><td>function → function</td><td>\(g(x')=\int h(x',x)f(x)dx\)</td><td>CC system</td></tr>
+    <tr><td>Matrix</td><td>\(\E^N\to\E^M\)</td><td>\(g_m=\sum_n H_{mn}f_n\)</td><td>DD system</td></tr>
+    <tr><td>Continuous-to-discrete</td><td>function → \(M\) numbers</td><td>\(g_m=\int f(x)h_m(x)dx\)</td><td>digital imager</td></tr>
+  </tbody></table></div>
+  <div class="box key"><span class="tag">Riesz representation theorem</span><p>Every bounded linear functional on a Hilbert space is a scalar product with some fixed vector. That is why every linear detector reading looks like \(\int(\text{sensitivity})\times(\text{object})\).</p></div>
+  <p><b>Rank</b> of a matrix = number of linearly independent rows = number of independent columns, and \(R\le\min(M,N)\). It counts how many independent measurements you really made.</p>
+  <p><b>Differential operators</b> such as \(d/dx\) fit too; with generalized functions \(d/dx\) is the integral operator with kernel \(\delta'(x'-x)\).</p>
+</section>
+
+<section class="topic col" id="hso" data-nav="1.3 Hilbert-space operators" data-sub>
+  <h3>1.3 Hilbert-space operators</h3>
+  <ul class="plain">
+    <li><b>Linear</b>: \(\Hc[\mathbf f_1+c\mathbf f_2]=\Hc\mathbf f_1+c\Hc\mathbf f_2\).</li>
+    <li><b>Bounded</b>: \(\|\Hc\mathbf f\|&lt;Q\|\mathbf f\|\). For linear operators, bounded ⇔ continuous. \(d/dx\) is unbounded (a jump has a delta-function derivative with infinite norm). All matrices are bounded.</li>
+    <li><b>Compact</b>: turns any bounded sequence into one with a convergent subsequence. Compact ⇒ discrete eigenvalue spectrum.</li>
+  </ul>
+  <div class="eq"><span class="lab">(1.33) Hilbert–Schmidt test for compactness</span><div class="math">\[\int\!\!\int dx\,dx'\,|h(x',x)|^2<\infty\]</div>
+  <div class="say"><b>Exam fact:</b> a convolution kernel \(h(x'-x)\) on \((-\infty,\infty)\) <b>fails</b> this test (the outer integral of a constant is infinite). Convolutions are not compact, so they have a <b>continuous</b> spectrum, which is why their eigenfunctions are labeled by a continuous frequency \(\xi\). Degenerate kernels \(\sum_j p_j(x')q_j(x)\) pass: \(e^{-x^2-x'^2}\) is compact, \(e^{-(x-x')^2}\) is not.</div></div>
+  <h4>Inverses and null spaces</h4>
+  <ul class="plain">
+    <li><b>Null vector</b>: \(\Hc\mathbf f_{null}=\mathbf 0\) with \(\mathbf f_{null}\neq\mathbf 0\). Objects differing by a null vector give the same image.</li>
+    <li><b>One-to-one</b> (injective) ⇔ no null space ⇔ a <b>left inverse</b> exists: \(\Hc_L^{-1}\Hc=\Ic_\U\).</li>
+    <li><b>Onto</b> (surjective) ⇔ every \(\mathbf g\) is reachable ⇔ a <b>right inverse</b> exists: \(\Hc\Hc_R^{-1}=\Ic_\V\).</li>
+    <li>Both ⇒ invertible (bijective). <b>Real-world imaging operators are always singular.</b></li>
+  </ul>
+  <h4>Adjoint</h4>
+  <div class="eq"><span class="lab">(1.39) Definition</span><div class="math">\[(\mathbf g_2,\Hc\mathbf f_1)_\V=(\Hc^\dagger\mathbf g_2,\mathbf f_1)_\U\quad\text{for all }\mathbf f_1,\mathbf g_2\]</div>
+  <div class="say">You may move an operator from one side of a scalar product to the other if you replace it by its adjoint.</div></div>
+  <div class="tw"><table><thead><tr><th>Operator</th><th>Adjoint</th></tr></thead><tbody>
+    <tr><td>Matrix \(\mathbf H\)</td><td>\([\mathbf H^\dagger]_{nm}=H_{mn}^*\) (conjugate transpose)</td></tr>
+    <tr><td>Integral kernel \(h(x',x)\)</td><td>\(h^{(\dagger)}(x,x')=h^*(x',x)\): swap arguments, conjugate (1.44)</td></tr>
+    <tr><td>CD map \(g_m=\int f h_m\)</td><td>\([\Hc^\dagger\mathbf g](x)=\sum_m g_m h_m^*(x)\) (1.45): "backprojection"</td></tr>
+    <tr><td>Convolution with \(h\)</td><td>correlation with \(h^*\) (Ch. 7)</td></tr>
+    <tr><td>Fourier transform \(\mathcal F\)</td><td>\(\mathcal F^{-1}\) (unitary!)</td></tr>
+  </tbody></table></div>
+  <p>Rules: \((c\Hc)^\dagger=c^*\Hc^\dagger\), \((\Hc_1+\Hc_2)^\dagger=\Hc_1^\dagger+\Hc_2^\dagger\), \((\Hc_1\Hc_2)^\dagger=\Hc_2^\dagger\Hc_1^\dagger\) (order flips), \((\Hc^\dagger)^\dagger=\Hc\). <b>Hermitian</b>: \(\Hc=\Hc^\dagger\). <b>Unitary</b>: \(\Hc^\dagger=\Hc^{-1}\) (a generalized rotation: preserves lengths and angles).</p>
+  <h4>Projectors and outer products</h4>
+  <div class="eq"><span class="lab">(1.46), (1.57), (1.60)</span><div class="math">\[\Pc^2=\Pc,\ \ \Pc^\dagger=\Pc;\qquad \Pc=\sum_n\mathbf p_n\mathbf p_n^\dagger,\qquad \mathbf p\mathbf p^\dagger\mathbf f=(\mathbf p,\mathbf f)\,\mathbf p\]</div>
+  <div class="say">An outer product \(\mathbf b\mathbf a^\dagger\) is a matrix with entries \(b_m a_n^*\). Applied to \(\mathbf c\) it returns \(\mathbf b\) scaled by the number \(\mathbf a^\dagger\mathbf c\). In Dirac notation \(\mathbf b\mathbf a^\dagger=|b\rangle\langle a|\).</div></div>
+  <div class="eq"><span class="lab">(1.62) Closure / completeness · (1.64) continuous version</span><div class="math">\[\sum_n\mathbf u_n\mathbf u_n^\dagger=\Ic,\qquad\int d\nu\,u_\nu^*(x')u_\nu(x)=\delta(x-x')\]</div>
+  <div class="say">"Resolution of the identity." For the Fourier basis, \(\int d\nu\,e^{2\pi i\nu(x-x')}=\delta(x-x')\). You will meet this again as (2.46).</div></div>
+  <p>Orthogonal complement: \(\Pc_{\mathbb S_\perp}=\Ic-\Pc_{\mathbb S}\).</p>
+</section>
+
+<section class="topic col" id="eig" data-nav="1.4 Eigenanalysis" data-sub>
+  <h3>1.4 Eigenanalysis</h3>
+  <div class="eq"><span class="lab">(1.65)</span><div class="math">\[\Hc\boldsymbol\psi=\lambda\boldsymbol\psi\iff(\Hc-\lambda\Ic)\boldsymbol\psi=\mathbf 0\]</div>
+  <div class="say">An eigenvector keeps its direction; only its length changes. \(\lambda\) is the shift that makes \(\Hc-\lambda\Ic\) singular. \(\lambda=0\) is an eigenvalue ⇔ \(\Hc\) is singular.</div></div>
+  <ul class="plain">
+    <li>Discrete spectrum \(\lambda_n\) vs continuous spectrum \(\lambda_\nu\). Compact ⇒ discrete.</li>
+    <li><b>Similarity</b> \(\mathcal W\Hc\mathcal W^{-1}\) keeps the spectrum; it is a change of coordinates. Unitary \(\mathcal W\) = rotation.</li>
+    <li>Finite matrices: \(\sum\lambda_n=\tr(\mathbf A)\), \(\prod\lambda_n=\det(\mathbf A)\); rank of a square matrix = number of nonzero eigenvalues; triangular ⇒ eigenvalues on the diagonal.</li>
+  </ul>
+  <div class="box key"><span class="tag">Hermitian operators (the ones that matter)</span>
+    <ul><li>Eigenvalues are <b>real</b>.</li><li>Eigenvectors for distinct eigenvalues are <b>orthogonal</b>; degenerate ones can be Gram–Schmidt'd.</li>
+    <li>\(\Hc^\dagger\Hc\) is always Hermitian and <b>nonnegative-definite</b>: \(\mu=\|\Hc\boldsymbol\phi\|^2/\|\boldsymbol\phi\|^2\ge0\).</li>
+    <li>Compact + Hermitian on a separable space ⇒ eigenvectors form a basis.</li></ul></div>
+  <div class="eq"><span class="lab">(1.84)–(1.87) Diagonalization and spectral decomposition</span><div class="math">\[\boldsymbol\Psi^\dagger\mathbf A\boldsymbol\Psi=\boldsymbol\Lambda,\qquad \mathbf A=\sum_n\lambda_n\boldsymbol\psi_n\boldsymbol\psi_n^\dagger,\qquad \mathbf A^{-1}=\sum_n\frac1{\lambda_n}\boldsymbol\psi_n\boldsymbol\psi_n^\dagger\]</div>
+  <div class="say">\(\boldsymbol\Psi\) has the eigenvectors as <b>columns</b>, so \(\Psi_{mn}=\psi_{nm}\). A Hermitian operator is a weighted sum of 1D projectors, weights = eigenvalues.</div></div>
+  <div class="eq"><span class="lab">(1.90), (1.94) Continuous version</span><div class="math">\[a(x,x')=\int d\nu\,\lambda_\nu\,\psi_\nu(x)\psi_\nu^*(x'),\qquad[\boldsymbol\Psi^\dagger\Hc\boldsymbol\Psi](\nu,\nu')=\lambda_\nu\,\delta(\nu-\nu')\]</div>
+  <div class="say">"Diagonal" for a continuous index means the kernel is a delta function on the diagonal. Chapter 7 shows that Fourier transformation does exactly this to any convolution.</div></div>
+  <details class="reveal"><summary>1.4.6 Simultaneous diagonalization and prewhitening</summary><div class="body">
+    <p>Commuting Hermitian matrices share eigenvectors, so one unitary \(\boldsymbol\Psi\) diagonalizes both. For non-commuting \(\mathbf A\) (positive-definite) and \(\mathbf B\), build \(\mathbf W=\boldsymbol\Psi\boldsymbol\Lambda_A^{-1/2}\boldsymbol\Phi\) so that \(\mathbf W^\dagger\mathbf A\mathbf W=\mathbf I\) and \(\mathbf W^\dagger\mathbf B\mathbf W=\mathbf D\). The middle step, \(\boldsymbol\Lambda_A^{-1/2}\boldsymbol\Psi^\dagger\mathbf A\boldsymbol\Psi\boldsymbol\Lambda_A^{-1/2}=\mathbf I\), is <b>prewhitening</b> (it will matter for noise covariances in Ch. 8). The columns of \(\mathbf W\) solve the generalized eigenproblem \(\mathbf B\mathbf W=\mathbf A\mathbf W\mathbf D\), i.e. are eigenvectors of \(\mathbf A^{-1}\mathbf B\).</p></div></details>
+</section>
+
+<section class="topic col" id="svd" data-nav="1.5 SVD &amp; the four subspaces" data-sub>
+  <h3>1.5 Singular-value decomposition</h3>
+  <p>Most imaging operators are not Hermitian (often \(\U\ne\V\)), so we eigen-decompose the two Hermitian operators we can always build: \(\Hc^\dagger\Hc\) on \(\U\) and \(\Hc\Hc^\dagger\) on \(\V\).</p>
+  <ol class="steps">
+    <li><span>Solve \(\Hc^\dagger\Hc\,\mathbf u_n=\mu_n\mathbf u_n\) with \(\mu_1\ge\mu_2\ge\dots\ge\mu_R>0\). The \(\mathbf u_n\) are an orthonormal basis of object space.</span></li>
+    <li><span>Get the image-space partners for free: \(\mathbf v_n=\frac1{\sqrt{\mu_n}}\Hc\mathbf u_n\). These satisfy \(\Hc\Hc^\dagger\mathbf v_n=\mu_n\mathbf v_n\): the <b>same eigenvalues</b>.</span></li>
+    <li><span>Write the operator as a sum of outer products (1.120):</span></li>
+  </ol>
+  <div class="eq"><div class="math">\[\Hc=\sum_{n=1}^R\sqrt{\mu_n}\;\mathbf v_n\mathbf u_n^\dagger,\qquad\Hc^\dagger=\sum_{n=1}^R\sqrt{\mu_n}\;\mathbf u_n\mathbf v_n^\dagger\]</div>
+  <div class="say"><b>Read it as:</b> take the component of \(\mathbf f\) along \(\mathbf u_n\), multiply by the singular value \(\sqrt{\mu_n}\), and lay it down along \(\mathbf v_n\). In SVD coordinates imaging is plain multiplication: \(\beta_n=\sqrt{\mu_n}\,\alpha_n\) where \(\alpha_n=\mathbf u_n^\dagger\mathbf f,\ \beta_n=\mathbf v_n^\dagger\mathbf g\).</div></div>
+  <figure class="widget" id="w-svd">
+    <div class="wt"><b>A 2×2 matrix turns the unit circle into an ellipse</b><span class="legend"><span><i style="background:var(--re)"></i>u₁, √μ₁v₁</span><span><i style="background:var(--im)"></i>u₂, √μ₂v₂</span></span></div>
+    <canvas id="cvSvd"></canvas>
+    <div class="ctrls">
+      <label for="svA">H₁₁ <input type="range" id="svA" min="-2" max="2" step="0.05" value="1.4"><span id="svAV"></span></label>
+      <label for="svB">H₁₂ <input type="range" id="svB" min="-2" max="2" step="0.05" value="0.6"><span id="svBV"></span></label>
+      <label for="svC">H₂₁ <input type="range" id="svC" min="-2" max="2" step="0.05" value="0.3"><span id="svCV"></span></label>
+      <label for="svD">H₂₂ <input type="range" id="svD" min="-2" max="2" step="0.05" value="0.8"><span id="svDV"></span></label>
+      <button class="btn" id="svSing" type="button">Make it singular</button>
+    </div>
+    <div class="readout" id="svOut"></div>
+    <figcaption>Left: object space with the right singular vectors \(\mathbf u_1,\mathbf u_2\). Right: their images. The ellipse's semi-axes are \(\sqrt{\mu_1}\mathbf v_1\) and \(\sqrt{\mu_2}\mathbf v_2\). Press "Make it singular": the ellipse collapses to a line, \(\mu_2=0\), and \(\mathbf u_2\) becomes the null space.</figcaption>
+  </figure>
+  <h4>1.5.2 The four subspaces</h4>
+  <div class="grid2">
+    <div class="box"><span class="tag" style="color:var(--re)">Object space \(\U\)</span><p><b>Measurement space</b> \(\U_{meas}=\mathcal N_\perp(\Hc)=\mathcal R(\Hc^\dagger)\), spanned by \(\mathbf u_1..\mathbf u_R\).<br><b>Null space</b> \(\U_{null}=\mathcal N(\Hc)=\mathcal N(\Hc^\dagger\Hc)\), spanned by \(\mathbf u_{R+1}\dots\). Dimension \(N-R\).<br>\(\mathbf f=\mathbf f_{meas}+\mathbf f_{null}\).</p></div>
+    <div class="box"><span class="tag" style="color:var(--im)">Image space \(\V\)</span><p><b>Consistency space</b> \(\V_{con}=\mathcal R(\Hc)=\mathcal R(\Hc\Hc^\dagger)\): images some object could produce.<br><b>Inconsistency space</b> \(\V_{incon}=\mathcal N(\Hc^\dagger)\): only noise lives here. Trivial if \(R=M\).<br>\(\mathbf g=\mathbf g_{con}+\mathbf g_{incon}\).</p></div>
+  </div>
+  <div class="box trap"><span class="tag">Common mix-up</span><p>A <b>zero vector</b> has zero length. A <b>null vector</b> has nonzero length but zero image. And the singular value is \(\sqrt{\mu}\), not \(\mu\); \(\mu\) is the eigenvalue of \(\Hc^\dagger\Hc\).</p></div>
+</section>
+
+<section class="topic col" id="pinv" data-nav="1.6–1.7 Pseudoinverse &amp; MNLS" data-sub>
+  <h3>1.6 Moore–Penrose pseudoinverse</h3>
+  <div class="eq"><span class="lab">(1.130) Penrose equations</span><div class="math">\[\Hc\Hc^+\Hc=\Hc,\quad\Hc^+\Hc\Hc^+=\Hc^+,\quad(\Hc\Hc^+)^\dagger=\Hc\Hc^+,\quad(\Hc^+\Hc)^\dagger=\Hc^+\Hc\]</div>
+  <div class="say">Any \(\Hc^\#\) satisfying the first is a generalized inverse ("1-inverse"). Satisfy all four and it is unique: the Moore–Penrose \(\Hc^+\).</div></div>
+  <div class="eq"><span class="lab">(1.131), (1.135) SVD form and limit form</span><div class="math">\[\Hc^+=\sum_{k=1}^R\frac1{\sqrt{\mu_k}}\,\mathbf u_k\mathbf v_k^\dagger=\lim_{\eta\to0^+}(\Hc^\dagger\Hc+\eta\Ic)^{-1}\Hc^\dagger\]</div>
+  <div class="say"><b>Read it as:</b> invert each nonzero singular value, leave the zero ones at zero (1.146): \(\lambda^+=1/\lambda\) if \(\lambda\ne0\), else \(0\).</div></div>
+  <div class="tw"><table><thead><tr><th>Projector</th><th>Formula</th><th>SVD form</th></tr></thead><tbody>
+    <tr><td>onto measurement space</td><td>\(\Pc_{meas}=\Hc^+\Hc\)</td><td>\(\sum_{k\le R}\mathbf u_k\mathbf u_k^\dagger\)</td></tr>
+    <tr><td>onto null space</td><td>\(\Pc_{null}=\Ic-\Hc^+\Hc\)</td><td>\(\sum_{k>R}\mathbf u_k\mathbf u_k^\dagger\)</td></tr>
+    <tr><td>onto consistency space</td><td>\(\Pc_{con}=\Hc\Hc^+\)</td><td>\(\sum_{k\le R}\mathbf v_k\mathbf v_k^\dagger\)</td></tr>
+    <tr><td>onto inconsistency space</td><td>\(\Pc_{incon}=\Ic-\Hc\Hc^+\)</td><td>\(\sum_{k>R}\mathbf v_k\mathbf v_k^\dagger\)</td></tr>
+  </tbody></table></div>
+  <h3>1.7 Pseudoinverses and linear equations</h3>
+  <div class="grid2">
+    <div class="box"><span class="tag">Exact solution exists for every \(\mathbf g\) iff</span><p>\(R=M\) (onto, \(\V_{incon}\) trivial, \(\Hc\Hc^\dagger\) invertible). Needs \(M\le N\). Right inverse: \(\Hc^\dagger(\Hc\Hc^\dagger)^{-1}\).</p></div>
+    <div class="box"><span class="tag">At most one solution iff</span><p>\(R=N\) (one-to-one, no null space, \(\Hc^\dagger\Hc\) invertible). Needs \(M\ge N\). Unique &amp; exact for all \(\mathbf g\) only if \(R=M=N\).</p></div>
+  </div>
+  <div class="eq"><span class="lab">(1.194) Normal equation · (1.196) general least-squares solution</span><div class="math">\[\Hc^\dagger\Hc\,\hat{\mathbf f}=\Hc^\dagger\mathbf g,\qquad\hat{\mathbf f}_{LS}=\Hc^+\mathbf g+(\Ic-\Hc^+\Hc)\mathbf y\]</div>
+  <div class="say">The first term is a particular solution, the second an arbitrary null vector (like the homogeneous solution of an ODE). Set \(\mathbf y=0\) to get the <b>minimum-norm least-squares</b> solution \(\hat{\mathbf f}_{MNLS}=\Hc^+\mathbf g\). If \(R=N\): \(\hat{\mathbf f}_{LS}=(\Hc^\dagger\Hc)^{-1}\Hc^\dagger\mathbf g\).</div></div>
+  <div class="eq"><span class="lab">(1.205), (1.210) MNLS in SVD coordinates and noise amplification</span><div class="math">\[\hat\alpha_k=\frac{\beta_k}{\sqrt{\mu_k}}\ (k\le R),\qquad\hat{\mathbf f}_{MNLS}=\mathbf f_{meas}+\sum_{k=1}^R\frac{\gamma_k}{\sqrt{\mu_k}}\mathbf u_k\]</div>
+  <div class="say">"Inverse filtering." Small singular values blow up the noise component \(\gamma_k\). This is the central weakness of the pseudoinverse and the reason for regularization (Ch. 15).</div></div>
+  <figure class="widget" id="w-mn">
+    <div class="wt"><b>One measurement, two unknowns: Landweber finds the minimum-norm solution</b><span class="legend"><span><i style="background:var(--muted)"></i>solution line</span><span><i style="background:var(--accent)"></i>iterates</span><span><i style="background:var(--im)"></i>null direction</span></span></div>
+    <canvas id="cvMn"></canvas>
+    <div class="ctrls">
+      <label for="mnA">h₁ <input type="range" id="mnA" min="0.2" max="1.4" step="0.05" value="1"><span id="mnAV"></span></label>
+      <label for="mnB">h₂ <input type="range" id="mnB" min="-1.2" max="1.2" step="0.05" value="0.5"><span id="mnBV"></span></label>
+      <label for="mnG">g <input type="range" id="mnG" min="-2" max="2" step="0.05" value="1.2"><span id="mnGV"></span></label>
+      <label for="mnS">start <select id="mnS"><option value="0">f⁽⁰⁾ = 0</option><option value="1">f⁽⁰⁾ with a null component</option></select></label>
+    </div>
+    <div class="readout" id="mnOut"></div>
+    <figcaption>\(g=h_1f_1+h_2f_2\). Every point on the grey line fits the data exactly; they differ by null vectors (amber direction). Landweber, \(\hat{\mathbf f}^{(k+1)}=\hat{\mathbf f}^{(k)}+\Hc^\dagger(g-\Hc\hat{\mathbf f}^{(k)})\), only ever adds multiples of \(\Hc^\dagger\), which has no null component. Starting at zero it lands on the point of the line closest to the origin, \(\Hc^+g\). Start with a null component and it keeps it forever.</figcaption>
+  </figure>
+  <div class="box key"><span class="tag">1.7.6 Landweber / SIRT and friends</span>
+    <ul><li>\(\hat{\mathbf f}^{(k+1)}=\hat{\mathbf f}^{(k)}+\Hc^\dagger(\mathbf g-\Hc\hat{\mathbf f}^{(k)})\), from the Neumann series \([\mathbf I-\boldsymbol\Omega]^{-1}=\sum_j\boldsymbol\Omega^j\).</li>
+    <li>Converges if \(\mu_{max}<2\); otherwise scale \(\Hc'=C\Hc\) with \(|C|^2\mu_{max}<2\), then \(\Hc^+=C\,[\Hc']^+\).</li>
+    <li>Splitting \(\Hc^\dagger\Hc=\mathbf A-\mathbf B\): \(\mathbf A=\mathbf I\) → Landweber; \(\mathbf A=\) diagonal → Jacobi; \(\mathbf A=\) lower triangle → Gauss–Seidel = Kaczmarz = ART.</li></ul></div>
+</section>
+
+<section class="topic col" id="rkhs" data-nav="1.8 Reproducing-kernel spaces" data-sub>
+  <h3>1.8 Reproducing-kernel Hilbert space</h3>
+  <p>A space where evaluating a function at a point is a bounded linear functional: \((\mathbf h(x'),\mathbf f)_{rk}=f(x')\). For a compact positive-definite Hermitian \(\mathcal A\) with eigenpairs \((\lambda_n,\psi_n)\), the kernel is \(h(x,x')=\sum_n\lambda_n\psi_n(x)\psi_n^*(x')\) and the norm \(\|\mathbf f\|_{rk}^2=\sum_n|\alpha_n|^2/\lambda_n\) penalizes components with small \(\lambda_n\), so only smooth functions have finite norm. When all \(\mu_n=1\) the kernel is just a projector. <b>Paley–Wiener space</b> (bandlimited functions, kernel \(B\sinc(Bx)\)) is the example that returns in sampling theory (§3.5).</p>
+</section>
+</section>
+<section class="chapter" id="ch2" data-nav="2 · Dirac Delta &amp; Generalized Functions">
+<div class="col">
+  <span class="eyebrow">Chapter 2</span>
+  <h2>The Dirac Delta and Other Generalized Functions</h2>
+  <p class="lede">The delta function is a mathematical point source. Its image through a system is the point spread function. There are three ways to understand it: an intuitive spike, the limit of ever-narrower functions, and (rigorously) a rule for what it does inside an integral.</p>
+</div>
+
+<section class="topic col" id="dist" data-nav="2.1 Distributions &amp; test functions" data-sub>
+  <h3>2.1 Distributions</h3>
+  <p>A <b>distribution</b> is a linear, continuous functional acting on well-behaved functions \(t(x)\). We always write it in Riesz form, and the kernel \(g(x)\) inside is the <b>generalized function</b>, defined only by what the integral returns:</p>
+  <div class="eq"><div class="math">\[\Phi_g\{t(x)\}=\int_{-\infty}^\infty dx\;g(x)\,t(x)\]</div></div>
+  <div class="tw"><table><thead><tr><th>Class of \(t(x)\)</th><th>Requirement</th><th>Example</th><th>Gives</th></tr></thead><tbody>
+    <tr><td>Test function</td><td>infinitely differentiable, compact support</td><td>\(h(\tfrac{x-a}{b-a})h(\tfrac{b-x}{b-a})\), \(h(x)=e^{-1/x}\) for \(x>0\)</td><td>distributions</td></tr>
+    <tr><td>Good function (Schwartz)</td><td>smooth; it and all derivatives decay faster than any \(|x|^{-N}\)</td><td>\(e^{-\pi x^2}\)</td><td><b>tempered</b> distributions (the ones Fourier works on)</td></tr>
+    <tr><td>Fairly good</td><td>smooth; grows no faster than a polynomial</td><td>any polynomial</td><td></td></tr>
+  </tbody></table></div>
+  <div class="eq"><span class="lab">(2.18) Derivative of a distribution = integration by parts</span><div class="math">\[\int dx\,g'(x)\,t(x)\equiv-\int dx\,g(x)\,t'(x)\]</div><div class="say">This is how you differentiate things that have no ordinary derivative (steps, deltas). Move the derivative onto the test function and pick up a minus sign.</div></div>
+  <div class="box trap"><span class="tag">Products are dangerous</span><p>The product of two generalized functions need not exist. \([\delta(x)]^2\) is undefined. Products are safe if one factor is infinitely differentiable, or both are \(L_2\).</p></div>
+</section>
+
+<section class="topic col" id="delta" data-nav="2.2 The 1D delta function" data-sub>
+  <h3>2.2 The one-dimensional delta function</h3>
+  <div class="eq"><span class="lab">(2.19)–(2.24) Definition and sifting</span><div class="math">\[\delta(x-x_0)=0\ (x\ne x_0),\qquad\int\delta(x-x_0)\,dx=1,\qquad\int_a^b f(x)\,\delta(x-x_0)\,dx=\begin{cases}f(x_0)&a&lt;x_0&lt;b\\0&\text{otherwise}\end{cases}\]</div>
+  <div class="say"><b>Sifting:</b> integrating against \(\delta(x-x_0)\) plucks out the value at \(x_0\). Equivalent shorthand: \(f(x)\delta(x-x_0)=f(x_0)\delta(x-x_0)\), so \(x\,\delta(x)=0\).</div></div>
+  <div class="grid2">
+    <div class="eq"><span class="lab">(2.27)–(2.29) Even and scaling</span><div class="math">\[\begin{gathered}\delta(-x)=\delta(x)\\\delta(ax)=\frac{\delta(x)}{|a|}\\\delta(ax-x_0)=\frac1{|a|}\delta\!\Big(x-\frac{x_0}a\Big)\end{gathered}\]</div></div>
+    <div class="eq"><span class="lab">(2.33) Delta of a function</span><div class="math">\[\delta[g(x)]=\sum_n\frac{\delta(x-x_n)}{|g'(x_n)|},\qquad g(x_n)=0\]</div></div>
+  </div>
+  <details class="reveal"><summary>Worked example: \(\delta(x^2-a^2)\)</summary><div class="body">
+    <p>Roots \(x=\pm a\); \(g'(x)=2x\), so \(|g'(\pm a)|=2|a|\). Therefore \(\delta(x^2-a^2)=\frac{1}{2|a|}[\delta(x-a)+\delta(x+a)]\). Check: \(\int e^{x}\delta(x^2-1)dx=\frac{e+e^{-1}}2=\cosh 1\).</p></div></details>
+  <div class="box tip"><span class="tag">Dimensional analysis</span><p>\(\int dx\,\delta(x)=1\) is dimensionless, so \([\delta(x)]=1/[x]\). If \(x\) is in cm, \(\delta(x)\) is in cm\(^{-1}\); in \(n\)D, \([\delta(\mathbf r)]=1/L^n\). Use this to catch missing \(|a|\) factors.</p></div>
+
+  <h4>2.2.2 Limiting representations (Dirac sequences)</h4>
+  <p>Any family \(\psi_k\) that is even, nonnegative, integrates to 1, and narrows as \(k\to\infty\) tends to \(\delta\) in the sense \(\lim\int f(x)\psi_k(x-x_0)dx=f(x_0)\) (a <b>convolution</b>).</p>
+  <div class="eq"><span class="lab">(2.37)–(2.41), (2.44)</span><div class="math">\[\begin{aligned}\delta(x)&=\lim_{\epsilon\to0^+}\tfrac1\epsilon e^{-\pi(x/\epsilon)^2}=\lim_{\epsilon\to0^+}\tfrac1\epsilon\rect\tfrac x\epsilon=\lim_{\epsilon\to0^+}\frac{\epsilon/\pi}{x^2+\epsilon^2}\\&=\lim_{\epsilon\to0^+}\tfrac1{2\epsilon}e^{-|x|/\epsilon}=\lim_{k\to\infty}k\sinc(kx)\end{aligned}\]</div></div>
+  <figure class="widget" id="w-dirac">
+    <div class="wt"><b>Dirac sequences sifting a test function</b><span class="legend"><span><i style="background:var(--accent)"></i>ψ_ε(x)</span><span><i style="background:var(--muted)"></i>f(x)</span><span><i style="background:var(--re-soft);height:8px"></i>f·ψ_ε</span></span></div>
+    <canvas id="cvDir"></canvas>
+    <div class="ctrls">
+      <label for="dirF">family <select id="dirF"><option value="g">Gaussian (2.37)</option><option value="r">rect (2.38)</option><option value="l">Lorentzian (2.39)</option><option value="e">two-sided exp (2.40)</option><option value="s">sinc (2.44)</option></select></label>
+      <label for="dirE">ε <input type="range" id="dirE" min="0.03" max="1.2" step="0.01" value="0.6"><span id="dirEV"></span></label>
+      <label for="dirX">x₀ <input type="range" id="dirX" min="-1.5" max="1.5" step="0.05" value="0.5"><span id="dirXV"></span></label>
+    </div>
+    <div class="readout" id="dirOut"></div>
+    <figcaption>Area under \(\psi_\epsilon\) is always 1. As ε shrinks, \(\int f(x)\psi_\epsilon(x-x_0)dx\) approaches \(f(x_0)\). The sinc family goes negative, so it is not a true Dirac sequence, yet it still sifts.</figcaption>
+  </figure>
+  <h4>The two exponential representations you must know cold</h4>
+  <div class="eq"><span class="lab">(2.45)–(2.46) Delta from an integral of phasors</span><div class="math">\[\delta(x)=\lim_{k\to\infty}\int_{-k/2}^{k/2}d\nu\,e^{2\pi i\nu x}=\int_{-\infty}^{\infty}d\nu\,e^{2\pi i\nu x}\]</div>
+  <div class="say"><b>Phasor picture:</b> at \(x\ne0\) the phasors \(e^{2\pi i\nu x}\) spin all the way around the unit circle as \(\nu\) sweeps, and cancel. At \(x=0\) every phasor points along +Re and they all add. That pile-up is the spike.</div></div>
+  <div class="eq"><span class="lab">(2.47)–(2.50) The comb</span><div class="math">\[\comb(x)=\sum_{n=-\infty}^\infty\delta(x-n)=\sum_{n=-\infty}^{\infty}e^{2\pi inx}=\lim_{N\to\infty}\frac{\sin\pi Nx}{\sin\pi x}\]</div>
+  <div class="say">Replace the integral over \(\nu\) by a sum over integers and you get a delta at <b>every</b> integer, because \(e^{2\pi inx}=1\) for all \(n\) whenever \(x\) is an integer.</div></div>
+  <figure class="widget" id="w-comb">
+    <div class="wt"><b>Partial sums of \(\sum_{n=-M}^{M}e^{2\pi inx}\) build a comb</b><span class="readout" id="cbOut"></span></div>
+    <div class="cv2"><canvas id="cvCbP"></canvas><canvas id="cvCb"></canvas></div>
+    <div class="ctrls"><label for="cbM">M <input type="range" id="cbM" min="1" max="20" step="1" value="4"><span id="cbMV"></span></label>
+    <label for="cbX">probe x <input type="range" id="cbX" min="-1.5" max="1.5" step="0.005" value="0.13"><span id="cbXV"></span></label></div>
+    <figcaption>Left: the \(2M+1\) phasors \(e^{2\pi inx}\) at the probe point, added tip to tail. Right: the sum \(\sin(\pi Nx)/\sin(\pi x)\), \(N=2M+1\). Move the probe to an integer and the chain straightens into a line of length \(N\).</figcaption>
+  </figure>
+  <h4>2.2.4 Derivatives of delta</h4>
+  <div class="eq"><span class="lab">(2.55)–(2.61)</span><div class="math">\[\begin{gathered}\int f(x)\,\delta^{(n)}(x-x_0)\,dx=(-1)^nf^{(n)}(x_0)\\\delta^{(n)}(-x)=(-1)^n\delta^{(n)}(x)\\ x\,\delta'(x)=-\delta(x)\end{gathered}\]</div></div>
+  <div class="box trap"><span class="tag">Jump discontinuities</span><p>With a symmetric Dirac sequence, \(\int f\,\delta(x-x_0)\,dx=\tfrac12[f(x_0^+)+f(x_0^-)]\) (2.62): the average across the jump. But never use limiting representations for <i>both</i> factors of the same integral; the order of limits matters (the \(h(kx)\) example in §2.3.2 gives only \(f(0^+)\)).</p></div>
+  <p><b>Delta functions as a basis:</b> \(f(x)=\int da\,f(a)\,\delta(x-a)\) (2.66). The expansion coefficients are just the function values. This is the "space-domain" basis; the Fourier basis is the "frequency-domain" one.</p>
+</section>
+
+<section class="topic col" id="genf" data-nav="2.3 Step, signum, 1/x" data-sub>
+  <h3>2.3 Other generalized functions in 1D</h3>
+  <div class="tw"><table><thead><tr><th>Function</th><th>Definition</th><th>Derivative / key fact</th></tr></thead><tbody>
+    <tr><td>\(\step(x)\)</td><td>1 for \(x>0\), 0 for \(x<0\); \(\int t\,\step=\int_0^\infty t\)</td><td>\(\frac{d}{dx}\step(x)=\delta(x)\) (2.73); \(\step(x)=\lim\int_{-\infty}^x\psi_k\)</td></tr>
+    <tr><td>\(\sgn(x)\)</td><td>\(\pm1\); \(\sgn=2\step-1\) (2.77)</td><td>\(\frac{d}{dx}\sgn(x)=2\delta(x)\)</td></tr>
+    <tr><td>\(1/x\) (principal value)</td><td>\(\lim_{\epsilon\to0}\big[\int_{-\infty}^{-\epsilon}+\int_\epsilon^\infty\big]\frac{t(x)}x dx\)</td><td>\(=\lim\frac{x}{x^2+\epsilon^2}\) (2.88); odd, "zero at 0"</td></tr>
+    <tr><td>\(1/x^2\)</td><td>\(\int\frac{t}{x^2}=-P\!\int\frac{t'}{x}\) (2.90)</td><td>\(\int_{-\infty}^\infty dx/x^2=0\) (!) — a negative-infinite spike at 0</td></tr>
+    <tr><td>\(|x|^\alpha\), noninteger \(\alpha<-1\)</td><td>via derivatives of \(|x|^{\alpha+n}\sgn x\) (2.97)</td><td>needed for tomography filters</td></tr>
+    <tr><td>\(1/|x|\)</td><td>not unique: \(\frac d{dx}\{(\ln|x|+C)\sgn x\}\)</td><td>arbitrary constant \(C\) (2.106)</td></tr>
+  </tbody></table></div>
+  <div class="eq"><span class="lab">(2.85)–(2.87) The closest thing to \(\delta^2\)</span><div class="math">\[\lim_{k\to\infty}\frac1k\Big[\int_{-k/2}^{k/2}e^{2\pi i\nu x}d\nu\Big]^2=\lim_{k\to\infty}k\sinc^2(kx)=\delta(x)\]</div><div class="say">\(\sinc^2\) is a genuine Dirac sequence (nonnegative). It reappears as the transform of the triangle and in the Cesàro sum.</div></div>
+</section>
+
+<section class="topic col" id="ndelta" data-nav="2.4 Multidimensional deltas" data-sub>
+  <h3>2.4 Multidimensional delta functions</h3>
+  <div class="eq"><span class="lab">(2.113), (2.121) Cartesian product and scaling</span><div class="math">\[\delta(\mathbf r)=\delta(x)\,\delta(y)\ (2\text{D}),\qquad\delta(a\mathbf r-\mathbf r_0)=|a|^{-n}\,\delta(\mathbf r-\mathbf r_0/a)\]</div></div>
+  <div class="eq"><span class="lab">(2.126), (2.131) Polar and spherical forms</span><div class="math">\[\delta(\mathbf r)=\frac{\delta(r)}{\pi r}\ \ (2\text D),\qquad\delta(\mathbf r)=\frac{\delta(r)}{2\pi r^2}\ \ (3\text D)\]</div>
+  <div class="say">Not \(\delta(r)/2\pi r\): the radial delta sits at the edge of \([0,\infty)\) and only sifts half its weight, \(\int_0^\infty\delta(r)t\,dr=\tfrac12t(0)\). Check: \(\int_0^{2\pi}\!d\theta\int_0^\infty r\,dr\,\frac{\delta(r)}{\pi r}t=\frac{2\pi}{\pi}\cdot\frac12t(0)=t(0)\). ✓</div></div>
+  <div class="box syn"><span class="tag">"Dimension" means three things</span><p>A <b>\(n\)D delta</b> does \(n\) integrals; its <b>physical dimension</b> is \(1/L^n\); and it is a basis vector for an <b>infinite-dimensional</b> Hilbert space. Rule of thumb: a delta has the dimensionality of its argument, so \(\delta(\mathbf r)\) is \(n\)D but \(\delta(r)\) is always 1D.</p></div>
+  <h4>Line and plane masses (the seed of tomography)</h4>
+  <div class="eq"><span class="lab">(2.134)</span><div class="math">\[\int_\infty d^2r\,t(\mathbf r)\,\delta(\mathbf r\cdot\hat{\mathbf n}-p)=\int_{-\infty}^\infty dy'\,t_{rot}(p,y')\]</div><div class="say">In 2D, \(\delta(\mathbf r\cdot\hat{\mathbf n}-p)\) is a <b>line</b> perpendicular to \(\hat{\mathbf n}\) at distance \(p\); integrating against it returns a <b>line integral</b> (one ray sum of a projection). In 3D it is a plane. Ring delta: \(\delta(|\mathbf r|-R)\).</div></div>
+  <div class="eq"><span class="lab">(2.143), (2.145) Green's-function identities</span><div class="math">\[\nabla^2\frac1{|\mathbf r-\mathbf r_0|}=-4\pi\,\delta(\mathbf r-\mathbf r_0)\ (3\text D),\qquad\nabla^2\ln|\mathbf r-\mathbf r_0|=2\pi\,\delta(\mathbf r-\mathbf r_0)\ (2\text D)\]</div></div>
+  <p>Partial derivatives of \(\delta\) act through the adjoint: \(\int t\,\nabla\delta(\mathbf r-\mathbf r_0)=-\nabla t(\mathbf r_0)\), \(\int t\,\nabla^2\delta=\nabla^2t(\mathbf r_0)\). Angular deltas: \(\int_{4\pi}d\Omega\,\delta(\hat{\mathbf n}-\hat{\mathbf n}_0)t(\hat{\mathbf n})=t(\hat{\mathbf n}_0)\), \(d\Omega=\sin\theta\,d\theta\,d\phi\).</p>
+</section>
+</section>
+<section class="chapter" id="ch3" data-nav="3 · Fourier Analysis">
+<div class="col">
+  <span class="eyebrow">Chapter 3 · the core of the midterm</span>
+  <h2>Fourier Analysis</h2>
+  <p class="lede">Four related tools: the Fourier <b>series</b> (function on an interval → discrete coefficients, CD), the Fourier <b>transform</b> (function → function, CC), the <b>DFT</b> (vector → vector, DD), and the discrete-space FT (samples → periodic function, DC). All four expand something in spinning phasors.</p>
+  <div class="tw"><table><thead><tr><th>Tool</th><th>Input</th><th>Output</th><th>Mapping type</th><th>Forward kernel</th></tr></thead><tbody>
+    <tr><td>Fourier series</td><td>\(f(x)\) on \([-\tfrac L2,\tfrac L2)\) (or periodic)</td><td>\(\{F_n\}\)</td><td>CD</td><td>\(\frac1Le^{-2\pi inx/L}\)</td></tr>
+    <tr><td>Fourier transform</td><td>\(f(x)\) on \(\R\)</td><td>\(F(\xi)\) on \(\R\)</td><td>CC</td><td>\(e^{-2\pi i\xi x}\)</td></tr>
+    <tr><td>DFT</td><td>\(f_0..f_{N-1}\)</td><td>\(F_0..F_{N-1}\)</td><td>DD</td><td>\(e^{-2\pi ikn/N}\)</td></tr>
+    <tr><td>DSFT</td><td>\(\{f_k\}\), infinitely many</td><td>\(F_{DS}(\xi)\), period \(1/\Delta x\)</td><td>DC</td><td>\(e^{-2\pi ik\xi\Delta x}\)</td></tr>
+  </tbody></table></div>
+</div>
+
+<section class="topic col" id="orth" data-nav="3.1 Sines, cosines, exponentials" data-sub>
+  <h3>3.1 Sines, cosines and complex exponentials</h3>
+  <p>The building blocks are \(\cos(2\pi nx/L)\) and \(\sin(2\pi nx/L)\): exactly \(n\) cycles in a length \(L\). The <b>spatial frequency</b> is \(\xi_n=n/L\) cycles per unit length (dimension: length\(^{-1}\)).</p>
+  <div class="eq"><span class="lab">(3.7) One orthogonality relation replaces three</span><div class="math">\[\frac1L\int_{-L/2}^{L/2}dx\;e^{-2\pi inx/L}\,e^{2\pi imx/L}=\delta_{mn}\]</div>
+  <div class="say">The sine/cosine versions (3.1)–(3.3) carry an ugly factor of 2 and a special case at \(n=0\). The exponential version has neither, because \(|e^{i\theta}|=1\).</div></div>
+  <div class="grid2">
+    <div class="eq"><span class="lab">(3.8) Infinite interval</span><div class="math">\[\int_{-\infty}^\infty dx\,e^{-2\pi i\xi x}e^{2\pi i\xi'x}=\delta(\xi-\xi')\]</div></div>
+    <div class="eq"><span class="lab">(3.12) Discrete (DFT) orthogonality</span><div class="math">\[\frac1K\sum_{k=0}^{K-1}e^{2\pi i(m-n)k/K}=\delta_{mn}\]</div></div>
+  </div>
+  <div class="eq"><span class="lab">(3.9)–(3.10) Cosines and sines on \(\R\)</span><div class="math">\[\begin{gathered}2\!\int\!\cos(2\pi\xi x)\cos(2\pi\xi'x)dx=\delta(\xi+\xi')+\delta(\xi-\xi')\\2\!\int\!\sin(2\pi\xi x)\sin(2\pi\xi'x)dx=\delta(\xi-\xi')-\delta(\xi+\xi')\end{gathered}\]</div></div>
+  <figure class="widget" id="w-orth">
+    <div class="wt"><b>Why orthogonality holds: phasors spread evenly around the circle cancel</b><span class="readout" id="orOut"></span></div>
+    <div class="cv2"><canvas id="cvOrA"></canvas><canvas id="cvOrB"></canvas></div>
+    <div class="ctrls">
+      <label for="orK">K (samples) <input type="range" id="orK" min="3" max="24" step="1" value="8"><span id="orKV"></span></label>
+      <label for="orD">m − n <input type="range" id="orD" min="0" max="24" step="1" value="1"><span id="orDV"></span></label>
+    </div>
+    <figcaption>Left: the \(K\) phasors \(e^{2\pi i(m-n)k/K}\) on the unit circle, each a dot. Right: the same phasors added tip to tail. When \(m-n\) is not a multiple of \(K\) the chain closes into a polygon and the sum is 0. When \(m-n\equiv0\) every phasor points along Re and the sum is \(K\). The continuous integral (3.7) works the same way: the phasor makes a whole number of turns.</figcaption>
+  </figure>
+</section>
+
+<section class="topic col" id="fs" data-nav="3.2 Fourier series" data-sub>
+  <h3>3.2 Fourier series</h3>
+  <div class="eq"><span class="lab">(3.17), (3.19) The pair</span><div class="math">\[f(x)=\sum_{n=-\infty}^\infty F_n\,e^{2\pi inx/L},\qquad F_n=\frac1L\int_{-L/2}^{L/2}dx\,f(x)\,e^{-2\pi inx/L}\]</div>
+  <div class="say"><b>Derivation in one line:</b> multiply the series by \(e^{-2\pi imx/L}\), integrate over one period, use (3.7): only \(n=m\) survives and it contributes \(LF_m\). The \(1/L\) goes on the analysis side; the synthesis side has none.</div></div>
+  <div class="grid2">
+    <div class="eq"><span class="lab">(3.14)–(3.16) Real (sin/cos) form</span><div class="math">\[\begin{aligned}F_0&=\tfrac1L\!\int\!f\,dx\\F^{(c)}_n&=\tfrac2L\!\int\!f\cos\tfrac{2\pi nx}L\,dx\\F^{(s)}_n&=\tfrac2L\!\int\!f\sin\tfrac{2\pi nx}L\,dx\end{aligned}\]</div></div>
+    <div class="box tip"><span class="tag">Converting between forms</span><p>For real \(f\): \(F^{(c)}_n=2\Re F_n\), \(F^{(s)}_n=-2\Im F_n\), \(F_0\) = average ("DC term"). Even \(f\) → cosines only (\(F_n\) real, even). Odd \(f\) → sines only (\(F_n\) imaginary, odd).</p></div>
+  </div>
+  <p><b>Periodicity.</b> Every term has period \(L\), so the series represents either an arbitrary function on one period or a periodic function on all of \(\R\). If \(f(-L/2)\ne f(L/2)\) the periodic extension has a jump at the boundary. You can integrate over any full period (3.21).</p>
+  <figure class="widget" id="w-fs">
+    <div class="wt"><b>Fourier series builder</b><span class="legend"><span><i style="background:var(--muted)"></i>target f(x)</span><span><i style="background:var(--accent)"></i>partial sum S_N</span><span><i style="background:var(--re)"></i>Re F_n</span><span><i style="background:var(--im)"></i>Im F_n</span></span></div>
+    <canvas id="cvFs"></canvas>
+    <div class="cv2"><canvas id="cvFsChain"></canvas><canvas id="cvFsCoef"></canvas></div>
+    <div class="ctrls">
+      <label for="fsT">target <select id="fsT"><option value="sq">square (rect, even)</option><option value="saw">sawtooth (odd)</option><option value="tri">triangle (even, continuous)</option><option value="hr">half-wave cos</option><option value="sh">shifted rect (complex F_n)</option></select></label>
+      <label for="fsN">N <input type="range" id="fsN" min="0" max="60" step="1" value="5"><span id="fsNV"></span></label>
+      <label for="fsC">sum <select id="fsC"><option value="0">plain S_N (3.26)</option><option value="1">Cesàro (3.37)</option></select></label>
+      <label for="fsX">probe x/L <input type="range" id="fsX" min="-0.5" max="0.5" step="0.002" value="0.12"><span id="fsXV"></span></label>
+      <button id="fsPlay" class="btn" type="button">Sweep x</button>
+    </div>
+    <div class="readout" id="fsOut"></div>
+    <figcaption>Bottom left: at the probe point, each term \(F_ne^{2\pi inx/L}\) is a phasor, and they are chained tip to tail. For a real \(f\), \(F_{-n}=F_n^*\), so each \(\pm n\) pair mirrors across the real axis and the chain always ends <b>on the real axis</b> at \(S_N(x)\). Watch the square wave near its jump with large \(N\): the ~9% overshoot (Gibbs) does not shrink. Switch to Cesàro and it disappears.</figcaption>
+  </figure>
+  <h4>3.2.2 Convergence: what "equals" means</h4>
+  <div class="tw"><table><thead><tr><th>Kind</th><th>Statement</th><th>When it holds</th></tr></thead><tbody>
+    <tr><td>Pointwise</td><td>\(S_N(x)\to f(x)\)</td><td>Dirichlet: \(f\) bounded, finitely many extrema/jumps (or bounded variation / piecewise smooth). At a jump \(S_N\to\frac12[f(x^+)+f(x^-)]\).</td></tr>
+    <tr><td>Uniform</td><td>\(\sup|f-S_N|\to0\)</td><td>\(f\) and \(f'\) continuous. <b>Fails near jumps:</b> Gibbs overshoot stays ≈ 9% of the jump.</td></tr>
+    <tr><td>Mean (\(L_2\))</td><td>\(\int|f-S_N|^2\to0\) (3.27)</td><td>any \(f\in\L_2\). Error is a "zero-length" function.</td></tr>
+    <tr><td>Generalized</td><td>\(\int t\,S_N\to\int t\,f\)</td><td>divergent series, e.g. \(\sum e^{2\pi inx/L}=\comb(x/L)\) (3.35)</td></tr>
+    <tr><td>Cesàro / Abel</td><td>weights \((1-|n|/N)\) or \(e^{-|n|/\lambda}\)</td><td>any \(f\in L_1\); kills Gibbs; uniform where continuous</td></tr>
+  </tbody></table></div>
+  <h4>3.2.3 Properties of the coefficients</h4>
+  <ul class="plain">
+    <li><b>Linearity:</b> \(h=\alpha f+\beta g\Rightarrow H_n=\alpha F_n+\beta G_n\).</li>
+    <li><b>Real \(f\):</b> \(F_n^*=F_{-n}\) (3.45). B&amp;M call this "Hermiticity"; it is conjugate symmetry, not a Hermitian operator.</li>
+    <li><b>Decay:</b> \(F_n\to0\); if \(f\) has \(q\) continuous derivatives, \(n^qF_n\to0\) (3.49). Jumps ⇒ \(1/n\); kinks ⇒ \(1/n^2\).</li>
+    <li><b>Derivative:</b> coefficients of \(f'\) are \(\frac{2\pi in}{L}F_n\) (3.54). Integration divides by \(2\pi in/L\) and always helps convergence.</li>
+  </ul>
+  <div class="eq"><span class="lab">(3.50)–(3.51) Parseval for series</span><div class="math">\[\sum_n|F_n|^2=\frac1L\int_{-L/2}^{L/2}|f(x)|^2dx,\qquad\sum_nF_n^*G_n=\frac1L\int f^*(x)g(x)\,dx\]</div><div class="say">The map \(f\mapsto\{F_n\}\) is unitary except for the stray factor \(1/L\) (the orthonormal basis is \(\frac1{\sqrt L}e^{2\pi inx/L}\), but \(F_n\) uses \(\frac1L\)).</div></div>
+  <details class="reveal"><summary>Worked example: square wave \(f=\rect(2x/L)\) on \([-L/2,L/2)\)</summary><div class="body">
+    <p>\(F_n=\frac1L\int_{-L/4}^{L/4}e^{-2\pi inx/L}dx=\frac1L\cdot\frac{e^{-i\pi n/2}-e^{i\pi n/2}}{-2\pi in/L}=\frac{\sin(\pi n/2)}{\pi n}=\tfrac12\sinc(n/2)\).</p>
+    <p>So \(F_0=\tfrac12\), \(F_{\pm1}=\tfrac1\pi\), \(F_{\pm2}=0\), \(F_{\pm3}=-\tfrac1{3\pi}\)… Real and even because \(f\) is real and even; \(1/n\) decay because \(f\) jumps. Compare §3.3.8: \(F_n=\frac1LF_0(n/L)\) with \(F_0(\xi)=\frac L2\sinc(\frac L2\xi)\). ✓</p>
+    <p>Derivative check: \(f'=\delta(x+L/4)-\delta(x-L/4)\) has coefficients \(\frac{2\pi in}{L}\cdot\frac{\sin(\pi n/2)}{\pi n}=\frac{2i}{L}\sin\frac{\pi n}2\), matching (3.55).</p></div></details>
+  <p><b>Laurent connection.</b> With \(w=e^{2\pi ix/L}\) on the unit circle, the Fourier series is a Laurent series \(\sum F_nw^n\), and \(F_n=\frac1{2\pi i}\oint\frac{f_w(w)}{w^{n+1}}dw\) (3.25). The unit circle in the \(w\)-plane <i>is</i> one period of \(x\).</p>
+</section>
+
+<section class="topic col" id="ft" data-nav="3.3 The 1D Fourier transform" data-sub>
+  <h3>3.3 The one-dimensional Fourier transform</h3>
+  <p>Let \(L\to\infty\): \(n/L\to\xi\), \(\Delta\xi=1/L\), and \(F_n/\Delta\xi\to F(\xi)\).</p>
+  <div class="eq"><span class="lab">(3.60)–(3.61) B&amp;M convention: \(2\pi\) in the exponent, no prefactors</span><div class="math">\[F(\xi)=\mathcal F_1\{f\}=\int_{-\infty}^\infty dx\,f(x)\,e^{-2\pi i\xi x},\qquad f(x)=\mathcal F_1^{-1}\{F\}=\int_{-\infty}^\infty d\xi\,F(\xi)\,e^{+2\pi i\xi x}\]</div>
+  <div class="say"><b>Phasor reading:</b> \(F(\xi)\) asks "how much of the spinning phasor \(e^{2\pi i\xi x}\) is in \(f\)?" by multiplying by the counter-rotating phasor and adding everything up. If \(f\) contains that rotation, the product stops spinning and accumulates; otherwise it cancels.</div></div>
+  <div class="box trap"><span class="tag">Convention check</span><p>Engineering books with \(\omega=2\pi\xi\) put \(1/2\pi\) in front of the inverse. B&amp;M never do. If you write \(e^{-i\omega x}\), every scaling result picks up \(2\pi\)'s. Stay in \(\xi\) (cycles/length) on the exam.</p></div>
+  <h4>3.3.1–3.3.2 Fourier integral theorem and convergence</h4>
+  <div class="eq"><span class="lab">(3.62)–(3.64)</span><div class="math">\[f(x)=\lim_{K\to\infty}\int dx'\,f(x')\int_{-K/2}^{K/2}d\xi\,e^{2\pi i\xi(x-x')}=\lim_{K\to\infty}\int dx'\,f(x')\,K\sinc[K(x-x')]\]</div><div class="say">The inverse of the forward transform is a convolution with a sinc that becomes \(\delta(x-x')\). Inversion works because (2.45) is a Dirac representation.</div></div>
+  <div class="tw"><table><thead><tr><th>If \(f\) is…</th><th>then \(F\) is…</th><th>Name</th></tr></thead><tbody>
+    <tr><td>\(L_1\) (absolutely integrable)</td><td>bounded, continuous, \(\to0\) at \(\pm\infty\)</td><td>Riemann–Lebesgue (3.66)</td></tr>
+    <tr><td>\(L_1\) + bounded variation</td><td>invertible to \(\frac12[f(x^+)+f(x^-)]\)</td><td>Dirichlet conditions (3.67)</td></tr>
+    <tr><td>\(L_2\)</td><td>\(L_2\) (in the mean)</td><td>Plancherel</td></tr>
+    <tr><td>\(L_p\), \(1\le p\le2\)</td><td>\(L_q\), \(1/p+1/q=1\)</td><td>with convergence factor \(e^{-|x|/\lambda}\)</td></tr>
+    <tr><td>good (Schwartz)</td><td>good</td><td></td></tr>
+    <tr><td>tempered distribution</td><td>tempered distribution (always exists)</td><td>defined by (3.85)</td></tr>
+  </tbody></table></div>
+  <div class="eq"><span class="lab">(3.85) Definition for generalized functions = generalized Parseval</span><div class="math">\[\int dx\,g(x)\,t(x)=\int d\xi\,[G(\xi)]^*\,T(\xi)\qquad(t\text{ good, }g\text{ real})\]</div><div class="say">Operationally, write \(g=\lim g_n\) with good \(g_n\) and take \(G=\lim G_n\) (3.88). Example: \(\mathcal F\{\delta'(x)\}=2\pi i\xi\) (3.92).</div></div>
+  <h4>3.3.3 Unitarity and Parseval</h4>
+  <div class="eq"><span class="lab">(3.79)–(3.80)</span><div class="math">\[\int d\xi\,F_2^*(\xi)F_1(\xi)=\int dx\,f_2^*(x)f_1(x),\qquad\int|F(\xi)|^2d\xi=\int|f(x)|^2dx\]</div><div class="say">The kernel of the adjoint is the conjugate of the swapped kernel: \(e^{+2\pi i\xi x}\), which is the inverse kernel. So \(\mathcal F^\dagger=\mathcal F^{-1}\): Fourier is a rotation in \(\L_2\) and preserves lengths and angles. No \(1/L\) here.</div></div>
+
+  <h4>3.3.5 The property table</h4>
+  <div class="tw"><table><thead><tr><th>Operation on \(f(x)\)</th><th>Effect on \(F(\xi)\)</th><th>Eq.</th><th>Unit-circle intuition</th></tr></thead><tbody>
+    <tr><td>\(\alpha f+\beta g\)</td><td>\(\alpha F+\beta G\)</td><td>3.93</td><td></td></tr>
+    <tr><td>\(f\) real</td><td>\(F(-\xi)=F^*(\xi)\)</td><td>3.94</td><td>mirror across Re axis</td></tr>
+    <tr><td>\(f\) even / odd</td><td>\(F\) even / odd</td><td>3.95</td><td>real &amp; even → real &amp; even; real &amp; odd → imaginary &amp; odd</td></tr>
+    <tr><td>\(f(x-x_0)\)</td><td>\(e^{-2\pi i\xi x_0}F(\xi)\)</td><td>3.108</td><td>rotate each phasor by \(-2\pi\xi x_0\); \(|F|\) unchanged</td></tr>
+    <tr><td>\(e^{2\pi i\xi_0x}f(x)\)</td><td>\(F(\xi-\xi_0)\)</td><td>3.109</td><td>modulation shifts the spectrum</td></tr>
+    <tr><td>\(f(x/a)\)</td><td>\(|a|F(a\xi)\)</td><td>3.111</td><td>wider in \(x\) ⇒ narrower and taller in \(\xi\)</td></tr>
+    <tr><td>\(\frac{d^q}{dx^q}f\)</td><td>\((2\pi i\xi)^qF\)</td><td>3.99</td><td>each derivative = ×\(2\pi\xi\) and a quarter turn</td></tr>
+    <tr><td>\((-2\pi ix)^qf\)</td><td>\(\frac{d^q}{d\xi^q}F\)</td><td>3.100</td><td></td></tr>
+    <tr><td>\(\int f\,dx\)</td><td>\(F(0)\)</td><td>3.104</td><td>central ordinate</td></tr>
+    <tr><td>\(f(0)\)</td><td>\(\int F\,d\xi\)</td><td>3.106</td><td>dual central ordinate</td></tr>
+    <tr><td>\(\int x^qf\,dx\) (moment)</td><td>\((-2\pi i)^{-q}F^{(q)}(0)\)</td><td>3.103</td><td></td></tr>
+    <tr><td>\(f*h\)</td><td>\(F\,H\)</td><td>3.132</td><td></td></tr>
+    <tr><td>\(f\star h\) (correlation)</td><td>\(F(\xi)H(-\xi)=FH^*\) (real \(h\))</td><td>3.134</td><td></td></tr>
+    <tr><td>\(f\star f^*\) (autocorrelation)</td><td>\(|F|^2\)</td><td>3.135</td><td></td></tr>
+    <tr><td>apply \(\mathcal F\) twice</td><td>\(f(-x)\); four times = identity</td><td>3.113</td><td>\(\mathcal F\) is a "90° rotation"</td></tr>
+  </tbody></table></div>
+  <div class="box key"><span class="tag">Smoothness ↔ decay (3.107)</span><p>If \(f\) has bounded derivatives up to order \(q\), then \(\xi^qF(\xi)\to0\). Jump → \(1/\xi\) tails (rect → sinc). Kink → \(1/\xi^2\) (tri → sinc²). Infinitely smooth → faster than any power (Gaussian). Compact support ⇒ entire analytic transform ⇒ <b>never</b> compact support (Paley–Wiener, §3.3.9).</p></div>
+
+  <figure class="widget" id="w-ft">
+    <div class="wt"><b>Fourier-pair explorer: scale, shift, modulate</b><span class="legend"><span><i style="background:var(--re)"></i>real part</span><span><i style="background:var(--im)"></i>imaginary part</span><span><i style="background:var(--accent)"></i>|F(ξ)|</span></span></div>
+    <canvas id="cvFtX"></canvas>
+    <div class="cv2"><canvas id="cvFtDial"></canvas><canvas id="cvFtK"></canvas></div>
+    <div class="ctrls">
+      <label for="ftF">f₀ <select id="ftF"><option value="rect">rect(x/a)</option><option value="tri">tri(x/a)</option><option value="gaus">gaus(x/a)</option><option value="sinc">sinc(x/a)</option><option value="exp2">e^{−|x|/a}</option><option value="exp1">e^{−x/a} step(x)</option></select></label>
+      <label for="ftA">width a <input type="range" id="ftA" min="0.3" max="3" step="0.05" value="1"><span id="ftAV"></span></label>
+      <label for="ftX0">shift x₀ <input type="range" id="ftX0" min="-2" max="2" step="0.05" value="0"><span id="ftX0V"></span></label>
+      <label for="ftK0">modulate ξ₀ <input type="range" id="ftK0" min="-1.5" max="1.5" step="0.05" value="0"><span id="ftK0V"></span></label>
+      <label for="ftP">probe ξ <input type="range" id="ftP" min="-3" max="3" step="0.01" value="0.4"><span id="ftPV"></span></label>
+    </div>
+    <div class="readout" id="ftOut"></div>
+    <figcaption>Top: \(f(x)=e^{2\pi i\xi_0x}f_0(x-x_0)\). Bottom right: \(F(\xi)=e^{-2\pi i(\xi-\xi_0)x_0}F_0(\xi-\xi_0)\). Bottom left: the value \(F(\xi)\) at the probe frequency drawn as a phasor. Slide \(x_0\): the phasor spins but its length (|F|, purple) never changes. Slide \(a\): the pair trades width. The readout checks the central-ordinate theorem and Parseval numerically.</figcaption>
+  </figure>
+
+  <h4>3.3.6 Convolution and correlation</h4>
+  <div class="eq"><span class="lab">(3.114) Convolution · (3.115) correlation</span><div class="math">\[\begin{aligned}[f*h](x)&=\int dx'\,f(x')\,h(x-x')\\ [f\star h](x)&=\int dx'\,f(x+x')\,h(x')=\int dx''\,f(x'')\,h(x''-x)\end{aligned}\]</div>
+  <div class="say"><b>Flip, shift, multiply, integrate.</b> Convolution is commutative, associative, bilinear, and commutes with shifts and derivatives: \((f*g)'=f'*g=f*g'\). Correlation is not commutative and has no flip: \(f\star h=f(x)*h(-x)\).</div></div>
+  <figure class="widget" id="w-conv">
+    <div class="wt"><b>Convolution, one shift at a time</b><span class="legend"><span><i style="background:var(--re)"></i>f(x′)</span><span><i style="background:var(--im)"></i>h(x − x′)</span><span><i style="background:var(--accent)"></i>[f∗h](x)</span></span></div>
+    <canvas id="cvCv"></canvas>
+    <div class="ctrls">
+      <label for="cvF">f <select id="cvF"><option value="rect">rect(x)</option><option value="tri">tri(x)</option><option value="exp">e^{−x}step(x)</option><option value="two">two rects</option></select></label>
+      <label for="cvH">h <select id="cvH"><option value="rect">rect(x)</option><option value="rect2">rect(x/2)</option><option value="exp">e^{−x}step(x)</option><option value="gaus">gaus(x)</option></select></label>
+      <label for="cvS">shift x <input type="range" id="cvS" min="-3" max="3" step="0.01" value="-0.6"><span id="cvSV"></span></label>
+      <button id="cvPlay" class="btn" type="button">Play</button>
+    </div>
+    <div class="readout" id="cvOut"></div>
+    <figcaption>The shaded area is the integrand \(f(x')h(x-x')\); its total area is the output at the current shift. rect∗rect builds tri, which is why \(\mathcal F\{\tri\}=\sinc^2\). The readout checks \(\int(f*h)=\int f\cdot\int h\) (3.133).</figcaption>
+  </figure>
+  <div class="eq"><span class="lab">(3.132) Convolution theorem</span><div class="math">\[\mathcal F\{f*h\}=F(\xi)\,H(\xi)\qquad\text{and dually}\qquad\mathcal F\{f\,h\}=F*H\]</div><div class="say">Proof idea: write both functions as inverse transforms, do the \(x'\) integral first, get \(\delta(\xi-\xi')\) from (3.8). Valid when at most one factor is a generalized function of infinite support.</div></div>
+  <div class="box trap"><span class="tag">Scale factors inside convolutions (3.143)–(3.146)</span><p>\(\rect(x)*\rect(x)=\tri(x)\), but \(\rect(x/L)*\rect(x/L)=L\,\tri(x/L)\), <b>not</b> \(\tri(x/L)\). Convolution is an integral over \(x\), so it carries a dimension of length. Safest habit: define \(r_L(x)=\rect(x/L)\) and write the integral out. In expressions like \(f(x)*h(x/b)\), the shift variable is the unscaled \(x\).</p></div>
+  <div class="box tip"><span class="tag">Convolution with deltas</span><ul><li>\(f*\delta=f\) (identity) · \(f(x)*\delta(x-x_0)=f(x-x_0)\) (shift) · \(f*\delta'=f'\) (no minus sign) (3.126)</li><li>\(\delta(x-x_1)*\delta(x-x_2)=\delta(x-x_1-x_2)\) · \(\delta^{(m)}*\delta^{(n)}=\delta^{(m+n)}\)</li><li>Area rule: \(\int(f*h)=\int f\int h\).</li></ul></div>
+
+  <h4>3.3.7 Transforms of special functions</h4>
+  <div class="tw"><table><thead><tr><th>\(f(x)\)</th><th>\(F(\xi)\)</th><th>Note</th></tr></thead><tbody>
+    <tr><td>\(\rect(x/L)\)</td><td>\(L\sinc(L\xi)\)</td><td>\(\sinc u=\frac{\sin\pi u}{\pi u}\); zeros at \(\xi=n/L\)</td></tr>
+    <tr><td>\(\sinc(x/L)\)</td><td>\(L\rect(L\xi)\)</td><td>duality: real &amp; even pairs swap</td></tr>
+    <tr><td>\(\tri(x/L)\)</td><td>\(L\sinc^2(L\xi)\)</td><td>\(\tri=\rect*\rect\); base width \(2L\)</td></tr>
+    <tr><td>\(\gaus(x)=e^{-\pi x^2}\)</td><td>\(e^{-\pi\xi^2}\)</td><td>its own transform</td></tr>
+    <tr><td>\(|a|^{-1}\gaus(x/a)\)</td><td>\(e^{-\pi a^2\xi^2}\)</td><td>unit area for any \(a\)</td></tr>
+    <tr><td>\(\delta(x)\) · \(\delta(x-x_0)\)</td><td>\(1\) · \(e^{-2\pi i\xi x_0}\)</td><td>a point has every frequency</td></tr>
+    <tr><td>\(\delta^{(k)}(x-x_0)\)</td><td>\((2\pi i\xi)^ke^{-2\pi i\xi x_0}\)</td><td></td></tr>
+    <tr><td>\(1\) · \(e^{2\pi i\xi_0x}\)</td><td>\(\delta(\xi)\) · \(\delta(\xi-\xi_0)\)</td><td>one phasor = one frequency</td></tr>
+    <tr><td>\(\cos(2\pi\xi_0x)\)</td><td>\(\tfrac12[\delta(\xi-\xi_0)+\delta(\xi+\xi_0)]\)</td><td>two real, equal deltas</td></tr>
+    <tr><td>\(\sin(2\pi\xi_0x)\)</td><td>\(\frac1{2i}[\delta(\xi-\xi_0)-\delta(\xi+\xi_0)]\)</td><td>imaginary, opposite signs</td></tr>
+    <tr><td>\(\comb(x)\)</td><td>\(\comb(\xi)\)</td><td></td></tr>
+    <tr><td>\(\comb(x/L)=L\sum\delta(x-nL)\)</td><td>\(L\comb(L\xi)=\sum\delta(\xi-n/L)\)</td><td>spacing \(L\) ↔ spacing \(1/L\)</td></tr>
+    <tr><td>\(\step(x)\)</td><td>\(\tfrac12\delta(\xi)+P\frac1{2\pi i\xi}\)</td><td>the \(\frac12\delta\) is the integration constant</td></tr>
+    <tr><td>\(\sgn(x)\)</td><td>\(P\frac1{i\pi\xi}\)</td><td>dual: \(P\frac1x\leftrightarrow-i\pi\sgn\xi\)</td></tr>
+    <tr><td>\(e^{-|x|/a}\)</td><td>\(\dfrac{2a}{1+(2\pi a\xi)^2}\)</td><td>Lorentzian (cf. 2.39)</td></tr>
+    <tr><td>\(e^{-x/a}\step(x)\)</td><td>\(\dfrac{a}{1+2\pi ia\xi}\)</td><td>complex: causal functions are not even</td></tr>
+    <tr><td>\(|x|^{-1/2}\)</td><td>\(|\xi|^{-1/2}\)</td><td>another self-transform</td></tr>
+    <tr><td>\(x^m\)</td><td>\((-2\pi i)^{-m}\delta^{(m)}(\xi)\)</td><td></td></tr>
+    <tr><td>\(e^{i\pi\beta x^2}\)</td><td>\(\sqrt{i/\beta}\,e^{-i\pi\xi^2/\beta}\)</td><td>quadratic phase (diffraction, chirps)</td></tr>
+  </tbody></table></div>
+  <details class="reveal"><summary>Derivation: \(\mathcal F\{\gaus\}\) by completing the square</summary><div class="body">
+    <p>\(\int e^{-\pi x^2-2\pi i\xi x}dx=e^{-\pi\xi^2}\int e^{-\pi(x+i\xi)^2}dx\). Shift the contour back to the real axis (the integrand is entire and vanishes at the ends), so the integral is \(\int e^{-\pi x^2}dx=1\) (prove via \(I^2\) in polar coordinates: \(2\pi\int_0^\infty re^{-\pi r^2}dr=1\)). Result: \(e^{-\pi\xi^2}\).</p></div></details>
+  <details class="reveal"><summary>Derivation: \(\mathcal F\{\step\}\) with a convergence factor</summary><div class="body">
+    <p>\(\int_0^\infty e^{-2\pi i\xi x-x/L}dx=\frac{L}{1+2\pi i\xi L}=\frac{L}{1+4\pi^2\xi^2L^2}-\frac{2\pi i\xi L^2}{1+4\pi^2\xi^2L^2}\). With \(\epsilon=1/(2\pi L)\) the first term is \(\frac12\cdot\frac{\epsilon/\pi}{\xi^2+\epsilon^2}\to\frac12\delta(\xi)\) and the second is \(\frac1{2\pi i}\frac{\xi}{\xi^2+\epsilon^2}\to P\frac1{2\pi i\xi}\).</p></div></details>
+
+  <h4>3.3.8 Fourier series ↔ Fourier transform</h4>
+  <div class="eq"><span class="lab">(3.188)–(3.191)</span><div class="math">\[f(x)=f_0(x)*\tfrac1L\comb(\tfrac xL)\ \Longrightarrow\ F(\xi)=F_0(\xi)\comb(L\xi)=\frac1L\sum_nF_0\!\Big(\frac nL\Big)\delta\!\Big(\xi-\frac nL\Big)\]</div>
+  <div class="say"><b>Periodic in \(x\) ⇔ discrete in \(\xi\).</b> And the series coefficients are samples of the one-period transform: \(F_n=\frac1LF_0(n/L)\). This is the fastest way to get Fourier-series coefficients on an exam.</div></div>
+  <div class="eq"><span class="lab">(3.197)–(3.198) Poisson summation</span><div class="math">\[\sum_n g(x-nL)=\frac1L\sum_kG\!\Big(\frac kL\Big)e^{2\pi ikx/L},\qquad\sum_ng(nL)=\frac1L\sum_kG\!\Big(\frac kL\Big)\]</div><div class="say">The sum of samples of a function equals the (scaled) sum of samples of its transform. Here the replicas may overlap; \(g\) need not be periodic or compact.</div></div>
+  <details class="reveal"><summary>Example: \(\sum_n e^{-\pi n^2t}\) via Poisson</summary><div class="body"><p>Take \(g(x)=e^{-\pi tx^2}=\gaus(\sqrt t\,x)\), so \(G(\xi)=t^{-1/2}e^{-\pi\xi^2/t}\). With \(L=1\): \(\sum_ne^{-\pi tn^2}=t^{-1/2}\sum_ke^{-\pi k^2/t}\) (the theta-function identity; compare 3.199). Slowly converging on one side means fast on the other.</p></div></details>
+  <h4>3.3.9–3.3.10 Analyticity, cosine and sine transforms</h4>
+  <p><b>Paley–Wiener:</b> if \(f\) has compact support, \(F(\xi)\) extends to an entire function of complex \(\xi\) (of exponential type). An analytic function zero on an interval is zero everywhere, so a space-limited function is never band-limited. <b>Cosine transform</b> \(F_c(\xi)=2\int_0^\infty f\cos(2\pi\xi x)dx\) (even extension); <b>sine transform</b> \(F_s=2\int_0^\infty f\sin(2\pi\xi x)dx\) (odd extension); each inverts with the same kernel for \(x\ge0\).</p>
+</section>
+
+<section class="topic col" id="mdft" data-nav="3.4 Multidimensional FT" data-sub>
+  <h3>3.4 Multidimensional Fourier transforms</h3>
+  <div class="eq"><span class="lab">(3.214), (3.222)–(3.223)</span><div class="math">\[u_{\boldsymbol\rho}(\mathbf r)=e^{2\pi i\boldsymbol\rho\cdot\mathbf r},\qquad F(\boldsymbol\rho)=\int_\infty d^n r\,f(\mathbf r)\,e^{-2\pi i\boldsymbol\rho\cdot\mathbf r},\qquad f(\mathbf r)=\int_\infty d^n\rho\,F(\boldsymbol\rho)\,e^{2\pi i\boldsymbol\rho\cdot\mathbf r}\]</div>
+  <div class="say">In 2D, \(\boldsymbol\rho\cdot\mathbf r=\xi x+\eta y\). The basis function is a plane wave: stripes perpendicular to \(\boldsymbol\rho\), spaced \(1/|\boldsymbol\rho|\) apart. In Cartesian coordinates, \(\mathcal F_2=\mathcal F_{1(x\to\xi)}\mathcal F_{1(y\to\eta)}\): do one variable at a time.</div></div>
+  <figure class="widget" id="w-2d">
+    <div class="wt"><b>A 2D basis function and its spectrum</b><span class="legend"><span><i style="background:var(--re)"></i>Re e^{2πiρ·r} = cos</span><span><i style="background:var(--accent)"></i>ρ vector</span></span></div>
+    <div class="cv2"><canvas id="cv2dS"></canvas><canvas id="cv2dF"></canvas></div>
+    <div class="ctrls">
+      <label for="tdX">ξ₀ <input type="range" id="tdX" min="-4" max="4" step="0.25" value="2"><span id="tdXV"></span></label>
+      <label for="tdY">η₀ <input type="range" id="tdY" min="-4" max="4" step="0.25" value="1"><span id="tdYV"></span></label>
+    </div>
+    <div class="readout" id="tdOut"></div>
+    <figcaption>Left: \(\cos[2\pi(\xi_0x+\eta_0y)]\) on the unit square; the stripes run perpendicular to \(\boldsymbol\rho_0\) with period \(1/|\boldsymbol\rho_0|\) along \(\boldsymbol\rho_0\), \(1/\xi_0\) along \(x\), \(1/\eta_0\) along \(y\). Right: its 2D transform, two deltas at \(\pm\boldsymbol\rho_0\) (3.255).</figcaption>
+  </figure>
+  <div class="tw"><table><thead><tr><th>Property (nD)</th><th>Formula</th></tr></thead><tbody>
+    <tr><td>Hermiticity (real \(f\))</td><td>\(F(-\boldsymbol\rho)=F^*(\boldsymbol\rho)\) — in 2D: flip both \(\xi\) and \(\eta\)</td></tr>
+    <tr><td>Central ordinate</td><td>\(F(\mathbf 0)=\int f\,d^nr\), \(f(\mathbf 0)=\int F\,d^n\rho\)</td></tr>
+    <tr><td>Shift / modulation</td><td>\(f(\mathbf r-\mathbf r_0)\leftrightarrow e^{-2\pi i\boldsymbol\rho\cdot\mathbf r_0}F\); \(e^{2\pi i\boldsymbol\rho_0\cdot\mathbf r}f\leftrightarrow F(\boldsymbol\rho-\boldsymbol\rho_0)\)</td></tr>
+    <tr><td>Scaling (all axes by \(a\))</td><td>\(f(\mathbf r/a)\leftrightarrow|a|^{\,n}F(a\boldsymbol\rho)\) — the exponent is the dimension</td></tr>
+    <tr><td>Gradient / Laplacian</td><td>\(\nabla f\leftrightarrow2\pi i\boldsymbol\rho F\); \(\nabla^2f\leftrightarrow-4\pi^2\rho^2F\)</td></tr>
+    <tr><td>Convolution / correlation</td><td>\(f*h\leftrightarrow FH\); \(f\star h\leftrightarrow FH^*\) (real \(h\)); \(f\star f^*\leftrightarrow|F|^2\)</td></tr>
+    <tr><td>Separable</td><td>\(f(x)g(y)\leftrightarrow F(\xi)G(\eta)\)</td></tr>
+  </tbody></table></div>
+  <div class="eq"><span class="lab">(3.233) Central-slice theorem (2D)</span><div class="math">\[F(0,\eta)=\int dy\Big[\int dx\,f(x,y)\Big]e^{-2\pi i\eta y}\]</div><div class="say">The 1D transform of a <b>projection</b> (line integrals along \(x\)) equals the 2D transform along the line \(\xi=0\) through the origin. Rotate the projection direction and you sweep out the whole 2D spectrum. That is the foundation of CT (Ch. 4).</div></div>
+  <h4>Rotational symmetry: Hankel transforms</h4>
+  <div class="eq"><span class="lab">(3.248), (3.250)</span><div class="math">\[\mathcal F_2\{f(r)\}=2\pi\int_0^\infty r\,dr\,J_0(2\pi\rho r)f(r),\qquad\mathcal F_3\{f(r)\}=4\pi\int_0^\infty r^2dr\,\sinc(2\rho r)\,f(r)\]</div><div class="say">A radially symmetric function has a radially symmetric transform. \(J_0\) comes from doing the angular integral of \(e^{-2\pi i\rho r\cos(\theta-\theta_\rho)}\) once and for all.</div></div>
+  <div class="tw"><table><thead><tr><th>\(f(\mathbf r)\)</th><th>\(F(\boldsymbol\rho)\)</th></tr></thead><tbody>
+    <tr><td>\(\delta(\mathbf r-\mathbf r_0)\)</td><td>\(e^{-2\pi i\mathbf r_0\cdot\boldsymbol\rho}\)</td></tr>
+    <tr><td>\(\cos(2\pi\boldsymbol\rho_0\cdot\mathbf r)\)</td><td>\(\tfrac12[\delta(\boldsymbol\rho-\boldsymbol\rho_0)+\delta(\boldsymbol\rho+\boldsymbol\rho_0)]\)</td></tr>
+    <tr><td>\(\cyl(r/D)\) (disc of diameter \(D\))</td><td>\(\frac{\pi D^2}4\besinc(\rho D)\), \(\besinc t=\frac{2J_1(\pi t)}{\pi t}\)</td></tr>
+    <tr><td>\(\gaus(\mathbf r/a)=e^{-\pi r^2/a^2}\)</td><td>\(|a|^n\gaus(a\boldsymbol\rho)\)</td></tr>
+    <tr><td>\(e^{i\pi\beta r^2}\)</td><td>\((i/\beta)^{n/2}e^{-i\pi\rho^2/\beta}\)</td></tr>
+    <tr><td>\(\comb(\mathbf r/a)\)</td><td>\(|a|^n\comb(a\boldsymbol\rho)\)</td></tr>
+    <tr><td>\(|\det\mathbf P|\sum_{\mathbf m}\delta(\mathbf r-\mathbf P\mathbf m)\)</td><td>\(\sum_{\mathbf m}\delta(\boldsymbol\rho-\mathbf Q\mathbf m)\), \(\mathbf Q^t=\mathbf P^{-1}\) (reciprocal lattice)</td></tr>
+  </tbody></table></div>
+  <p><b>nD Fourier series (3.276):</b> a function periodic on lattice \(\mathbf P\mathbf m\) has a transform supported on the reciprocal lattice, with coefficients \(\frac1{|\det\mathbf P|}F_0(\mathbf Q\mathbf m)\) from one Wigner–Seitz unit cell.</p>
+</section>
+
+<section class="topic col" id="samp" data-nav="3.5 Sampling &amp; aliasing" data-sub>
+  <h3>3.5 Sampling theory</h3>
+  <p>A function is <b>bandlimited</b> if \(F(\xi)=0\) for \(|\xi|>B/2\). B&amp;M's \(B\) is the <b>full</b> bandwidth (positive and negative frequencies); engineers often call \(B/2\) the bandwidth. Bandlimited functions are entire, and they form <b>Paley–Wiener space</b>, a reproducing-kernel space with kernel \(B\sinc(Bx)\).</p>
+  <div class="eq"><span class="lab">(3.288)–(3.290) Sampling = multiplying by a comb = replicating the spectrum</span><div class="math">\[\begin{aligned}f_s(x)&=f(x)\,\frac1{\Delta x}\comb\Big(\frac x{\Delta x}\Big)=\sum_jf(j\Delta x)\,\delta(x-j\Delta x)\\ \Longrightarrow\quad F_s(\xi)&=F(\xi)*\comb(\Delta x\,\xi)=\frac1{\Delta x}\sum_jF\Big(\xi-\frac j{\Delta x}\Big)\end{aligned}\]</div></div>
+  <div class="eq"><span class="lab">(3.291) Nyquist · (3.293) Whittaker–Shannon interpolation</span><div class="math">\[\Delta x\le\frac1B\qquad\Longrightarrow\qquad f(x)=\sum_jf(j\Delta x)\,\sinc[B(x-j\Delta x)]\quad(B\Delta x\le1)\]</div><div class="say">Replicas sit \(1/\Delta x\) apart and each is \(B\) wide, so they don't overlap if \(1/\Delta x\ge B\). Cut one replica out with \(\Delta x\,\rect(\xi/B)\); in space that is convolution with \(B\Delta x\sinc(Bx)\). With \(B\Delta x=1\): \(f(x)=\sum f(k/B)\sinc(Bx-k)\) (3.287).</div></div>
+  <figure class="widget" id="w-alias">
+    <div class="wt"><b>Sampling a cosine: aliasing in both domains</b><span class="legend"><span><i style="background:var(--muted)"></i>true cos</span><span><i style="background:var(--accent)"></i>samples</span><span><i style="background:var(--im)"></i>what sinc interpolation recovers</span></span></div>
+    <canvas id="cvAl"></canvas><canvas id="cvAlF"></canvas>
+    <div class="ctrls">
+      <label for="alF">signal ξ₀ <input type="range" id="alF" min="0" max="3" step="0.02" value="0.7"><span id="alFV"></span></label>
+      <label for="alD">Δx <input type="range" id="alD" min="0.12" max="1" step="0.01" value="0.4"><span id="alDV"></span></label>
+    </div>
+    <div class="readout" id="alOut"></div>
+    <figcaption>Bottom: the spectrum of the sampled signal, with deltas at \(\pm\xi_0\) (solid) and their replicas at \(\pm\xi_0+j/\Delta x\) (faded). The shaded band is \(|\xi|<1/(2\Delta x)\). When \(\xi_0\) exceeds the Nyquist frequency \(1/(2\Delta x)\), a replica lands inside the band and the reconstruction is a lower-frequency alias, \(\cos(2\pi\xi_ax)\) with \(\xi_a=|\xi_0-j/\Delta x|\) for the nearest \(j\).</figcaption>
+  </figure>
+  <ul class="plain">
+    <li><b>Aliasing</b> = heterodyning: multiplying by the comb's harmonics shifts every frequency to \(\xi\pm n/\Delta x\). Equivalently, \(\cos2\pi\xi x-\cos2\pi(\xi\pm n/\Delta x)x\) is a null function of the sampling operator. Cures: sample finer, or low-pass (anti-alias) filter before sampling.</li>
+    <li><b>Dual Nyquist</b> (3.296): if \(f\) is space-limited to width \(L\), samples of \(F\) spaced \(\Delta\xi\le1/L\) determine it: \(F(\xi)=\sum F(j\Delta\xi)\sinc(\xi/\Delta\xi-j)\).</li>
+    <li><b>Space-bandwidth product</b> \(LB\): number of samples (degrees of freedom) for a signal of length \(L\) and bandwidth \(B\).</li>
+    <li><b>Multi-D</b> (3.303): sample on lattice \(\mathbf P\mathbf m\); replicas sit on the reciprocal lattice \(\mathbf Q\mathbf m\); interpolate with \(|\det\mathbf P|\,s(\mathbf r)\), the inverse FT of the support function.</li>
+    <li><b>Finite aperture</b> (3.306)–(3.310): \(f_j=[f*a](x_j)\). Recoverable if \(A(\xi)\ne0\) in the band; pixel apertures of width \(\epsilon<2\Delta x\) are fine.</li>
+  </ul>
+</section>
+
+<section class="topic col" id="dft" data-nav="3.6 DFT &amp; FFT" data-sub>
+  <h3>3.6 The discrete Fourier transform</h3>
+  <div class="eq"><span class="lab">(3.312)–(3.316)</span><div class="math">\[F_n=\sum_{k=0}^{N-1}f_k\,W_N^{kn},\qquad f_k=\frac1N\sum_{n=0}^{N-1}F_n\,W_N^{-kn},\qquad W_N=e^{-2\pi i/N}\]</div><div class="say">\(W_N\) is an \(N\)-th root of unity: a point \(1/N\) of the way (clockwise) around the unit circle. The \(1/N\) sits on the inverse. As an approximation, \(\Delta x\,F_n\approx F(n\Delta\xi)\) with \(\Delta\xi=1/L=1/(N\Delta x)\).</div></div>
+  <figure class="widget" id="w-dft">
+    <div class="wt"><b>Roots of unity and a small DFT</b><span class="legend"><span><i style="background:var(--re)"></i>Re F_n</span><span><i style="background:var(--im)"></i>Im F_n</span><span><i style="background:var(--accent)"></i>|F_n|</span></span></div>
+    <div class="cv2"><canvas id="cvDftC"></canvas><canvas id="cvDftS"></canvas></div>
+    <div class="ctrls">
+      <label for="dfN">N <input type="range" id="dfN" min="4" max="32" step="1" value="16"><span id="dfNV"></span></label>
+      <label for="dfK">frequency index n <input type="range" id="dfK" min="0" max="31" step="1" value="1"><span id="dfKV"></span></label>
+      <label for="dfSeq">sequence f_k <select id="dfSeq"><option value="imp">δ_k0 (impulse)</option><option value="imps">δ_k3 (shifted impulse)</option><option value="cos">cos(2π·2k/N)</option><option value="sin">sin(2π·2k/N)</option><option value="box">box k=0..3</option><option value="exp">e^{2πi·3k/N}</option></select></label>
+    </div>
+    <div class="readout" id="dfOut"></div>
+    <figcaption>Left: the phasors \(W_N^{kn}\) for \(k=0..N-1\) at the chosen \(n\); \(F_n=\sum_kf_kW_N^{kn}\) weights them by the sequence. Index \(n\) and \(n+N\) give the same points (periodicity). Right: Re and Im of \(F_n\). For a real sequence, Re is symmetric and Im antisymmetric about \(n=N/2\), the folding point.</figcaption>
+  </figure>
+  <div class="tw"><table><thead><tr><th>DFT property</th><th>Statement</th><th>Continuous analog</th></tr></thead><tbody>
+    <tr><td>Periodicity</td><td>\(F_{n+N}=F_n\); only \(N\) independent values</td><td>sampled ⇒ periodic spectrum</td></tr>
+    <tr><td>Real input</td><td>\(F_n=F_{-n}^*=F^*_{N-n}\); folding at \(n=N/2\)</td><td>\(F(-\xi)=F^*(\xi)\)</td></tr>
+    <tr><td>Cyclic shift \(y_k=f_{k-m}\) (mod \(N\))</td><td>\(Y_n=e^{-2\pi inm/N}F_n\)</td><td>shift theorem</td></tr>
+    <tr><td>\(f_k=\delta_{km}\)</td><td>\(F_n=e^{-2\pi imn/N}\)</td><td>\(\delta(x-x_0)\leftrightarrow e^{-2\pi i\xi x_0}\)</td></tr>
+    <tr><td>\(f_k=e^{2\pi ikm/N}\)</td><td>\(F_n=N\delta_{mn}\)</td><td>phasor ↔ delta</td></tr>
+    <tr><td>Cyclic convolution \(g_n=\frac1N\sum_kf_kh_{n-k}\)</td><td>\(G_n=F_nH_n\)</td><td>convolution theorem</td></tr>
+    <tr><td>Correlation \(g_n=\frac1N\sum_kf_kh_{n+k}\)</td><td>\(G_n=F_nH_n^*\)</td><td></td></tr>
+    <tr><td>Parseval</td><td>\(\sum_kf_kh_k^*=\frac1N\sum_nF_nH_n^*\)</td><td>(3.79)</td></tr>
+  </tbody></table></div>
+  <div class="box key"><span class="tag">What a DFT really computes (Fig. 3.10)</span><p>The DFT of the samples of \(f\) gives the samples of the Fourier transform of a <b>sampled, windowed, and periodically replicated</b> version of \(f\). Each step has an error and a cure:</p>
+  <ul><li><b>Sampling</b> → aliasing. Cure: finer \(\Delta x\) or anti-alias filter.</li><li><b>Windowing</b> to \([0,L)\) → convolution with \(W(\xi)\) = spectral leakage. Cure: wider or smoother window.</li><li><b>Sampling \(F\)</b> at \(1/L\) → coarse spectrum. Cure: <b>zero padding</b> (longer \(L\), finer \(\Delta\xi\); adds no information).</li></ul></div>
+  <h4>3.6.4 Discrete-space FT</h4>
+  <div class="eq"><span class="lab">(3.342)–(3.343)</span><div class="math">\[F_{DS}(\xi)=\sum_{k=-\infty}^\infty f_k\,e^{-2\pi ik\xi\Delta x},\qquad f_k=\Delta x\int_{-1/2\Delta x}^{1/2\Delta x}d\xi\,F_{DS}(\xi)\,e^{2\pi ik\xi\Delta x}\]</div><div class="say">A Fourier <b>series</b> in the frequency variable, period \(1/\Delta x\). \(F_{DS}=F_s=\frac1{\Delta x}\sum F(\xi-n/\Delta x)\): the replicated spectrum of row 3 of Fig. 3.10. Setting \(\xi=0\) recovers Poisson summation.</div></div>
+  <h4>3.6.5 FFT</h4>
+  <div class="eq"><span class="lab">(3.356)–(3.357) Danielson–Lanczos split, \(N=2M\)</span><div class="math">\[F_n=F_n^{(e)}+W_{2M}^n\,F_n^{(o)},\qquad F_{n+M}=F_n^{(e)}-W_{2M}^n\,F_n^{(o)}\]</div><div class="say">Split into even- and odd-indexed samples, each an \(M\)-point DFT. The minus sign comes from \(W_{2M}^M=e^{-i\pi}=-1\): half a turn on the unit circle. Repeat \(\log_2N\) times: \(O(N\log_2N)\) instead of \(O(N^2)\).</div></div>
+  <p><b>2D DFT:</b> \(F_{mn}=\sum_j\sum_kf_{jk}W_N^{mj+nk}\), i.e. \(\mathbf F=\mathbf D\mathbf f\mathbf D\) (not a similarity transform). Do 1D DFTs on columns then rows: \(O(N^2\log_2N^2)\). Lexicographic ordering \(\ell=k+jN\) turns it into one \(N^2\times N^2\) matrix.</p>
+</section>
+</section>
+<section class="chapter" id="ch7" data-nav="7 · Imaging Systems">
+<div class="col">
+  <span class="eyebrow">Chapter 7</span>
+  <h2>Deterministic Descriptions of Imaging Systems</h2>
+  <p class="lede">Now the abstract machinery describes real hardware. Objects and images are vectors, systems are operators, and the SVD of a shift-invariant system turns out to be the Fourier transform.</p>
+</div>
+
+<section class="topic col" id="obj" data-nav="7.1 Objects &amp; images as vectors" data-sub>
+  <h3>7.1 Objects and images</h3>
+  <p>An object is a function \(f(\mathbf r)\) of a \(q\)-D vector (space, plus time, wavelength, angle as needed); it may be complex (coherent fields \(A(\mathbf r)e^{i\phi(\mathbf r)}\)) or vector-valued (RGB, MRI's three maps). Real objects have <b>compact support</b> and <b>finite values</b>, so they are square-integrable: \(\mathbf f\in\L_2(\mathbf S_f)\). Don't assume objects are smooth or bandlimited; edges exist.</p>
+  <div class="eq"><span class="lab">(7.13)–(7.15) Fourier basis for a supported object</span><div class="math">\[f(\mathbf r)=\sum_{\mathbf k}F_{\mathbf k}\,\Phi_{\mathbf k}(\mathbf r),\qquad\Phi_{\mathbf k}(\mathbf r)=e^{2\pi i\boldsymbol\rho_{\mathbf k}\cdot\mathbf r}\,S_f(\mathbf r),\qquad\boldsymbol\rho_{\mathbf k}=\mathbf k\,\Delta\rho,\ \Delta\rho\le1/L\]</div><div class="say">\(\mathbf k\) is a <b>multi-index</b> (a vector of integers). The support function \(S_f\) zeros all periodic replicas but one. Truncating the sum to finitely many terms gives a finite representation.</div></div>
+  <div class="eq"><span class="lab">(7.27), (7.37) General finite representation</span><div class="math">\[f_a(\mathbf r)=\sum_{n=1}^N\theta_n\phi_n(\mathbf r),\qquad\boldsymbol\theta=\mathcal D_\chi f,\quad f_a=\mathcal D_\phi^\dagger\mathcal D_\chi f\]</div><div class="say">Two choices: <b>expansion functions</b> \(\phi_n\) (pixels, voxels, blobs) and <b>coefficient rule</b> \(\chi_n\) (average over the pixel, or point sample). Best \(L_2\) accuracy: \(\mathcal D_\phi^\dagger\mathcal D_\chi=\Pc_{rep}\), the projector onto representation space; then \(\|\delta f\|^2=\|f\|^2-\|\boldsymbol\theta\|^2\) for orthonormal \(\phi_n\).</div></div>
+  <ul class="plain">
+    <li><b>Karhunen–Loève:</b> over an ensemble, the eigenvectors of the autocorrelation operator \(\mathcal R\) minimize mean-square representation error; MSRE \(=\sum_{n>N}\lambda_n\).</li>
+    <li><b>Moment error:</b> \(\delta\tau=\int f\,[\Ic-\Pc_{rep}]t\). Only the template \(t\) needs to be representable: integrals over whole pixels are exact.</li>
+    <li><b>Uniform translates</b> \(\phi(\mathbf r-\mathbf r_{\mathbf n})\): aliasing terms appear in the error unless \(\phi\) or \(f\) is nearly bandlimited; non-orthogonal translates need a biorthonormal set built with the DFT.</li>
+    <li><b>Nonlinear parametric models:</b> point sources, shapes, atlas warping, thresholded wavelets.</li>
+  </ul>
+</section>
+
+<section class="topic col" id="cc" data-nav="7.2 CC systems, PRF, resolution" data-sub>
+  <h3>7.2 Linear continuous-to-continuous systems</h3>
+  <div class="eq"><span class="lab">(7.101) The general linear CC system</span><div class="math">\[g(\mathbf r_d)=\int_{\mathbf S_f}d^qr\;h(\mathbf r_d,\mathbf r)\,f(\mathbf r)\]</div><div class="say">Put in a point source \(f=\delta(\mathbf r-\mathbf r_0)\) and sifting gives \(g(\mathbf r_d)=h(\mathbf r_d,\mathbf r_0)\). So the kernel is the <b>point response function</b> (PRF): the image of a point at \(\mathbf r_0\). For a general system it changes shape with \(\mathbf r_0\).</div></div>
+  <ul class="plain">
+    <li><b>FWHM</b> \(\delta_{FWHM}(x_0)=x_{d+}-x_{d-}\) where \(h\) falls to half its peak. Other widths: variance of normalized PRF (7.110), Rayleigh (peak to first zero).</li>
+    <li><b>Flood image</b> \(g_{fld}(\mathbf r_d)=\int h(\mathbf r_d,\mathbf r)\,d^qr\) (uniform object in). Normalize images by it.</li>
+    <li><b>Point sensitivity</b> \(s_{pt}(\mathbf r_0)=\int h(\mathbf r_d,\mathbf r_0)\,d^sr_d\) (total signal from a point). Distortion can ruin the flood image while leaving \(s_{pt}\) constant.</li>
+  </ul>
+  <div class="eq"><span class="lab">(7.114) Adjoint = backprojection · (7.116) kernel of \(\Hc^\dagger\Hc\)</span><div class="math">\[[\Hc^\dagger g](\mathbf r)=\int d^sr_d\,g(\mathbf r_d)\,h^*(\mathbf r_d,\mathbf r),\qquad k(\mathbf r,\mathbf r')=\int d^sr_d\,h^*(\mathbf r_d,\mathbf r)\,h(\mathbf r_d,\mathbf r')\]</div><div class="say">For a real blurring kernel, \(\Hc^\dagger\) blurs again and \(\Hc^\dagger\Hc\) blurs twice. SVD then follows Ch. 1: \(\beta_n=\sqrt{\mu_n}\,\alpha_n\) (7.129).</div></div>
+</section>
+
+<section class="topic col" id="lsiv" data-nav="7.2.3–7.2.6 LSIV, transfer functions" data-sub>
+  <h3>7.2.3 Shift-invariant systems</h3>
+  <div class="eq"><span class="lab">(7.133)–(7.136)</span><div class="math">\[h(\mathbf r_d,\mathbf r)=h(\mathbf r_d-\mathbf r)\ \Rightarrow\ g=h*f,\qquad[\Hc^\dagger g](\mathbf r)=\int d^qr_d\,h^*(\mathbf r_d-\mathbf r)g(\mathbf r_d)=[g\star h^*](\mathbf r)\]</div><div class="say">Now the kernel is the <b>point spread function</b> (PSF), the same shape everywhere. Adjoint of convolution = correlation with \(h^*\). Hermitian iff \(h(-\mathbf r)=h^*(\mathbf r)\). Flood image and point sensitivity are automatically constant (7.137).</div></div>
+  <div class="box syn"><span class="tag">Temporal vs. spatial filters</span><p>Electrical filters are <b>causal</b>: \(p(t,t')=0\) for \(t&lt;t'\). Spatial PSFs need not be. True spatial shift invariance is rare (lens axes and fields of view break it) but linear scanners and free-space diffraction are genuinely LSIV.</p></div>
+  <h3>7.2.4–7.2.5 Eigenfunctions and SVD of a convolution</h3>
+  <ol class="steps">
+    <li><span>Convolution fails Hilbert–Schmidt (7.138) ⇒ expect a <b>continuous</b> spectrum.</span></li>
+    <li><span>Fourier-transform the eigen-equation \(h*\psi=\lambda\psi\): \(H(\boldsymbol\rho)\Psi(\boldsymbol\rho)=\lambda\Psi(\boldsymbol\rho)\). The only function that survives multiplication by \(H\) unchanged in shape is a delta: \(\Psi=\delta(\boldsymbol\rho-\boldsymbol\rho_0)\), since \(H(\boldsymbol\rho)\delta(\boldsymbol\rho-\boldsymbol\rho_0)=H(\boldsymbol\rho_0)\delta(\boldsymbol\rho-\boldsymbol\rho_0)\).</span></li>
+    <li><span>Invert: the eigenfunctions are plane waves and the eigenvalues are the transfer function.</span></li>
+  </ol>
+  <div class="eq"><span class="lab">(7.143)–(7.149)</span><div class="math">\[\psi_{\boldsymbol\rho}(\mathbf r)=e^{2\pi i\boldsymbol\rho\cdot\mathbf r},\qquad\lambda_{\boldsymbol\rho}=H(\boldsymbol\rho),\qquad\sqrt{\mu_{\boldsymbol\rho}}=|H(\boldsymbol\rho)|,\qquad v_{\boldsymbol\rho}(\mathbf r_d)=\frac{H(\boldsymbol\rho)}{|H(\boldsymbol\rho)|}e^{2\pi i\boldsymbol\rho\cdot\mathbf r_d}\]</div><div class="say"><b>Direct check (7.145):</b> \(\int h(\mathbf r)e^{2\pi i\boldsymbol\rho\cdot(\mathbf r_d-\mathbf r)}d\mathbf r=e^{2\pi i\boldsymbol\rho\cdot\mathbf r_d}\int h(\mathbf r)e^{-2\pi i\boldsymbol\rho\cdot\mathbf r}d\mathbf r=H(\boldsymbol\rho)\,e^{2\pi i\boldsymbol\rho\cdot\mathbf r_d}\). A phasor goes in; the same phasor comes out, scaled by \(|H|\) and rotated by \(\arg H\).</div></div>
+  <div class="tw"><table><thead><tr><th>SVD language</th><th>Fourier language (LSIV)</th></tr></thead><tbody>
+    <tr><td>\(\mathbf f=\sum\alpha_n\mathbf u_n\)</td><td>\(f(\mathbf r)=\int F(\boldsymbol\rho)e^{2\pi i\boldsymbol\rho\cdot\mathbf r}d\boldsymbol\rho\)</td></tr>
+    <tr><td>\(\mathbf g=\sum\beta_n\mathbf v_n\)</td><td>\(g(\mathbf r_d)=\int G(\boldsymbol\rho)e^{2\pi i\boldsymbol\rho\cdot\mathbf r_d}d\boldsymbol\rho\)</td></tr>
+    <tr><td>\(\mathbf g=\Hc\mathbf f\)</td><td>\(g=h*f\)</td></tr>
+    <tr><td>\(\beta_n=\sqrt{\mu_n}\,\alpha_n\)</td><td>\(G(\boldsymbol\rho)=H(\boldsymbol\rho)F(\boldsymbol\rho)\)</td></tr>
+    <tr><td>\(\boldsymbol\Psi^\dagger\mathbf A\boldsymbol\Psi=\boldsymbol\Lambda\)</td><td>\([\mathcal F\Hc\mathcal F^{-1}](\boldsymbol\rho_d,\boldsymbol\rho)=H(\boldsymbol\rho)\delta(\boldsymbol\rho-\boldsymbol\rho_d)\) (7.169)</td></tr>
+    <tr><td>eigenvalues of \(\Hc^\dagger\Hc\)</td><td>\(|H(\boldsymbol\rho)|^2\) (7.147, 7.171)</td></tr>
+    <tr><td>null space</td><td>frequencies where \(H(\boldsymbol\rho)=0\)</td></tr>
+  </tbody></table></div>
+  <h3>7.2.6 Transfer functions</h3>
+  <div class="eq"><span class="lab">(7.154)–(7.157), (7.163)</span><div class="math">\[\text{OTF}(\boldsymbol\rho)=\frac{H(\boldsymbol\rho)}{H(\mathbf 0)},\qquad\text{MTF}(\boldsymbol\rho)=\frac{|H(\boldsymbol\rho)|}{H(\mathbf 0)},\qquad M=\frac{f_{max}-f_{min}}{f_{max}+f_{min}},\qquad\text{MTF}=\frac{M_g}{M_f}\]</div><div class="say">Feed in \(A+B\cos(2\pi\boldsymbol\rho\cdot\mathbf r-\phi_f)\). Output (7.161): \(AH(\mathbf 0)+B|H(\boldsymbol\rho)|\cos[2\pi\boldsymbol\rho\cdot\mathbf r_d-\phi_f+\Phi_H(\boldsymbol\rho)]\). Amplitude drops by MTF; the cosine shifts by the <b>phase transfer function</b> \(\Phi_H=\arg H\). Real \(h\) ⇒ \(H(-\boldsymbol\rho)=H^*(\boldsymbol\rho)\) ("conjugate symmetry"), so \(H(\mathbf 0)\) is real.</div></div>
+  <figure class="widget" id="w-mtf">
+    <div class="wt"><b>MTF: how much contrast survives the blur</b><span class="legend"><span><i style="background:var(--muted)"></i>input A + B cos</span><span><i style="background:var(--accent)"></i>output</span><span><i style="background:var(--re)"></i>MTF(ξ)</span></span></div>
+    <canvas id="cvMtfW"></canvas>
+    <div class="cv2"><canvas id="cvMtfP"></canvas><canvas id="cvMtfC"></canvas></div>
+    <div class="ctrls">
+      <label for="mtK">PSF <select id="mtK"><option value="g">Gaussian, FWHM w</option><option value="r">rect, width w</option><option value="d">off-center Gaussian</option></select></label>
+      <label for="mtW">w <input type="range" id="mtW" min="0.05" max="1" step="0.01" value="0.35"><span id="mtWV"></span></label>
+      <label for="mtF">input ξ <input type="range" id="mtF" min="0.1" max="5" step="0.05" value="1.2"><span id="mtFV"></span></label>
+    </div>
+    <div class="readout" id="mtOut"></div>
+    <figcaption>Top: input raised cosine (A = 1, B = 0.8, so \(M_f=0.8\)) and the blurred output. Bottom left: the output's frequency component as a phasor, \(H(\xi)/H(0)\), on the unit circle. Bottom right: the MTF curve with the current frequency marked. A rect PSF has a sinc transfer function: past its first zero the MTF rises again but the phasor points backwards (contrast reversal, \(\Phi_H=\pi\)). An off-center PSF rotates the phasor without changing the MTF.</figcaption>
+  </figure>
+</section>
+
+<section class="topic col" id="cc2" data-nav="7.2.7–7.2.10 Magnifiers &amp; symmetry" data-sub>
+  <h3>7.2.7 Magnifiers</h3>
+  <div class="eq"><span class="lab">(7.172)–(7.179)</span><div class="math">\[\begin{gathered}h=\delta(\mathbf r_d-m\mathbf r)\ \Rightarrow\ g(\mathbf r_d)=|m|^{-q}f(\mathbf r_d/m);\\ h=h(\mathbf r_d-m\mathbf r)\ \Rightarrow\ \mu_{\boldsymbol\rho}=|m|^{-q}|H(\boldsymbol\rho/m)|^2\end{gathered}\]</div><div class="say">Magnification breaks shift-invariance of \(\Hc\), but \(\Hc^\dagger\Hc\) is still LSIV, so plane waves remain the object-space singular functions. Rescale image coordinates by \(1/m\) and it becomes an ordinary convolution. Affine map \(\mathbf r_d=\mathbf M\mathbf r+\mathbf r_{d0}\): replace \(|m|^q\) with \(|\det\mathbf M|\). Shift-variant magnification \(\mathbf M(\mathbf r)\): delta functions become the SVD basis, \(\mu_{\mathbf a}=1/|\det\mathbf M(\mathbf a)|\), and the flood image is nonuniform.</div></div>
+  <h3>7.2.8 Approximately shift-invariant systems</h3>
+  <ul class="plain">
+    <li><b>Finite field of view</b> \(h(\mathbf r_d-\mathbf r)b_g(\mathbf r_d)b_f(\mathbf r)\): truncated plane waves \(b_{tot}(\mathbf r)e^{2\pi i\boldsymbol\rho\cdot\mathbf r}\) are approximate singular functions if \(H\) varies slowly on the scale \(1/L\). Errors stay within about one resolution width of the edge.</li>
+    <li><b>Weakly shift-variant</b> \(p(\mathbf r_d-\mathbf r_0;\mathbf r_0)\), with \(\delta_{FWHM}\ll\delta_b\ll\Delta\): use a local (windowed, Gabor) Fourier transform; \(P(\boldsymbol\rho;\mathbf r_0)\) acts as a local transfer function (7.200).</li>
+  </ul>
+  <h3>7.2.9–7.2.10 Rotational symmetry and axial systems</h3>
+  <p>If every rotation \(\mathcal T_\phi\) commutes with \(\Hc^\dagger\Hc\), its eigenfunctions are \(u_{jk}(r)e^{ik\theta}\): angular phasors, one for each irreducible representation of the rotation group \(C_\infty\). The kernel depends only on \(r,r'\) and \(\theta-\theta'\). Mirror symmetry pairs \(e^{\pm ik\theta}\) into doubly degenerate eigenvalues (group \(D_\infty\)). Rotation + translation ⇒ infinite degeneracy: all \(\boldsymbol\rho\) on a circle share \(|H(\rho)|^2\), and the Jacobi–Anger expansion \(e^{2\pi i\boldsymbol\rho\cdot\mathbf r}=\sum_ki^kJ_k(2\pi\rho r)\,e^{ik(\theta-\theta_\rho)}\) converts between the plane-wave basis and the angular one (cf. 7.216).</p>
+  <p><b>Axial 3D→2D systems</b> \(g(\mathbf r_d)=\int d^2r\int dz\,h(\mathbf r_d-\mathbf r;z)f(\mathbf r,z)\): only one nonzero singular value per lateral frequency, with \(u_{\boldsymbol\rho,1}\propto e^{2\pi i\boldsymbol\rho\cdot\mathbf r}H(-\boldsymbol\rho;z)\) and \(\mu_{\boldsymbol\rho,1}=\int dz\,|H(\boldsymbol\rho;z)|^2\). Everything else is null space: depth information is mostly invisible.</p>
+</section>
+
+<section class="topic col" id="cd" data-nav="7.3 CD systems (preview)" data-sub>
+  <h3>7.3 Continuous-to-discrete systems <span class="pill">upcoming</span></h3>
+  <div class="eq"><span class="lab">(7.225), (7.230), (7.237)</span><div class="math">\[\begin{gathered}g_m=\int d^qr\,h_m(\mathbf r)f(\mathbf r)\\ h_m(\mathbf r)=\int d^sr_d\,w_m(\mathbf r_d)h(\mathbf r_d,\mathbf r)\\ {}[\Hc^\dagger\mathbf g](\mathbf r)=\sum_mg_mh_m^*(\mathbf r)\end{gathered}\]</div><div class="say">A digital camera = continuous blur then pixel integration. \(\Hc\Hc^\dagger\) is an \(M\times M\) matrix with entries \(\int h_mh_k^*\); at most \(M\) nonzero singular values, so the null space is <b>always infinite-dimensional</b>.</div></div>
+  <p><b>Fourier crosstalk matrix</b> \(\beta_{\mathbf k\mathbf k'}=(\Hc\Phi_{\mathbf k},\Hc\Phi_{\mathbf k'})\) generalizes the transfer function to sampled systems: diagonal entries measure how strongly frequency \(\mathbf k\) gets through; off-diagonal entries measure aliasing. For an LSIV system sampled at \(M\) points, \(\beta_{\mathbf k\mathbf k}=M|P(\boldsymbol\rho_{\mathbf k})|^2\) and \(|\cos\theta_{kk'}|=\big|\frac{\sin[\pi M\epsilon(\xi_k-\xi_{k'})]}{M\sin[\pi\epsilon(\xi_k-\xi_{k'})]}\big|\), the Dirichlet kernel again: full aliasing when \(\xi_k-\xi_{k'}\) is a multiple of \(1/\epsilon\).</p>
+</section>
+
+<section class="topic col" id="radon" data-nav="4.4 Radon &amp; FBP (preview)" data-sub>
+  <h3>4.4 Radon transform, central slice, filtered backprojection <span class="pill">upcoming</span></h3>
+  <p class="lede" style="font-size:.95rem">Chapter 4 wasn't among the uploads, so this is a standard-notation preview built from the line-mass delta (§2.4.4) and the central-slice theorem (§3.4.2).</p>
+  <div class="eq"><div class="math">\[\begin{gathered}\lambda_\phi(p)=\int d^2r\,f(\mathbf r)\,\delta(p-\mathbf r\cdot\hat{\mathbf n}_\phi)\\\mathcal F_1\{\lambda_\phi\}(\nu)=F(\nu\hat{\mathbf n}_\phi)\\ f(\mathbf r)=\int_0^\pi d\phi\,\big[\lambda_\phi*\mathcal F^{-1}\{|\nu|\}\big](\mathbf r\cdot\hat{\mathbf n}_\phi)\end{gathered}\]</div><div class="say">Projection along a direction = line integrals. Its 1D FT is a radial slice of the 2D FT. Reassembling the slices in polar coordinates introduces the Jacobian \(|\nu|\) (the "ramp filter"), applied before backprojecting. The \(1/x^2\) generalized function of §2.3.3 is the space-domain version of that ramp.</div></div>
+</section>
+</section>
+
+<section class="chapter" id="next" data-nav="Where to go next">
+<div class="col">
+  <h2>Where to go next</h2>
+  <p>For the midterm, open the companion <b>Fourier Midterm Drill</b> page: transform flash cards, property puzzles, worked problems, and a scored practice exam. The PDF version of these notes has the same formulas typeset for printing or annotating.</p>
+  <p class="eyebrow">Source: Barrett &amp; Myers, <i>Foundations of Image Science</i>, Ch. 1, 2, 3, 7. Equation numbers refer to the textbook.</p>
+</div>
+</section>
+</main>
+</div>
+
+<script>
+/* ===== shared drawing library ===== */
+const LIB = (() => {
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  let C = {};
+  function readColors(){
+    C = {paper:css('--paper'),panel:css('--panel'),ink:css('--ink'),muted:css('--muted'),rule:css('--rule'),
+      grid:css('--grid'),re:css('--re'),im:css('--im'),accent:css('--accent'),good:css('--good'),bad:css('--bad'),
+      reS:css('--re-soft'),imS:css('--im-soft'),acS:css('--accent-soft')};
+  }
+  readColors();
+  const redrawers = [];
+  function onRedraw(fn){ redrawers.push(fn); }
+  function redrawAll(){ readColors(); redrawers.forEach(f=>{try{f()}catch(e){console.error(e)}}); }
+  try{ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', redrawAll); }catch(e){}
+  new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  window.addEventListener('resize', ()=>{ clearTimeout(LIB._rt); LIB._rt=setTimeout(redrawAll,120); });
+
+  // canvas with HiDPI; aspect = height/width
+  function setup(cv, aspect){
+    const w = cv.clientWidth || 600, h = Math.round(w*aspect);
+    const d = window.devicePixelRatio || 1;
+    cv.style.height = h+'px';
+    if(cv.width !== Math.round(w*d) || cv.height !== Math.round(h*d)){ cv.width = Math.round(w*d); cv.height = Math.round(h*d); }
+    const ctx = cv.getContext('2d'); ctx.setTransform(d,0,0,d,0,0); ctx.clearRect(0,0,w,h);
+    ctx.fillStyle = C.paper; ctx.fillRect(0,0,w,h);
+    return {ctx,w,h};
+  }
+  // coordinate frame
+  function frame(ctx, box, xr, yr){
+    const [X,Y,W,H] = box;
+    const sx = v => X + (v-xr[0])/(xr[1]-xr[0])*W;
+    const sy = v => Y + H - (v-yr[0])/(yr[1]-yr[0])*H;
+    return {sx,sy,box,xr,yr};
+  }
+  function axes(ctx, F, opt={}){
+    const {sx,sy,box,xr,yr} = F; const [X,Y,W,H]=box;
+    ctx.save(); ctx.lineWidth=1; ctx.strokeStyle=C.rule; ctx.fillStyle=C.muted; ctx.font='11px "IBM Plex Mono", monospace';
+    const tx = opt.xticks||[], ty=opt.yticks||[];
+    ctx.strokeStyle=C.grid; ctx.beginPath();
+    tx.forEach(t=>{ctx.moveTo(sx(t),Y);ctx.lineTo(sx(t),Y+H)}); ty.forEach(t=>{ctx.moveTo(X,sy(t));ctx.lineTo(X+W,sy(t))}); ctx.stroke();
+    ctx.strokeStyle=C.muted; ctx.beginPath();
+    const y0 = (yr[0]<=0&&yr[1]>=0)? sy(0) : Y+H; const x0=(xr[0]<=0&&xr[1]>=0)? sx(0): X;
+    ctx.moveTo(X,y0); ctx.lineTo(X+W,y0); ctx.moveTo(x0,Y); ctx.lineTo(x0,Y+H); ctx.stroke();
+    ctx.textAlign='center'; ctx.textBaseline='top';
+    tx.forEach(t=>{ if(Math.abs(t)>1e-12 || opt.zeroLabel) ctx.fillText(opt.xfmt?opt.xfmt(t):fmt(t), sx(t), Math.min(y0+3, Y+H-12)); });
+    ctx.textAlign='right'; ctx.textBaseline='middle';
+    ty.forEach(t=>{ if(Math.abs(t)>1e-12) ctx.fillText(opt.yfmt?opt.yfmt(t):fmt(t), Math.max(x0-4, X+26), sy(t)); });
+    if(opt.xlabel){ctx.textAlign='right';ctx.textBaseline='bottom';ctx.fillStyle=C.ink;ctx.fillText(opt.xlabel,X+W-2,y0-3)}
+    if(opt.ylabel){ctx.textAlign='left';ctx.textBaseline='top';ctx.fillStyle=C.ink;ctx.fillText(opt.ylabel,x0+5,Y+2)}
+    ctx.restore();
+  }
+  function fmt(v){ if(Math.abs(v)>=100||Number.isInteger(v)) return String(Math.round(v*100)/100); return (Math.round(v*100)/100).toString(); }
+  function curve(ctx, F, xs, ys, color, lw=2, dash=null){
+    ctx.save(); ctx.strokeStyle=color; ctx.lineWidth=lw; if(dash) ctx.setLineDash(dash);
+    const [X,Y,W,H]=F.box; ctx.beginPath(); ctx.rect(X,Y-2,W,H+4); ctx.clip();
+    ctx.beginPath(); let pen=false;
+    for(let i=0;i<xs.length;i++){ const y=ys[i]; if(!isFinite(y)){pen=false;continue}
+      const px=F.sx(xs[i]), py=F.sy(Math.max(Math.min(y,1e6),-1e6)); if(!pen){ctx.moveTo(px,py);pen=true}else ctx.lineTo(px,py); }
+    ctx.stroke(); ctx.restore();
+  }
+  function fill(ctx,F,xs,ys,color){
+    ctx.save(); const [X,Y,W,H]=F.box; ctx.beginPath(); ctx.rect(X,Y,W,H); ctx.clip();
+    ctx.fillStyle=color; ctx.beginPath(); ctx.moveTo(F.sx(xs[0]),F.sy(0));
+    for(let i=0;i<xs.length;i++) ctx.lineTo(F.sx(xs[i]),F.sy(ys[i]));
+    ctx.lineTo(F.sx(xs[xs.length-1]),F.sy(0)); ctx.closePath(); ctx.fill(); ctx.restore();
+  }
+  function stem(ctx,F,x,y,color,r=3,lw=1.6){
+    ctx.save(); ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=lw;
+    ctx.beginPath(); ctx.moveTo(F.sx(x),F.sy(0)); ctx.lineTo(F.sx(x),F.sy(y)); ctx.stroke();
+    ctx.beginPath(); ctx.arc(F.sx(x),F.sy(y),r,0,7); ctx.fill(); ctx.restore();
+  }
+  function arrowUp(ctx,F,x,h,color,label){ // delta-function arrow
+    ctx.save(); ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=2;
+    const px=F.sx(x), y0=F.sy(0), y1=F.sy(h);
+    ctx.beginPath(); ctx.moveTo(px,y0); ctx.lineTo(px,y1); ctx.stroke();
+    const s = (y1<y0)? 1:-1;
+    ctx.beginPath(); ctx.moveTo(px,y1); ctx.lineTo(px-5,y1+8*s); ctx.lineTo(px+5,y1+8*s); ctx.closePath(); ctx.fill();
+    if(label){ctx.font='11px "IBM Plex Mono", monospace';ctx.textAlign='center';ctx.textBaseline=s>0?'bottom':'top';ctx.fillText(label,px,y1-3*s)}
+    ctx.restore();
+  }
+  function arrow(ctx,x0,y0,x1,y1,color,lw=2,head=8){
+    ctx.save(); ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=lw;
+    ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke();
+    const a=Math.atan2(y1-y0,x1-x0), L=Math.hypot(x1-x0,y1-y0); if(L>3){
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x1-head*Math.cos(a-0.4),y1-head*Math.sin(a-0.4));
+    ctx.lineTo(x1-head*Math.cos(a+0.4),y1-head*Math.sin(a+0.4)); ctx.closePath(); ctx.fill();}
+    ctx.restore();
+  }
+  function text(ctx,s,x,y,color,align='left',base='alphabetic',font='12px "IBM Plex Mono", monospace'){
+    ctx.save(); ctx.fillStyle=color||C.ink; ctx.font=font; ctx.textAlign=align; ctx.textBaseline=base; ctx.fillText(s,x,y); ctx.restore();
+  }
+  // complex unit-circle panel: draws the Re (cos) and Im (sin) axes in their colors
+  function unitCircle(ctx,cx,cy,R,opt={}){
+    ctx.save();
+    ctx.strokeStyle=C.rule; ctx.lineWidth=1; ctx.beginPath(); ctx.arc(cx,cy,R,0,7); ctx.stroke();
+    ctx.lineWidth=1.4; ctx.strokeStyle=C.re; ctx.beginPath(); ctx.moveTo(cx-R*1.2,cy); ctx.lineTo(cx+R*1.2,cy); ctx.stroke();
+    ctx.strokeStyle=C.im; ctx.beginPath(); ctx.moveTo(cx,cy+R*1.2); ctx.lineTo(cx,cy-R*1.2); ctx.stroke();
+    ctx.font='11px "IBM Plex Mono", monospace'; ctx.fillStyle=C.re; ctx.textAlign='right'; ctx.textBaseline='bottom';
+    ctx.fillText(opt.reLabel||'Re (cos)',cx+R*1.2,cy-3);
+    ctx.fillStyle=C.im; ctx.textAlign='left'; ctx.textBaseline='top'; ctx.fillText(opt.imLabel||'Im (sin)',cx+4,cy-R*1.2);
+    ctx.restore();
+  }
+  // linspace
+  const lin=(a,b,n)=>Array.from({length:n},(_,i)=>a+(b-a)*i/(n-1));
+  // special functions
+  const sinc = x => Math.abs(x)<1e-9?1:Math.sin(Math.PI*x)/(Math.PI*x);
+  const rect = x => Math.abs(x)<0.5?1:(Math.abs(x)===0.5?0.5:0);
+  const tri = x => Math.abs(x)<1?1-Math.abs(x):0;
+  const gaus = x => Math.exp(-Math.PI*x*x);
+  // complex helpers [re,im]
+  const cx = {
+    mul:(a,b)=>[a[0]*b[0]-a[1]*b[1],a[0]*b[1]+a[1]*b[0]],
+    add:(a,b)=>[a[0]+b[0],a[1]+b[1]],
+    exp:t=>[Math.cos(t),Math.sin(t)],
+    sc:(a,s)=>[a[0]*s,a[1]*s],
+    abs:a=>Math.hypot(a[0],a[1]),
+    div:(a,b)=>{const d=b[0]*b[0]+b[1]*b[1];return[(a[0]*b[0]+a[1]*b[1])/d,(a[1]*b[0]-a[0]*b[1])/d]}
+  };
+  function bindRange(id, out, fmtf){
+    const el=document.getElementById(id), o=out?document.getElementById(out):null;
+    const upd=()=>{ if(o) o.textContent = fmtf?fmtf(+el.value):el.value; };
+    el.addEventListener('input',upd); upd(); return el;
+  }
+  return {C:()=>C,setup,frame,axes,curve,fill,stem,arrowUp,arrow,text,unitCircle,lin,sinc,rect,tri,gaus,cx,onRedraw,redrawAll,bindRange,fmt};
+})();
+
+/* ===== companion widgets ===== */
+(function(){
+const {setup,frame,axes,curve,fill,stem,arrowUp,arrow,text,unitCircle,lin,sinc,rect,tri,gaus,cx,onRedraw,bindRange} = LIB;
+const C = () => LIB.C();
+const $ = id => document.getElementById(id);
+const f2 = v => (Math.abs(v)<5e-4?0:v).toFixed(3);
+const PI=Math.PI, TAU=2*Math.PI;
+function on(ids, fn){ ids.forEach(id=>{const e=$(id); if(e){e.addEventListener('input',fn); e.addEventListener('change',fn);} }); onRedraw(fn); }
+function player(btnId, step, isOn){ let raf=null; const b=$(btnId); if(!b) return;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  b.addEventListener('click',()=>{ if(raf){cancelAnimationFrame(raf);raf=null;b.textContent=b.dataset.l||'Play';return}
+    b.dataset.l=b.dataset.l||b.textContent; b.textContent='Pause';
+    const loop=()=>{ step(); raf=requestAnimationFrame(loop); }; if(reduce){step();b.textContent=b.dataset.l;} else loop(); }); }
+
+/* ---- Phasor ---- */
+(function(){ if(!$('cvPh1')) return;
+  bindRange('phTh','phThV',v=>v.toFixed(2)+' rad');
+  function draw(){ const th=+$('phTh').value, mode=$('phMode').value;
+    let {ctx,w,h}=setup($('cvPh1'),1); const c=C();
+    const R=w*0.34, X=w/2, Y=h/2; unitCircle(ctx,X,Y,R);
+    const P=(re,im)=>[X+re*R,Y-im*R];
+    // arc
+    ctx.save();ctx.strokeStyle=c.muted;ctx.lineWidth=1;ctx.beginPath();ctx.arc(X,Y,R*0.22,0,-th,true);ctx.stroke();ctx.restore();
+    const cs=Math.cos(th), sn=Math.sin(th);
+    ctx.save(); ctx.setLineDash([4,4]); ctx.strokeStyle=c.muted; ctx.lineWidth=1; ctx.beginPath();
+    ctx.moveTo(...P(cs,sn)); ctx.lineTo(...P(cs,0)); ctx.moveTo(...P(cs,sn)); ctx.lineTo(...P(0,sn)); ctx.stroke(); ctx.restore();
+    ctx.save(); ctx.lineWidth=5; ctx.strokeStyle=c.re; ctx.beginPath(); ctx.moveTo(X,Y); ctx.lineTo(...P(cs,0)); ctx.stroke();
+    ctx.strokeStyle=c.im; ctx.beginPath(); ctx.moveTo(X,Y); ctx.lineTo(...P(0,sn)); ctx.stroke(); ctx.restore();
+    arrow(ctx,X,Y,...P(cs,sn),c.ink,2.5);
+    text(ctx,'e^{iθ}',P(cs,sn)[0]+6,P(cs,sn)[1]-6,c.ink);
+    if(mode==='2'){ arrow(ctx,X,Y,...P(cs,-sn),c.muted,2); text(ctx,'e^{−iθ}',P(cs,-sn)[0]+6,P(cs,-sn)[1]+14,c.muted);
+      const s=P(2*cs,0); arrow(ctx,X,Y,Math.max(Math.min(s[0],w-4),4),s[1],c.accent,3); }
+    if(mode==='3'){ arrow(ctx,X,Y,...P(-cs,sn),c.muted,2); text(ctx,'−e^{−iθ}',P(-cs,sn)[0]-6,P(-cs,sn)[1]-6,c.muted,'right');
+      const s=P(0,2*sn); arrow(ctx,X,Y,s[0],Math.max(Math.min(s[1],h-4),4),c.accent,3); }
+    // right
+    ({ctx,w,h}=setup($('cvPh2'),0.625));
+    const big=mode!=='1'; const F=frame(ctx,[34,10,w-44,h-30],[0,TAU],big?[-2.2,2.2]:[-1.25,1.25]);
+    axes(ctx,F,{xticks:[PI/2,PI,1.5*PI,TAU],yticks:big?[-2,-1,1,2]:[-1,1],xfmt:t=>({[PI/2]:'π/2',[PI]:'π',[1.5*PI]:'3π/2',[TAU]:'2π'})[t],xlabel:'θ'});
+    const xs=lin(0,TAU,300);
+    curve(ctx,F,xs,xs.map(Math.cos),c.re,2); curve(ctx,F,xs,xs.map(Math.sin),c.im,2);
+    if(mode==='2') curve(ctx,F,xs,xs.map(t=>2*Math.cos(t)),c.accent,2.5);
+    if(mode==='3') curve(ctx,F,xs,xs.map(t=>2*Math.sin(t)),c.accent,2.5);
+    ctx.save();ctx.strokeStyle=c.ink;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(F.sx(th),F.box[1]);ctx.lineTo(F.sx(th),F.box[1]+F.box[3]);ctx.stroke();ctx.restore();
+    [[cs,c.re],[sn,c.im]].forEach(([v,col])=>{ctx.fillStyle=col;ctx.beginPath();ctx.arc(F.sx(th),F.sy(v),4,0,7);ctx.fill()});
+    let s=`<span>e^{iθ} = <b>${f2(cs)}</b> + i·<b>${f2(sn)}</b></span><span class="re">cos θ = ${f2(cs)}</span><span class="im">sin θ = ${f2(sn)}</span>`;
+    if(mode==='2') s+=`<span>e^{iθ}+e^{−iθ} = <b>${f2(2*cs)}</b> (real)</span>`;
+    if(mode==='3') s+=`<span>e^{iθ}−e^{−iθ} = i·<b>${f2(2*sn)}</b> (imaginary)</span>`;
+    $('phOut').innerHTML=s; }
+  on(['phTh','phMode'],draw);
+  player('phPlay',()=>{const e=$('phTh'); e.value=((+e.value+0.02)%TAU).toFixed(2); e.dispatchEvent(new Event('input'));});
+})();
+
+/* ---- Projection onto a basis ---- */
+(function(){ if(!$('cvProj')) return;
+  bindRange('prRot','prRotV',v=>(v*180/PI).toFixed(0)+'°');
+  let f=[1.8,1.1]; let geo=null;
+  function draw(){ const r=+$('prRot').value; const {ctx,w,h}=setup($('cvProj'),0.5); const c=C();
+    const S=Math.min(w,h)/6.2, X=w/2, Y=h/2; geo={X,Y,S};
+    const P=(a,b)=>[X+a*S,Y-b*S];
+    ctx.save();ctx.strokeStyle=c.grid;ctx.lineWidth=1;ctx.beginPath();
+    for(let i=-8;i<=8;i++){ctx.moveTo(...P(i,-4));ctx.lineTo(...P(i,4));ctx.moveTo(...P(-8,i));ctx.lineTo(...P(8,i));} ctx.stroke();ctx.restore();
+    const u1=[Math.cos(r),Math.sin(r)], u2=[-Math.sin(r),Math.cos(r)];
+    ctx.save();ctx.setLineDash([5,5]);ctx.lineWidth=1;
+    ctx.strokeStyle=c.re;ctx.beginPath();ctx.moveTo(...P(-4*u1[0],-4*u1[1]));ctx.lineTo(...P(4*u1[0],4*u1[1]));ctx.stroke();
+    ctx.strokeStyle=c.im;ctx.beginPath();ctx.moveTo(...P(-4*u2[0],-4*u2[1]));ctx.lineTo(...P(4*u2[0],4*u2[1]));ctx.stroke();ctx.restore();
+    const a1=f[0]*u1[0]+f[1]*u1[1], a2=f[0]*u2[0]+f[1]*u2[1];
+    ctx.save();ctx.setLineDash([3,3]);ctx.strokeStyle=c.muted;ctx.beginPath();
+    ctx.moveTo(...P(...f));ctx.lineTo(...P(a1*u1[0],a1*u1[1]));ctx.moveTo(...P(...f));ctx.lineTo(...P(a2*u2[0],a2*u2[1]));ctx.stroke();ctx.restore();
+    arrow(ctx,X,Y,...P(a1*u1[0],a1*u1[1]),c.re,4); arrow(ctx,X,Y,...P(a2*u2[0],a2*u2[1]),c.im,4);
+    arrow(ctx,X,Y,...P(u1[0],u1[1]),c.re,1.5,6); arrow(ctx,X,Y,...P(u2[0],u2[1]),c.im,1.5,6);
+    text(ctx,'u₁',...P(u1[0]*1.15,u1[1]*1.15),c.re); text(ctx,'u₂',...P(u2[0]*1.15,u2[1]*1.15),c.im);
+    arrow(ctx,X,Y,...P(...f),c.ink,2.5); ctx.fillStyle=c.accent; ctx.beginPath(); ctx.arc(...P(...f),7,0,7); ctx.fill();
+    text(ctx,'f',P(...f)[0]+10,P(...f)[1]-8,c.ink,'left','alphabetic','14px "IBM Plex Mono", monospace');
+    $('prOut').innerHTML=`<span class="re">α₁=(u₁,f)=${f2(a1)}</span><span class="im">α₂=(u₂,f)=${f2(a2)}</span><span>α₁²+α₂² = <b>${f2(a1*a1+a2*a2)}</b></span><span>‖f‖² = <b>${f2(f[0]*f[0]+f[1]*f[1])}</b></span>`; }
+  const cv=$('cvProj'); let drag=false;
+  const pick=e=>{const b=cv.getBoundingClientRect(); const x=(e.clientX-b.left-geo.X)/geo.S, y=-(e.clientY-b.top-geo.Y)/geo.S; f=[Math.max(-4,Math.min(4,x)),Math.max(-2.8,Math.min(2.8,y))]; draw();};
+  cv.addEventListener('pointerdown',e=>{drag=true;cv.setPointerCapture(e.pointerId);pick(e)});
+  cv.addEventListener('pointermove',e=>{if(drag)pick(e)}); cv.addEventListener('pointerup',()=>drag=false);
+  on(['prRot'],draw);
+})();
+
+/* ---- SVD 2x2 ---- */
+(function(){ if(!$('cvSvd')) return;
+  ['svA','svB','svC','svD'].forEach(id=>bindRange(id,id+'V',v=>v.toFixed(2)));
+  function svd(H){ const [a,b,c2,d]=H; const A11=a*a+c2*c2, A12=a*b+c2*d, A22=b*b+d*d;
+    const m=(A11+A22)/2, r=Math.sqrt(((A11-A22)/2)**2+A12*A12); const mu1=m+r, mu2=Math.max(0,m-r);
+    let u1; if(Math.abs(A12)>1e-12) u1=[A12,mu1-A11]; else u1= A11>=A22?[1,0]:[0,1];
+    const n=Math.hypot(...u1); u1=[u1[0]/n,u1[1]/n]; const u2=[-u1[1],u1[0]];
+    const Hu=(u)=>[a*u[0]+b*u[1],c2*u[0]+d*u[1]];
+    let v1=Hu(u1); const s1=Math.hypot(...v1); v1=s1>1e-9?[v1[0]/s1,v1[1]/s1]:[1,0];
+    let v2=Hu(u2); const s2=Math.hypot(...v2); v2=s2>1e-6?[v2[0]/s2,v2[1]/s2]:[-v1[1],v1[0]];
+    return {mu1,mu2,u1,u2,v1,v2,s1,s2,Hu}; }
+  function draw(){ const H=['svA','svB','svC','svD'].map(id=>+$(id).value); const S=svd(H);
+    const {ctx,w,h}=setup($('cvSvd'),0.48); const c=C();
+    const half=w/2, sc=0.4*Math.min(half,h)/Math.max(1.15,Math.sqrt(S.mu1));
+    [[half/2,'object space U'],[half*1.5,'image space V']].forEach(([X,lab])=>{
+      ctx.save();ctx.strokeStyle=c.grid;ctx.beginPath();ctx.moveTo(X-half/2+10,h/2);ctx.lineTo(X+half/2-10,h/2);ctx.moveTo(X,10);ctx.lineTo(X,h-10);ctx.stroke();ctx.restore();
+      text(ctx,lab,X-half/2+14,18,c.muted); });
+    const XL=half/2, XR=half*1.5, Y=h/2;
+    const PL=(p)=>[XL+p[0]*sc,Y-p[1]*sc], PR=(p)=>[XR+p[0]*sc,Y-p[1]*sc];
+    ctx.save(); ctx.strokeStyle=c.muted; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(XL,Y,sc,0,7); ctx.stroke();
+    ctx.fillStyle=c.acS; ctx.strokeStyle=c.accent; ctx.beginPath();
+    for(let i=0;i<=200;i++){ const t=TAU*i/200; const p=S.Hu([Math.cos(t),Math.sin(t)]); const q=PR(p); i?ctx.lineTo(...q):ctx.moveTo(...q);} ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
+    arrow(ctx,XL,Y,...PL(S.u1),c.re,2.5); arrow(ctx,XL,Y,...PL(S.u2),c.im,2.5);
+    text(ctx,'u₁',...PL([S.u1[0]*1.2,S.u1[1]*1.2]),c.re); text(ctx,'u₂',...PL([S.u2[0]*1.2,S.u2[1]*1.2]),c.im);
+    const s1=Math.sqrt(S.mu1), s2=Math.sqrt(S.mu2);
+    arrow(ctx,XR,Y,...PR([S.v1[0]*s1,S.v1[1]*s1]),c.re,2.5); if(s2>0.02) arrow(ctx,XR,Y,...PR([S.v2[0]*s2,S.v2[1]*s2]),c.im,2.5);
+    text(ctx,'√μ₁v₁',PR([S.v1[0]*s1,S.v1[1]*s1])[0]+6,PR([S.v1[0]*s1,S.v1[1]*s1])[1],c.re);
+    if(s2>0.02) text(ctx,'√μ₂v₂',PR([S.v2[0]*s2,S.v2[1]*s2])[0]+6,PR([S.v2[0]*s2,S.v2[1]*s2])[1],c.im);
+    const det=H[0]*H[3]-H[1]*H[2], rank=S.mu2<1e-6?(S.mu1<1e-9?0:1):2;
+    $('svOut').innerHTML=`<span>μ₁=<b>${f2(S.mu1)}</b></span><span>μ₂=<b>${f2(S.mu2)}</b></span><span>singular values √μ = <b>${f2(s1)}</b>, <b>${f2(s2)}</b></span><span>det H=<b>${f2(det)}</b> = ±√μ₁√μ₂</span><span>rank R=<b>${rank}</b>${rank<2?' → null space spanned by u₂':''}</span>`; }
+  on(['svA','svB','svC','svD'],draw);
+  $('svSing').addEventListener('click',()=>{ [['svA',1.4],['svB',0.6],['svC',0.7],['svD',0.3]].forEach(([id,v])=>{$(id).value=v;$(id).dispatchEvent(new Event('input'))}); });
+})();
+
+/* ---- Minimum-norm / Landweber ---- */
+(function(){ if(!$('cvMn')) return;
+  ['mnA','mnB','mnG'].forEach(id=>bindRange(id,id+'V',v=>v.toFixed(2)));
+  function draw(){ const h1=+$('mnA').value,h2=+$('mnB').value,g=+$('mnG').value, st=$('mnS').value;
+    const {ctx,w,h}=setup($('cvMn'),0.5); const c=C();
+    const ar=w/h, yr=[-2.4,2.4], xr=[-2.4*ar,2.4*ar]; const F=frame(ctx,[0,0,w,h],xr,yr);
+    axes(ctx,F,{xticks:[-2,-1,1,2],yticks:[-2,-1,1,2],xlabel:'f₁',ylabel:'f₂'});
+    const mu=h1*h1+h2*h2, mn=[h1*g/mu,h2*g/mu], nd=[-h2/Math.sqrt(mu),h1/Math.sqrt(mu)];
+    // solution line
+    ctx.save();ctx.strokeStyle=c.muted;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(F.sx(mn[0]-8*nd[0]),F.sy(mn[1]-8*nd[1]));ctx.lineTo(F.sx(mn[0]+8*nd[0]),F.sy(mn[1]+8*nd[1]));ctx.stroke();ctx.restore();
+    arrow(ctx,F.sx(0),F.sy(0),F.sx(nd[0]*0.9),F.sy(nd[1]*0.9),c.im,2);
+    text(ctx,'null direction',F.sx(nd[0]*0.95)+6,F.sy(nd[1]*0.95),c.im);
+    arrow(ctx,F.sx(0),F.sy(0),F.sx(h1/Math.sqrt(mu)*0.9),F.sy(h2/Math.sqrt(mu)*0.9),c.re,2);
+    text(ctx,'H† direction',F.sx(h1/Math.sqrt(mu))+6,F.sy(h2/Math.sqrt(mu))+12,c.re);
+    const tau = mu<2?1:1.5/mu;
+    let f = st==='1'? [1.2*nd[0],1.2*nd[1]] : [0,0]; const pts=[f.slice()];
+    for(let k=0;k<14;k++){ const r=g-(h1*f[0]+h2*f[1]); f=[f[0]+tau*h1*r,f[1]+tau*h2*r]; pts.push(f.slice()); }
+    ctx.save();ctx.strokeStyle=c.accent;ctx.lineWidth=1.5;ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(F.sx(p[0]),F.sy(p[1])):ctx.moveTo(F.sx(p[0]),F.sy(p[1])));ctx.stroke();
+    ctx.fillStyle=c.accent;pts.forEach((p,i)=>{ctx.beginPath();ctx.arc(F.sx(p[0]),F.sy(p[1]),i===0?5:3,0,7);ctx.fill()});ctx.restore();
+    ctx.save();ctx.strokeStyle=c.good;ctx.lineWidth=2;ctx.beginPath();ctx.arc(F.sx(mn[0]),F.sy(mn[1]),8,0,7);ctx.stroke();ctx.restore();
+    text(ctx,'H⁺g',F.sx(mn[0])+10,F.sy(mn[1])-10,c.good);
+    const fe=pts[pts.length-1];
+    $('mnOut').innerHTML=`<span>μ = ‖h‖² = <b>${f2(mu)}</b>${mu<2?'':` → scaled step C² = ${f2(tau)}`}</span><span>H⁺g = (<b>${f2(mn[0])}</b>, <b>${f2(mn[1])}</b>)</span><span>after 14 steps: (${f2(fe[0])}, ${f2(fe[1])})</span><span>‖f̂‖ = ${f2(Math.hypot(...fe))} vs min ${f2(Math.hypot(...mn))}</span>`; }
+  on(['mnA','mnB','mnG','mnS'],draw);
+})();
+
+/* ---- Dirac sequences ---- */
+(function(){ if(!$('cvDir')) return;
+  bindRange('dirE','dirEV',v=>v.toFixed(2)); bindRange('dirX','dirXV',v=>v.toFixed(2));
+  const a=2.2, fT=x=>0.8+0.6*Math.cos(a*x);
+  const fam={ g:{p:(x,e)=>Math.exp(-PI*(x/e)**2)/e, H:(n,e)=>Math.exp(-PI*e*e*n*n)},
+    r:{p:(x,e)=>rect(x/e)/e, H:(n,e)=>sinc(e*n)},
+    l:{p:(x,e)=>(e/PI)/(x*x+e*e), H:(n,e)=>Math.exp(-TAU*e*Math.abs(n))},
+    e:{p:(x,e)=>Math.exp(-Math.abs(x)/e)/(2*e), H:(n,e)=>1/(1+(TAU*e*n)**2)},
+    s:{p:(x,e)=>sinc(x/e)/e, H:(n,e)=>{const v=Math.abs(e*n);return v<0.5?1:(v===0.5?0.5:0)}} };
+  function draw(){ const k=$('dirF').value, e=+$('dirE').value, x0=+$('dirX').value; const F_=fam[k];
+    const {ctx,w,h}=setup($('cvDir'),0.42); const c=C();
+    const F=frame(ctx,[34,8,w-44,h-28],[-2.5,2.5],[-0.7,3.2]);
+    axes(ctx,F,{xticks:[-2,-1,1,2],yticks:[1,2,3],xlabel:'x'});
+    const xs=lin(-2.5,2.5,1200); const ps=xs.map(x=>F_.p(x-x0,e));
+    fill(ctx,F,xs,xs.map((x,i)=>fT(x)*ps[i]),c.reS);
+    curve(ctx,F,xs,xs.map(fT),c.muted,2); curve(ctx,F,xs,ps,c.accent,2.2);
+    const pk=F_.p(0,e); if(pk>3.2) text(ctx,'peak '+pk.toFixed(1)+' ↑',F.sx(x0)+6,F.sy(3.05),c.accent);
+    const val=0.8+0.6*Math.cos(a*x0)*F_.H(a/TAU,e);
+    $('dirOut').innerHTML=`<span>∫ψ_ε dx = <b>1</b></span><span>∫f(x)ψ_ε(x−x₀)dx = <b>${val.toFixed(4)}</b></span><span>f(x₀) = <b>${fT(x0).toFixed(4)}</b></span><span>error = ${(val-fT(x0)).toExponential(2)}</span>`; }
+  on(['dirF','dirE','dirX'],draw);
+})();
+
+/* ---- Comb / Dirichlet kernel ---- */
+(function(){ if(!$('cvCb')) return;
+  bindRange('cbM','cbMV'); bindRange('cbX','cbXV',v=>v.toFixed(3));
+  function draw(){ const M=+$('cbM').value, x=+$('cbX').value, N=2*M+1;
+    let {ctx,w,h}=setup($('cvCbP'),1); let c=C();
+    const pts=[[0,0]]; let p=[0,0]; for(let n=-M;n<=M;n++){ p=[p[0]+Math.cos(TAU*n*x),p[1]+Math.sin(TAU*n*x)]; pts.push(p); }
+    let xmn=0,xmx=0,ymn=0,ymx=0; pts.forEach(q=>{xmn=Math.min(xmn,q[0]);xmx=Math.max(xmx,q[0]);ymn=Math.min(ymn,q[1]);ymx=Math.max(ymx,q[1])});
+    const sp=Math.max(xmx-xmn,ymx-ymn,2), s=(w*0.8)/sp, ox=w/2-(xmn+xmx)/2*s, oy=h/2+(ymn+ymx)/2*s;
+    ctx.save();ctx.strokeStyle=c.re;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,oy);ctx.lineTo(w,oy);ctx.stroke();ctx.strokeStyle=c.im;ctx.beginPath();ctx.moveTo(ox,0);ctx.lineTo(ox,h);ctx.stroke();ctx.restore();
+    for(let i=1;i<pts.length;i++) arrow(ctx,ox+pts[i-1][0]*s,oy-pts[i-1][1]*s,ox+pts[i][0]*s,oy-pts[i][1]*s,i===M+1?c.ink:c.accent,1.6,Math.min(7,s*0.4));
+    ctx.fillStyle=c.accent; ctx.beginPath(); ctx.arc(ox+p[0]*s,oy-p[1]*s,4,0,7); ctx.fill();
+    text(ctx,'sum = '+p[0].toFixed(2),8,h-8,c.ink);
+    ({ctx,w,h}=setup($('cvCb'),0.625));
+    const F=frame(ctx,[30,8,w-38,h-26],[-1.5,1.5],[-0.35*N,1.1*N]);
+    axes(ctx,F,{xticks:[-1,-0.5,0.5,1],yticks:[N],xlabel:'x'});
+    const xs=lin(-1.5,1.5,1500); curve(ctx,F,xs,xs.map(t=>{const d=Math.sin(PI*t);return Math.abs(d)<1e-9?N*Math.cos(PI*N*t)/Math.cos(PI*t):Math.sin(PI*N*t)/d}),c.accent,1.8);
+    ctx.save();ctx.strokeStyle=c.ink;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(F.sx(x),F.box[1]);ctx.lineTo(F.sx(x),F.box[1]+F.box[3]);ctx.stroke();ctx.restore();
+    $('cbOut').textContent=`N = ${N}; peak height N, width ≈ 2/N`; }
+  on(['cbM','cbX'],draw);
+})();
+
+/* ---- Discrete orthogonality ---- */
+(function(){ if(!$('cvOrA')) return;
+  bindRange('orK','orKV'); bindRange('orD','orDV');
+  function draw(){ const K=+$('orK').value, d=+$('orD').value;
+    let {ctx,w,h}=setup($('cvOrA'),1); const c=C(); const R=w*0.34,X=w/2,Y=h/2; unitCircle(ctx,X,Y,R,{reLabel:'Re',imLabel:'Im'});
+    const counts={};
+    for(let k=0;k<K;k++){ const t=TAU*d*k/K; const key=((Math.round((t%TAU)*1000))+6283)%6283; counts[key]=(counts[key]||0)+1;
+      arrow(ctx,X,Y,X+R*Math.cos(t),Y-R*Math.sin(t),c.accent,1.4,6); }
+    Object.entries(counts).forEach(([kk,n])=>{ if(n>1){const t=kk/1000; text(ctx,'×'+n,X+R*1.12*Math.cos(t),Y-R*1.12*Math.sin(t),c.ink,'center','middle');} });
+    ({ctx,w,h}=setup($('cvOrB'),0.625));
+    const pts=[[0,0]]; let p=[0,0]; for(let k=0;k<K;k++){const t=TAU*d*k/K; p=[p[0]+Math.cos(t),p[1]+Math.sin(t)]; pts.push(p);}
+    let xmn=0,xmx=0,ymn=0,ymx=0; pts.forEach(q=>{xmn=Math.min(xmn,q[0]);xmx=Math.max(xmx,q[0]);ymn=Math.min(ymn,q[1]);ymx=Math.max(ymx,q[1])});
+    const s=Math.min((w*0.85)/Math.max(xmx-xmn,1),(h*0.8)/Math.max(ymx-ymn,1)), ox=w/2-(xmn+xmx)/2*s, oy=h/2+(ymn+ymx)/2*s;
+    ctx.save();ctx.strokeStyle=c.re;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,oy);ctx.lineTo(w,oy);ctx.stroke();ctx.strokeStyle=c.im;ctx.beginPath();ctx.moveTo(ox,0);ctx.lineTo(ox,h);ctx.stroke();ctx.restore();
+    for(let i=1;i<pts.length;i++) arrow(ctx,ox+pts[i-1][0]*s,oy-pts[i-1][1]*s,ox+pts[i][0]*s,oy-pts[i][1]*s,c.accent,1.6,Math.min(8,s*0.35));
+    ctx.fillStyle=c.ink;ctx.beginPath();ctx.arc(ox,oy,4,0,7);ctx.fill();
+    const sum=Math.hypot(p[0],p[1]);
+    $('orOut').innerHTML=`Σ = <b>${(Math.abs(p[0])<1e-9?0:p[0]).toFixed(2)} + ${(Math.abs(p[1])<1e-9?0:p[1]).toFixed(2)}i</b> → (1/K)Σ = <b>${(sum/K).toFixed(2)}</b>${d%K===0?' (m ≡ n mod K)':''}`; }
+  on(['orK','orD'],draw);
+})();
+
+/* ---- Fourier series builder ---- */
+(function(){ if(!$('cvFs')) return;
+  bindRange('fsN','fsNV'); bindRange('fsX','fsXV',v=>v.toFixed(3));
+  const wrap=x=>x-Math.round(x);
+  const T={
+    sq:{f:x=>Math.abs(wrap(x))<0.25?1:(Math.abs(Math.abs(wrap(x))-0.25)<1e-9?0.5:0), F:n=>[0.5*sinc(n/2),0]},
+    saw:{f:x=>2*wrap(x), F:n=>n===0?[0,0]:[0,Math.pow(-1,n)/(PI*n)]},
+    tri:{f:x=>1-2*Math.abs(wrap(x)), F:n=>[0.5*sinc(n/2)**2,0]},
+    hr:{f:x=>Math.max(Math.cos(TAU*x),0), F:n=>[0.25*(sinc((n-1)/2)+sinc((n+1)/2)),0]},
+    sh:{f:x=>{const u=wrap(x);return (u>0&&u<0.3)?1:0}, F:n=>{const m=0.3*sinc(0.3*n);return [m*Math.cos(-TAU*n*0.15),m*Math.sin(-TAU*n*0.15)]}} };
+  function SN(t,N,ces,x){ let s=0; for(let n=-N;n<=N;n++){ const wgt=ces&&N>0?(1-Math.abs(n)/N):1; const F=T[t].F(n); s+=wgt*(F[0]*Math.cos(TAU*n*x)-F[1]*Math.sin(TAU*n*x)); } return s; }
+  function draw(){ const t=$('fsT').value, N=+$('fsN').value, ces=$('fsC').value==='1', xp=+$('fsX').value;
+    let {ctx,w,h}=setup($('cvFs'),0.34); const c=C();
+    let F=frame(ctx,[30,8,w-40,h-26],[-1,1],[-1.35,1.45]);
+    ctx.save();ctx.fillStyle=c.acS;ctx.fillRect(F.sx(-0.5),F.box[1],F.sx(0.5)-F.sx(-0.5),F.box[3]);ctx.restore();
+    text(ctx,'one period',F.sx(-0.49),F.box[1]+12,c.muted);
+    axes(ctx,F,{xticks:[-1,-0.5,0.5,1],yticks:[-1,1],xlabel:'x/L'});
+    const xs=lin(-1,1,900); curve(ctx,F,xs,xs.map(T[t].f),c.muted,2);
+    const ys=xs.map(x=>SN(t,N,ces,x)); curve(ctx,F,xs,ys,c.accent,2.2);
+    ctx.save();ctx.strokeStyle=c.ink;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(F.sx(xp),F.box[1]);ctx.lineTo(F.sx(xp),F.box[1]+F.box[3]);ctx.stroke();ctx.restore();
+    // chain
+    ({ctx,w,h}=setup($('cvFsChain'),1));
+    const order=[0]; for(let n=1;n<=N;n++){order.push(n,-n);}
+    const pts=[[0,0]]; let p=[0,0];
+    order.forEach(n=>{ const wgt=ces&&N>0?(1-Math.abs(n)/N):1; const Fn=T[t].F(n); const z=cx.mul([Fn[0]*wgt,Fn[1]*wgt],cx.exp(TAU*n*xp)); p=cx.add(p,z); pts.push(p); });
+    let ext=0.6; pts.forEach(q=>ext=Math.max(ext,Math.abs(q[0]),Math.abs(q[1])));
+    const s=w*0.42/ext, ox=w/2, oy=h/2;
+    ctx.save();ctx.strokeStyle=c.re;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(0,oy);ctx.lineTo(w,oy);ctx.stroke();ctx.strokeStyle=c.im;ctx.beginPath();ctx.moveTo(ox,0);ctx.lineTo(ox,h);ctx.stroke();ctx.restore();
+    text(ctx,'Re',w-6,oy-5,c.re,'right'); text(ctx,'Im',ox+5,12,c.im);
+    for(let i=1;i<pts.length;i++){ const n=order[i-1]; const r=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1])*s;
+      if(i<16 && r>3){ctx.save();ctx.strokeStyle=c.rule;ctx.lineWidth=1;ctx.beginPath();ctx.arc(ox+pts[i-1][0]*s,oy-pts[i-1][1]*s,r,0,7);ctx.stroke();ctx.restore();}
+      arrow(ctx,ox+pts[i-1][0]*s,oy-pts[i-1][1]*s,ox+pts[i][0]*s,oy-pts[i][1]*s,n===0?c.ink:(n>0?c.accent:c.im),1.6,Math.min(7,Math.max(3,r*0.35))); }
+    ctx.fillStyle=c.accent;ctx.beginPath();ctx.arc(ox+p[0]*s,oy-p[1]*s,5,0,7);ctx.fill();
+    text(ctx,'S_N(x) = '+p[0].toFixed(3)+(Math.abs(p[1])>1e-6?' + '+p[1].toFixed(3)+'i':''),8,h-8,c.ink);
+    text(ctx,'n>0',8,16,c.accent); text(ctx,'n<0',8,30,c.im);
+    // coefs
+    ({ctx,w,h}=setup($('cvFsCoef'),0.625));
+    const nm=Math.max(4,Math.min(Math.max(N,6),25));
+    let mx=0.05; for(let n=-nm;n<=nm;n++){const Fn=T[t].F(n); mx=Math.max(mx,Math.abs(Fn[0]),Math.abs(Fn[1]));}
+    F=frame(ctx,[30,8,w-38,h-26],[-nm-1,nm+1],[-mx*1.15,mx*1.15]);
+    axes(ctx,F,{xticks:[-nm,-Math.round(nm/2),Math.round(nm/2),nm],yticks:[],xlabel:'n'});
+    for(let n=-nm;n<=nm;n++){ const Fn=T[t].F(n); const act=Math.abs(n)<=N; ctx.globalAlpha=act?1:0.25;
+      if(Math.abs(Fn[0])>1e-9) stem(ctx,F,n-0.15,Fn[0],c.re,2.5); if(Math.abs(Fn[1])>1e-9) stem(ctx,F,n+0.15,Fn[1],c.im,2.5); ctx.globalAlpha=1; }
+    let mxS=-9; for(const y of ys) mxS=Math.max(mxS,y);
+    $('fsOut').innerHTML=`<span>S_N(${xp.toFixed(3)}) = <b>${p[0].toFixed(4)}</b></span><span>f = <b>${T[t].f(xp).toFixed(4)}</b></span><span>max S_N = ${mxS.toFixed(4)}</span><span>terms used: ${2*N+1}</span>`; }
+  on(['fsT','fsN','fsC','fsX'],draw);
+  player('fsPlay',()=>{const e=$('fsX'); let v=+e.value+0.003; if(v>0.5)v=-0.5; e.value=v.toFixed(3); e.dispatchEvent(new Event('input'));});
+})();
+
+/* ---- FT pair explorer ---- */
+(function(){ if(!$('cvFtX')) return;
+  ['ftA','ftX0','ftK0','ftP'].forEach(id=>bindRange(id,id+'V',v=>v.toFixed(2)));
+  const B={ rect:{f:(x,a)=>rect(x/a), F:(k,a)=>[a*sinc(a*k),0], E:a=>a},
+    tri:{f:(x,a)=>tri(x/a), F:(k,a)=>[a*sinc(a*k)**2,0], E:a=>2*a/3},
+    gaus:{f:(x,a)=>gaus(x/a), F:(k,a)=>[a*Math.exp(-PI*a*a*k*k),0], E:a=>a/Math.SQRT2},
+    sinc:{f:(x,a)=>sinc(x/a), F:(k,a)=>[a*(Math.abs(a*k)<0.5?1:(Math.abs(Math.abs(a*k)-0.5)<1e-9?0.5:0)),0], E:a=>a},
+    exp2:{f:(x,a)=>Math.exp(-Math.abs(x)/a), F:(k,a)=>[2*a/(1+(TAU*a*k)**2),0], E:a=>a},
+    exp1:{f:(x,a)=>x>=0?Math.exp(-x/a):0, F:(k,a)=>{const d=1+(TAU*a*k)**2;return [a/d,-TAU*a*a*k/d]}, E:a=>a/2} };
+  function draw(){ const k=$('ftF').value, a=+$('ftA').value, x0=+$('ftX0').value, k0=+$('ftK0').value, pr=+$('ftP').value; const b=B[k];
+    const fx=x=>{const v=b.f(x-x0,a);return [v*Math.cos(TAU*k0*x),v*Math.sin(TAU*k0*x)]};
+    const FX=xi=>cx.mul(cx.exp(-TAU*(xi-k0)*x0),b.F(xi-k0,a));
+    let {ctx,w,h}=setup($('cvFtX'),0.3); const c=C();
+    let F=frame(ctx,[30,8,w-40,h-26],[-5,5],[-1.25,1.25]);
+    axes(ctx,F,{xticks:[-4,-2,2,4],yticks:[-1,1],xlabel:'x'});
+    const xs=lin(-5,5,1400), fv=xs.map(fx);
+    curve(ctx,F,xs,fv.map(v=>Math.hypot(...v)),c.accent,1.4,[5,4]);
+    curve(ctx,F,xs,fv.map(v=>v[1]),c.im,2); curve(ctx,F,xs,fv.map(v=>v[0]),c.re,2.2);
+    text(ctx,'f(x)',F.box[0]+4,F.box[1]+12,c.ink);
+    // spectrum
+    ({ctx,w,h}=setup($('cvFtK'),0.625));
+    const ks=lin(-3,3,1400), Fv=ks.map(FX); let mx=0; Fv.forEach(v=>mx=Math.max(mx,Math.hypot(...v))); mx=Math.max(mx,0.2);
+    F=frame(ctx,[30,8,w-38,h-26],[-3,3],[-mx*1.15,mx*1.15]);
+    axes(ctx,F,{xticks:[-2,-1,1,2],yticks:[],xlabel:'ξ'});
+    curve(ctx,F,ks,Fv.map(v=>Math.hypot(...v)),c.accent,1.6,[5,4]);
+    curve(ctx,F,ks,Fv.map(v=>v[1]),c.im,2); curve(ctx,F,ks,Fv.map(v=>v[0]),c.re,2.2);
+    ctx.save();ctx.strokeStyle=c.ink;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(F.sx(pr),F.box[1]);ctx.lineTo(F.sx(pr),F.box[1]+F.box[3]);ctx.stroke();ctx.restore();
+    text(ctx,'F(ξ)',F.box[0]+4,F.box[1]+12,c.ink); text(ctx,'peak |F| = '+mx.toFixed(2),F.box[0]+F.box[2]-4,F.box[1]+12,c.muted,'right');
+    // dial
+    ({ctx,w,h}=setup($('cvFtDial'),1));
+    const R=w*0.36,X=w/2,Y=h/2; unitCircle(ctx,X,Y,R,{reLabel:'Re F',imLabel:'Im F'});
+    const z=FX(pr), zn=[z[0]/mx,z[1]/mx], m=Math.hypot(...zn);
+    ctx.save();ctx.strokeStyle=c.accent;ctx.setLineDash([4,4]);ctx.beginPath();ctx.arc(X,Y,m*R,0,7);ctx.stroke();ctx.restore();
+    ctx.save();ctx.setLineDash([3,3]);ctx.strokeStyle=c.muted;ctx.beginPath();ctx.moveTo(X+zn[0]*R,Y-zn[1]*R);ctx.lineTo(X+zn[0]*R,Y);ctx.moveTo(X+zn[0]*R,Y-zn[1]*R);ctx.lineTo(X,Y-zn[1]*R);ctx.stroke();ctx.restore();
+    arrow(ctx,X,Y,X+zn[0]*R,Y-zn[1]*R,c.ink,2.5);
+    text(ctx,'F(ξ='+pr.toFixed(2)+')/max|F|',8,h-8,c.muted);
+    // numeric checks
+    let sre=0,sim=0,E2=0; const dx=0.004; for(let x=-60;x<=60;x+=dx){ const v=fx(x); sre+=v[0]*dx; sim+=v[1]*dx; }
+    const dk=0.004; for(let q=-60;q<=60;q+=dk){ const v=FX(q); E2+=(v[0]*v[0]+v[1]*v[1])*dk; }
+    const F0=FX(0);
+    $('ftOut').innerHTML=`<span>F(${pr.toFixed(2)}) = <b class="re">${f2(z[0])}</b> + <b class="im">${f2(z[1])}</b>i</span><span>|F| = <b>${f2(Math.hypot(...z))}</b>, arg = ${f2(Math.atan2(z[1],z[0]))} rad</span><span>∫f dx ≈ ${f2(sre)}${Math.abs(sim)>5e-4?' + '+f2(sim)+'i':''} vs F(0) = ${f2(F0[0])}${Math.abs(F0[1])>5e-4?' + '+f2(F0[1])+'i':''}</span><span>∫|f|² = ${f2(b.E(a))} vs ∫|F|² ≈ ${f2(E2)}</span>`; }
+  on(['ftF','ftA','ftX0','ftK0','ftP'],draw);
+})();
+
+/* ---- Convolution animator ---- */
+(function(){ if(!$('cvCv')) return;
+  bindRange('cvS','cvSV',v=>v.toFixed(2));
+  const fns={ rect:x=>rect(x), tri:x=>tri(x), exp:x=>x>=0?Math.exp(-x):0, two:x=>rect(2*(x+0.8))+rect(2*(x-0.6)),
+    rect2:x=>rect(x/2), gaus:x=>gaus(x) };
+  const area={rect:1,tri:1,exp:1,two:1,rect2:2,gaus:1};
+  let cache=null;
+  function compute(fk,hk){ const f=fns[fk], hh=fns[hk]; const xs=lin(-3,4,701), d=0.004, g=[];
+    for(const x of xs){ let s=0; for(let u=-6;u<=6;u+=d) s+=f(u)*hh(x-u)*d; g.push(s); } return {fk,hk,xs,g}; }
+  function draw(){ const fk=$('cvF').value, hk=$('cvH').value, sh=+$('cvS').value;
+    if(!cache||cache.fk!==fk||cache.hk!==hk) cache=compute(fk,hk);
+    const f=fns[fk], hh=fns[hk];
+    const {ctx,w,h}=setup($('cvCv'),0.56); const c=C();
+    let gmax=0.3; cache.g.forEach(v=>gmax=Math.max(gmax,v));
+    const Ft=frame(ctx,[30,8,w-40,h*0.5-16],[-3,4],[-0.15,1.25]);
+    axes(ctx,Ft,{xticks:[-2,-1,1,2,3],yticks:[1],xlabel:"x′"});
+    const xs=lin(-3,4,900);
+    fill(ctx,Ft,xs,xs.map(u=>f(u)*hh(sh-u)),c.acS);
+    curve(ctx,Ft,xs,xs.map(f),c.re,2.2); curve(ctx,Ft,xs,xs.map(u=>hh(sh-u)),c.im,2.2);
+    ctx.save();ctx.strokeStyle=c.ink;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(Ft.sx(sh),Ft.box[1]);ctx.lineTo(Ft.sx(sh),Ft.box[1]+Ft.box[3]);ctx.stroke();ctx.restore();
+    const Fb=frame(ctx,[30,h*0.5+8,w-40,h*0.5-26],[-3,4],[-0.1*gmax,gmax*1.15]);
+    axes(ctx,Fb,{xticks:[-2,-1,1,2,3],yticks:[],xlabel:'x'});
+    curve(ctx,Fb,cache.xs,cache.g,c.rule,1.5);
+    const upto=cache.xs.filter(x=>x<=sh); curve(ctx,Fb,upto,cache.g.slice(0,upto.length),c.accent,2.6);
+    const idx=Math.max(0,upto.length-1); const gv=cache.g[idx]||0;
+    ctx.fillStyle=c.accent;ctx.beginPath();ctx.arc(Fb.sx(sh),Fb.sy(gv),4,0,7);ctx.fill();
+    text(ctx,'[f∗h](x)',Fb.box[0]+4,Fb.box[1]+12,c.ink);
+    let ig=0; cache.g.forEach(v=>ig+=v*0.01);
+    $('cvOut').innerHTML=`<span>[f∗h](${sh.toFixed(2)}) = shaded area = <b>${gv.toFixed(3)}</b></span><span>∫(f∗h) ≈ ${ig.toFixed(3)}</span><span>∫f·∫h = ${(area[fk]*area[hk]).toFixed(3)}</span>`; }
+  on(['cvF','cvH','cvS'],draw);
+  player('cvPlay',()=>{const e=$('cvS'); let v=+e.value+0.02; if(v>4)v=-3; e.value=v.toFixed(2); e.dispatchEvent(new Event('input'));});
+})();
+
+/* ---- 2D basis ---- */
+(function(){ if(!$('cv2dS')) return;
+  bindRange('tdX','tdXV'); bindRange('tdY','tdYV');
+  const hex=s=>{ s=s.replace('#',''); if(s.length===3) s=s.split('').map(q=>q+q).join(''); return [0,2,4].map(i=>parseInt(s.slice(i,i+2),16)); };
+  function draw(){ const xi=+$('tdX').value, et=+$('tdY').value; const c=C();
+    let {ctx,w,h}=setup($('cv2dS'),1);
+    const n=160, off=document.createElement('canvas'); off.width=n; off.height=n; const oc=off.getContext('2d'); const im=oc.createImageData(n,n);
+    const A=hex(c.paper), Bc=hex(c.re), Cc=hex(c.ink);
+    for(let j=0;j<n;j++) for(let i=0;i<n;i++){ const x=i/n-0.5, y=0.5-j/n; const v=Math.cos(TAU*(xi*x+et*y)); const t=(v+1)/2;
+      const k=(j*n+i)*4; for(let q=0;q<3;q++) im.data[k+q]=A[q]*(1-t)+Bc[q]*t; im.data[k+3]=255; }
+    oc.putImageData(im,0,0); ctx.imageSmoothingEnabled=true; ctx.drawImage(off,0,0,w,h);
+    const r=Math.hypot(xi,et); if(r>0){ const s=w*0.38/Math.max(r,1); arrow(ctx,w/2,h/2,w/2+xi*s*0.9,h/2-et*s*0.9,c.accent,3); }
+    ({ctx,w,h}=setup($('cv2dF'),0.625));
+    const sc=(h-30)/10, X=w/2, Y=h/2;
+    ctx.save();ctx.strokeStyle=c.grid;ctx.beginPath();for(let i=-5;i<=5;i++){ctx.moveTo(X+i*sc,Y-5*sc);ctx.lineTo(X+i*sc,Y+5*sc);ctx.moveTo(X-5*sc,Y+i*sc);ctx.lineTo(X+5*sc,Y+i*sc);}ctx.stroke();
+    ctx.strokeStyle=c.muted;ctx.beginPath();ctx.moveTo(X-5*sc,Y);ctx.lineTo(X+5*sc,Y);ctx.moveTo(X,Y-5*sc);ctx.lineTo(X,Y+5*sc);ctx.stroke();ctx.restore();
+    text(ctx,'ξ',X+5*sc+4,Y+4,c.ink); text(ctx,'η',X+4,Y-5*sc+2,c.ink);
+    [[1,'+ρ₀'],[-1,'−ρ₀']].forEach(([sg,l])=>{ const px=X+sg*xi*sc, py=Y-sg*et*sc; ctx.fillStyle=c.accent; ctx.beginPath(); ctx.arc(px,py,6,0,7); ctx.fill(); text(ctx,'½ δ '+l,px+8,py-8,c.accent); });
+    const per=r>0?1/r:Infinity;
+    $('tdOut').innerHTML=`<span>|ρ₀| = <b>${r.toFixed(3)}</b> cycles/unit</span><span>period along ρ₀ = <b>${isFinite(per)?per.toFixed(3):'∞'}</b></span><span>stripe angle (normal) = ${(Math.atan2(et,xi)*180/PI).toFixed(1)}°</span>`; }
+  on(['tdX','tdY'],draw);
+})();
+
+/* ---- Aliasing ---- */
+(function(){ if(!$('cvAl')) return;
+  bindRange('alF','alFV',v=>v.toFixed(2)); bindRange('alD','alDV',v=>v.toFixed(2));
+  function draw(){ const xi=+$('alF').value, dx=+$('alD').value, fs=1/dx; const c=C();
+    const xa=Math.abs(xi-fs*Math.round(xi/fs));
+    let {ctx,w,h}=setup($('cvAl'),0.28);
+    let F=frame(ctx,[30,8,w-40,h-26],[0,6],[-1.3,1.3]); axes(ctx,F,{xticks:[1,2,3,4,5,6],yticks:[-1,1],xlabel:'x'});
+    const xs=lin(0,6,1500); curve(ctx,F,xs,xs.map(x=>Math.cos(TAU*xi*x)),c.muted,1.6);
+    curve(ctx,F,xs,xs.map(x=>Math.cos(TAU*xa*x)),c.im,2.2,[6,4]);
+    for(let j=0;j*dx<=6.0001;j++) stem(ctx,F,j*dx,Math.cos(TAU*xi*j*dx),c.accent,3.5,1.4);
+    ({ctx,w,h}=setup($('cvAlF'),0.24));
+    F=frame(ctx,[30,8,w-40,h-26],[-4,4],[0,1.25]);
+    ctx.save();ctx.fillStyle=c.acS;ctx.fillRect(F.sx(-fs/2),F.box[1],F.sx(fs/2)-F.sx(-fs/2),F.box[3]);ctx.restore();
+    axes(ctx,F,{xticks:[-3,-2,-1,1,2,3],yticks:[],xlabel:'ξ'});
+    for(let j=-12;j<=12;j++) [xi,-xi].forEach(q=>{ const p=q+j*fs; if(p>=-4&&p<=4){ ctx.globalAlpha=j===0?1:0.35; arrowUp(ctx,F,p,j===0?1:0.85,j===0?c.accent:c.muted); ctx.globalAlpha=1; } });
+    text(ctx,'Nyquist band |ξ| < 1/(2Δx)',F.sx(-fs/2)+4,F.box[1]+12,c.accent);
+    const ok=xi<=fs/2+1e-9;
+    $('alOut').innerHTML=`<span>sampling rate 1/Δx = <b>${fs.toFixed(2)}</b></span><span>Nyquist frequency = <b>${(fs/2).toFixed(2)}</b></span><span>recovered frequency = <b>${xa.toFixed(2)}</b></span><span style="color:var(${ok?'--good':'--bad'})">${ok?'no aliasing':'aliased'}</span>`; }
+  on(['alF','alD'],draw);
+})();
+
+/* ---- DFT ---- */
+(function(){ if(!$('cvDftC')) return;
+  bindRange('dfN','dfNV');
+  function seq(N,k){ return {imp:[k===0?1:0,0], imps:[k===3?1:0,0], cos:[Math.cos(TAU*2*k/N),0], sin:[Math.sin(TAU*2*k/N),0], box:[k<4?1:0,0], exp:[Math.cos(TAU*3*k/N),Math.sin(TAU*3*k/N)]}; }
+  function draw(){ const N=+$('dfN').value; const kE=$('dfK'); kE.max=N-1; if(+kE.value>N-1) kE.value=N-1; const n=+kE.value; $('dfKV').textContent=n;
+    const sk=$('dfSeq').value; const f=[]; for(let k=0;k<N;k++) f.push(seq(N,k)[sk]);
+    const Fv=[]; for(let m=0;m<N;m++){ let s=[0,0]; for(let k=0;k<N;k++) s=cx.add(s,cx.mul(f[k],cx.exp(-TAU*k*m/N))); Fv.push(s); }
+    const c=C();
+    let {ctx,w,h}=setup($('cvDftC'),1); const R=w*0.34,X=w/2,Y=h/2; unitCircle(ctx,X,Y,R,{reLabel:'Re',imLabel:'Im'});
+    const seen={};
+    for(let k=0;k<N;k++){ const t=-TAU*k*n/N; const px=X+R*Math.cos(t), py=Y-R*Math.sin(t); const key=Math.round(px)+','+Math.round(py);
+      const act=Math.hypot(...f[k])>1e-9; ctx.fillStyle=act?c.accent:c.muted; ctx.beginPath(); ctx.arc(px,py,act?5:3,0,7); ctx.fill();
+      if(!seen[key]){ seen[key]=[]; } seen[key].push(k); }
+    Object.entries(seen).forEach(([key,ks])=>{ const [px,py]=key.split(',').map(Number); const lab=ks.length>3?ks.slice(0,3).join(',')+'…':ks.join(','); const dx=px-X, dy=py-Y, L=Math.hypot(dx,dy)||1; text(ctx,'k='+lab,px+dx/L*16,py+dy/L*14,c.muted,'center','middle','10px "IBM Plex Mono", monospace'); });
+    const z=Fv[n]; let mF=1e-9; Fv.forEach(v=>mF=Math.max(mF,Math.hypot(...v)));
+    arrow(ctx,X,Y,X+R*z[0]/mF,Y-R*z[1]/mF,c.ink,2.5);
+    text(ctx,'W_N^{kn}, n='+n,8,h-8,c.muted);
+    ({ctx,w,h}=setup($('cvDftS'),0.625));
+    let mx=0.5; Fv.forEach(v=>mx=Math.max(mx,Math.abs(v[0]),Math.abs(v[1]),Math.hypot(...v)));
+    const F=frame(ctx,[30,8,w-38,h-26],[-1,N],[-mx*1.15,mx*1.15]);
+    axes(ctx,F,{xticks:[0,N/2,N-1].filter((v,i,a)=>a.indexOf(v)===i),yticks:[],xlabel:'n',zeroLabel:true});
+    ctx.save();ctx.fillStyle=c.acS;ctx.fillRect(F.sx(n-0.45),F.box[1],F.sx(n+0.45)-F.sx(n-0.45),F.box[3]);ctx.restore();
+    ctx.save();ctx.strokeStyle=c.rule;ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(F.sx(N/2),F.box[1]);ctx.lineTo(F.sx(N/2),F.box[1]+F.box[3]);ctx.stroke();ctx.restore();
+    Fv.forEach((v,m)=>{ if(Math.abs(v[0])>1e-9) stem(ctx,F,m-0.15,v[0],c.re,2.5); if(Math.abs(v[1])>1e-9) stem(ctx,F,m+0.15,v[1],c.im,2.5);
+      ctx.save();ctx.strokeStyle=c.accent;ctx.beginPath();ctx.arc(F.sx(m),F.sy(Math.hypot(...v)),3.5,0,7);ctx.stroke();ctx.restore(); });
+    $('dfOut').innerHTML=`<span>F_${n} = <b class="re">${f2(z[0])}</b> + <b class="im">${f2(z[1])}</b>i</span><span>|F_${n}| = <b>${f2(Math.hypot(...z))}</b></span><span>black arrow = F_n / max|F|</span><span>dashed line: folding point N/2</span>`; }
+  on(['dfN','dfK','dfSeq'],draw);
+})();
+
+/* ---- MTF ---- */
+(function(){ if(!$('cvMtfW')) return;
+  bindRange('mtW','mtWV',v=>v.toFixed(2)); bindRange('mtF','mtFV',v=>v.toFixed(2));
+  function H(kind,w,k){ if(kind==='r') return [sinc(w*k),0];
+    const s=w/2.3548; const g=Math.exp(-2*PI*PI*s*s*k*k); if(kind==='g') return [g,0]; return cx.mul([g,0],cx.exp(-TAU*k*0.15)); }
+  function draw(){ const kind=$('mtK').value, wd=+$('mtW').value, k=+$('mtF').value; const c=C(); const A=1,Bm=0.8;
+    const z=H(kind,wd,k), m=Math.hypot(...z), ph=Math.atan2(z[1],z[0]);
+    let {ctx,w,h}=setup($('cvMtfW'),0.26);
+    let F=frame(ctx,[30,8,w-40,h-26],[0,3],[0,2]); axes(ctx,F,{xticks:[1,2,3],yticks:[1,2],xlabel:'x'});
+    const xs=lin(0,3,900);
+    curve(ctx,F,xs,xs.map(x=>A+Bm*Math.cos(TAU*k*x)),c.muted,1.6);
+    curve(ctx,F,xs,xs.map(x=>A+Bm*m*Math.cos(TAU*k*x+ph)),c.accent,2.4);
+    ({ctx,w,h}=setup($('cvMtfP'),1));
+    const R=w*0.36,X=w/2,Y=h/2; unitCircle(ctx,X,Y,R,{reLabel:'Re H/H(0)',imLabel:'Im'});
+    ctx.save();ctx.strokeStyle=c.accent;ctx.setLineDash([4,4]);ctx.beginPath();ctx.arc(X,Y,m*R,0,7);ctx.stroke();ctx.restore();
+    arrow(ctx,X,Y,X+z[0]*R,Y-z[1]*R,c.ink,2.5);
+    text(ctx,'MTF = length, Φ_H = angle',8,h-8,c.muted);
+    ({ctx,w,h}=setup($('cvMtfC'),0.625));
+    F=frame(ctx,[30,8,w-38,h-26],[0,5],[-0.3,1.1]); axes(ctx,F,{xticks:[1,2,3,4,5],yticks:[0.5,1],xlabel:'ξ'});
+    const ks=lin(0,5,600);
+    if(kind==='r') curve(ctx,F,ks,ks.map(q=>H(kind,wd,q)[0]),c.im,1.5,[5,4]);
+    curve(ctx,F,ks,ks.map(q=>Math.hypot(...H(kind,wd,q))),c.re,2.4);
+    ctx.fillStyle=c.accent;ctx.beginPath();ctx.arc(F.sx(k),F.sy(m),5,0,7);ctx.fill();
+    if(kind==='r') text(ctx,'dashed: Re H (sinc)',F.box[0]+F.box[2]-4,F.box[1]+12,c.im,'right');
+    $('mtOut').innerHTML=`<span>M_in = <b>0.800</b></span><span>M_out = <b>${(Bm*m).toFixed(3)}</b></span><span>MTF(ξ) = <b>${m.toFixed(3)}</b></span><span>phase Φ_H = <b>${ph.toFixed(3)}</b> rad${Math.abs(Math.abs(ph)-PI)<1e-6?' (contrast reversal)':''}</span>`; }
+  on(['mtK','mtW','mtF'],draw);
+})();
+
+})();
+
+/* ===== navigation + init ===== */
+(function(){
+  const list=document.getElementById('railList'), sel=document.getElementById('mnavSel'); if(!list) return;
+  const links=[];
+  document.querySelectorAll('section[data-nav]').forEach(sec=>{
+    const li=document.createElement('li'); li.className=sec.classList.contains('chapter')?'ch':'sub';
+    const a=document.createElement('a'); a.href='#'+sec.id; a.textContent=sec.getAttribute('data-nav').replace(/&amp;/g,'&');
+    li.appendChild(a); list.appendChild(li); links.push([sec,a]);
+    const o=document.createElement('option'); o.value=sec.id; o.textContent=(li.className==='sub'?'   ':'')+a.textContent; sel&&sel.appendChild(o);
+  });
+  sel&&sel.addEventListener('change',()=>{ const t=document.getElementById(sel.value); if(t) t.scrollIntoView({behavior:'smooth'}); });
+  const io=new IntersectionObserver(es=>{ es.forEach(e=>{ if(e.isIntersecting){ links.forEach(([s,a])=>a.classList.toggle('on',s===e.target)); if(sel) sel.value=e.target.id; } }); },{rootMargin:'-10% 0px -80% 0px'});
+  links.forEach(([s])=>io.observe(s));
+})();
+window.addEventListener('load',()=>{ LIB.redrawAll(); });
+(function wait(){ if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){ MathJax.startup.promise.then(()=>LIB.redrawAll()); } else setTimeout(wait,200); })();
+LIB.redrawAll();
+
+</script>
+
+</body></html>
